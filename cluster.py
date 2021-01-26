@@ -6,13 +6,14 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 from nltk import sent_tokenize
 from lib.sentence2vec import Sentence2Vec
-from train import clean
+from train import clean_text, clean_sentence
 
 
 model = Sentence2Vec('./data/word2vec.model')
 
-text = open('text\\joint_groupbuy_jhim.txt', 'r').read()
-sentences = [clean(sentence) for sentence in sent_tokenize(text)]
+# text = open('text\\joint_groupbuy_jhim.txt', 'r').read()
+text = clean_text(open('text\\joint_reorder_exit.txt', 'r').read())
+sentences = [clean_sentence(sentence) for sentence in sent_tokenize(text)]
 
 sentence_embeddings = np.array(
     [model.get_vector(sentence) for sentence in sentences
