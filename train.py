@@ -17,8 +17,10 @@ def clean_text(text):
               '(interviewer|interviewee|person [0-9]|participant)|'
               '\d{2}:\d{2}:\d{2}|\[(.*?)\]|\[|\]')
     text = re.sub(regexp, '', text)
-    # replace multiple spaces and newlines with one space
-    text = re.sub(r'\s+', ' ', text)
+    # replace "..." at the end of a line with "."
+    text = re.sub(r'\.\.\.[\r\n]', '.', text)
+    # replace multiple spaces with one space
+    text = re.sub(r' +', ' ', text)
     return text
 
 
@@ -26,8 +28,8 @@ def clean_sentence(sentence):
     return re.sub(r'[^A-Za-z ]+', '', sentence)
 
 
-# file_name = 'joint_groupbuy_jhim'
-file_name = 'joint_reorder_exit'
+file_name = 'joint_groupbuy_jhim'
+# file_name = 'joint_reorder_exit'
 text = clean_text(open('text\\' + file_name + '.txt', 'r').read())
 # tokenize and clean sentences
 sentences = [clean_sentence(sentence) for sentence in sent_tokenize(text)]

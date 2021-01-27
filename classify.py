@@ -11,14 +11,15 @@ from train import clean_text, clean_sentence
 
 model = Sentence2Vec('./data/word2vec.model')
 
-# file_name = 'joint_groupbuy_jhim'
-file_name = 'joint_reorder_exit'
+file_name = 'joint_groupbuy_jhim'
+# file_name = 'joint_reorder_exit'
 text = clean_text(open('text\\' + file_name + '.txt', 'r').read())
-sentences = [clean_sentence(sentence) for sentence in sent_tokenize(text)]
+sentences = [clean_sentence(sentence) for sentence in sent_tokenize(text)
+             if clean_sentence(sentence)
+             and not re.match('[.,…:;–\'’!?-]', clean_sentence(sentence))]
 
 sentence_embeddings = np.array([model.get_vector(sentence)
-                                for sentence in sentences
-                                if not re.match('[.,…:;–\'’!?-]', sentence)])
+                                for sentence in sentences])
 
 kmeans = KMeans(n_clusters=8)
 kmeans.fit(sentence_embeddings)
