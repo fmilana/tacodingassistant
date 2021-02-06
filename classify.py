@@ -4,6 +4,7 @@ import re
 from numpy.linalg import norm
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from kneed import KneeLocator
 from nltk import sent_tokenize
 from lib.sentence2vec import Sentence2Vec
 from train import clean_text, clean_sentence
@@ -31,8 +32,23 @@ class Classifier():
         self.sentence_embeddings = np.array([self.model.get_vector(sentence)
                                         for sentence in cleaned_sentences])
 
-        self.kmeans = KMeans(n_clusters=8)
-        self.kmeans.fit(self.sentence_embeddings)
+        # elbow method
+        inertias = []
+        kmeans_fit_list = []
+        for k in range(1, 15):
+            kmeans = KMeans(n_clusters=k)
+            kmeans_fit = kmeans.fit(self.sentence_embeddings)
+            kmeans_fit_list.append(kmeans_fit)
+            inertias.append(kmeans_fit.inertia_)
+
+        knee_locator = KneeLocator(
+            range(1, len(inertias)+1),
+            inertias,
+            curve='convex',
+            direction='decreasing'
+        )
+        optimum_k = knee_locator.knee
+        self.kmeans = kmeans_fit_list[optimum_k-1]
 
         # get the indices of the points for each corresponding cluster
         self.cluster_label_dict = {i: np.where(self.kmeans.labels_ == i)
