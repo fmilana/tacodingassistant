@@ -9,48 +9,83 @@ from lib.sentence2vec import Sentence2Vec
 from train import clean_text, clean_sentence
 
 
-model = Sentence2Vec('./data/word2vec.model')
+class Classifier():
+    model = None
+    kmeans = None
+    sentence_embeddings = None
+    cluster_label_dict = {}
+    original_sentence_dict = {}
 
-file_name = 'joint_groupbuy_jhim'
-# file_name = 'joint_reorder_exit'
-text = clean_text(open('text\\' + file_name + '.txt', 'r').read())
-sentences = [clean_sentence(sentence) for sentence in sent_tokenize(text)
-             if clean_sentence(sentence)
-             and not re.match('[.,…:;–\'’!?-]', clean_sentence(sentence))]
+    def classify(self, text):
+        self.model = Sentence2Vec('./data/word2vec.model')
+        text = clean_text(text)
 
-sentence_embeddings = np.array([model.get_vector(sentence)
-                                for sentence in sentences])
+        cleaned_sentences = []
 
-kmeans = KMeans(n_clusters=8)
-kmeans.fit(sentence_embeddings)
+        for sentence in sent_tokenize(text):
+            cleaned_sentence = clean_sentence(sentence)
+            self.original_sentence_dict[cleaned_sentence] = sentence
+            if not re.match('[.,…:;–\'’!?-]', cleaned_sentence):
+                cleaned_sentences.append(cleaned_sentence)
 
-# get the indices of the points for each corresponding cluster
-mydict = {i: np.where(kmeans.labels_ == i) for i in range(kmeans.n_clusters)}
-# transform the dictionary into list
-dictlist = []
-for cluster, labels in mydict.items():
-    dictlist.append([cluster, labels])
+        self.sentence_embeddings = np.array([self.model.get_vector(sentence)
+                                        for sentence in cleaned_sentences])
 
+        self.kmeans = KMeans(n_clusters=8)
+        self.kmeans.fit(self.sentence_embeddings)
 
-def get_cluster_from_label(label):
-    for key, labels in mydict.items():
-        if label in labels[0]:
-            return key
-
-
-def confidence(x_vector, y_vector):
-    if x_vector.size > 0 and y_vector.size > 0:
-        score = np.dot(x_vector, y_vector) / (norm(x_vector) * norm(y_vector))
-    return score
+        # get the indices of the points for each corresponding cluster
+        self.cluster_label_dict = {i: np.where(self.kmeans.labels_ == i)
+                       for i in range(self.kmeans.n_clusters)}
 
 
-def testsentence(num):
-    print('-----------------------------------------------------------------')
-    print('sentence: "' + model.get_sentence(sentence_embeddings[num]) + '"')
-    print('cluster: ' + str(get_cluster_from_label(num)))
-    print('confidence: ' + str(confidence(sentence_embeddings[num],
-           kmeans.cluster_centers_[get_cluster_from_label(num)])))
+    def get_cluster_from_label(self, label):
+        for key, labels in self.cluster_label_dict.items():
+            if label in labels[0]:
+                return key
 
 
-for i in range(15):
-    testsentence(i)
+    def get_confidence(self, x_vector, y_vector):
+        normd = norm(x_vector) * norm(y_vector)
+        if x_vector.size > 0 and y_vector.size > 0 and not normd == 0:
+            score = np.dot(x_vector, y_vector)/normd
+        else:
+            score = 0
+        return score
+
+
+    def get_cluster_label_dict(self):
+        return self.cluster_label_dict
+
+
+    def get_output_dict(self):
+        output_dict = {}
+        for num in range(1, self.sentence_embeddings.shape[0]):
+            sentence = self.model.get_sentence(self.sentence_embeddings[num])
+            cluster = self.get_cluster_from_label(num)
+            confidence = self.get_confidence(self.sentence_embeddings[num],
+                self.kmeans.cluster_centers_[self.get_cluster_from_label(num)])
+            original_sentence = self.original_sentence_dict[sentence]
+            output_dict[original_sentence] = [cluster, confidence]
+        # print(output_dict)
+        return output_dict
+
+
+    # def testsentence(self, num):
+    #     print('---------------------------------------------------------------')
+    #     print('sentence: "' + self.model.get_sentence(
+    #            self.sentence_embeddings[num]) + '"')
+    #     print('cluster: ' + str(self.get_cluster_from_label(num)))
+    #     print('confidence: ' + str(self.get_confidence(
+    #           self.sentence_embeddings[num],
+    #           self.kmeans.cluster_centers_[self.get_cluster_from_label(num)])))
+
+# classifier = Classifier()
+#
+# file_name = 'joint_groupbuy_jhim'
+# # file_name = 'joint_reorder_exit'
+# text = clean_text(open('text\\' + file_name + '.txt', 'r').read())
+# classifier.classify(text)
+#
+# for i in range(15):
+#     classifier.testsentence(i)

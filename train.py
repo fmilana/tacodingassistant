@@ -28,21 +28,24 @@ def clean_sentence(sentence):
     return re.sub(r'[^A-Za-z ]+', '', sentence)
 
 
-file_name = 'joint_groupbuy_jhim'
-# file_name = 'joint_reorder_exit'
-text = clean_text(open('text\\' + file_name + '.txt', 'r').read())
-# tokenize and clean sentences
-sentences = [clean_sentence(sentence) for sentence in sent_tokenize(text)]
-# tokenize sentences into words and remove "." or "..." sentences
-sentences_tokenized = [word_tokenize(sentence) for sentence in sentences]
+def train(text):
+    # remove interview format
+    text = clean_text(text)
+    # tokenize and clean sentences
+    sentences = [clean_sentence(sentence) for sentence in sent_tokenize(text)]
+    # tokenize sentences into words and remove "." or "..." sentences
+    sentences_tokenized = [word_tokenize(sentence) for sentence in sentences]
+    # https://radimrehurek.com/gensim/models/word2vec.html
+    model = Word2Vec(sentences_tokenized, sg=1, size=100, window=5,
+                     min_count=1, workers=4, iter=100)
+    # save model to file
+    model.save('./data/word2vec.model')
+    # for word2vec2tensor (tensorboard)
+    model.wv.save_word2vec_format('./data/word2vectf.model')
 
-# https://radimrehurek.com/gensim/models/word2vec.html
-model = Word2Vec(sentences_tokenized, sg=1, size=100, window=5,
-                 min_count=1, workers=4, iter=100)
-# save model to file
-model.save('./data/word2vec.model')
-# for word2vec2tensor (tensorboard)
-model.wv.save_word2vec_format('./data/word2vectf.model')
+
+file_name = 'joint_groupbuy_jhim'
+train(open('text\\' + file_name + '.txt', 'r').read())
 
 # for tensorboard:
 # python -m gensim.scripts.word2vec2tensor -i data/word2vectf.model -o data/
