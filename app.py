@@ -1,3 +1,4 @@
+import json
 from flask import Flask, request, render_template, jsonify
 from train import train
 from classify import Classifier
@@ -13,9 +14,16 @@ def hello():
 
 @app.route('/code/', methods=['POST'])
 def code():
+    train_text = open('text/combined_telephone.txt', 'r').read()
+    train(train_text)
     text = request.form['text']
-    train(text)
     classifier = Classifier()
     classifier.classify(text)
     output_dict = classifier.get_output_dict()
+    dump_classification(output_dict)
     return jsonify(output_dict)
+
+
+def dump_classification(dict):
+    with open('classification.txt', 'w') as f:
+        json.dump(dict, f, indent=4, ensure_ascii=False)

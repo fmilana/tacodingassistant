@@ -19,8 +19,8 @@ def clean_text(text):
     text = re.sub(regexp, '', text)
     # replace "..." at the end of a line with "."
     text = re.sub(r'\.\.\.[\r\n]', '.', text)
-    # replace multiple spaces with one space
-    text = re.sub(r' +', ' ', text)
+    # replace multiple spaces or newlines with one space
+    text = re.sub(r' +|[\r\n\t]+', ' ', text)
     return text
 
 
@@ -42,10 +42,11 @@ def train(text):
     model.save('./data/word2vec.model')
     # for word2vec2tensor (tensorboard)
     model.wv.save_word2vec_format('./data/word2vectf.model')
+    print('training done')
 
 
-file_name = 'joint_groupbuy_jhim'
-train(open('text\\' + file_name + '.txt', 'r').read())
+# file_name = 'joint_groupbuy_jhim'
+# train(open('text\\' + file_name + '.txt', 'r').read())
 
 # for tensorboard:
 # python -m gensim.scripts.word2vec2tensor -i data/word2vectf.model -o data/
