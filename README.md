@@ -2,15 +2,18 @@
 
 Using k-means clustering on word2vec embeddings to generate coding suggestions.
 
-To train the word2vec model:
+1) Run the local server:
 ```
-python train.py
+flask run
 ```
-To generate _tensor.tsv and _metadata.tsv files for Tensorboard Projector:
+2) Launch the Qt application:
+```
+python qt.py
+```
+3) Load a .txt file and press the "Code" button.
+
+4) Generate _tensor.tsv and _metadata.tsv files for Tensorflow's [Embedding Projector](https://projector.tensorflow.org/):
 ```
 python -m gensim.scripts.word2vec2tensor -i data/word2vecformat.model -o data/
 ```
-To classify the embeddings:
-```
-python cluster.py
-```
+KMeans classification dumped in "classification.txt".
