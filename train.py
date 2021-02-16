@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import re
+import logging
 from nltk import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from gensim.models import Word2Vec
@@ -31,13 +32,15 @@ def clean_sentence(sentence):
 def train(text):
     # remove interview format
     text = clean_text(text)
+    print('text length: ' + str(len(text)))
     # tokenize and clean sentences
     sentences = [clean_sentence(sentence) for sentence in sent_tokenize(text)]
     # tokenize sentences into words and remove "." or "..." sentences
     sentences_tokenized = [word_tokenize(sentence) for sentence in sentences]
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     # https://radimrehurek.com/gensim/models/word2vec.html
-    model = Word2Vec(sentences_tokenized, sg=1, size=100, window=5,
-                     min_count=1, workers=4, iter=100)
+    model = Word2Vec(sentences_tokenized, sg=1, size=128, window=5,
+        min_count=1, workers=4, iter=20)
     # save model to file
     model.save('./data/word2vec.model')
     # for word2vec2tensor (tensorboard)
