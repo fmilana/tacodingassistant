@@ -32,12 +32,12 @@ def clean_sentence(sentence):
 def train(text):
     # remove interview format
     text = clean_text(text)
-    print('text length: ' + str(len(text)))
     # tokenize and clean sentences
     sentences = [clean_sentence(sentence) for sentence in sent_tokenize(text)]
-    # tokenize sentences into words and remove "." or "..." sentences
+    # tokenize sentences into words
     sentences_tokenized = [word_tokenize(sentence) for sentence in sentences]
-    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s',
+        level=logging.INFO)
     # https://radimrehurek.com/gensim/models/word2vec.html
     model = Word2Vec(sentences_tokenized, sg=1, size=128, window=5,
         min_count=1, workers=4, iter=20)
