@@ -31,9 +31,9 @@ text_ds = tf.data.TextLineDataset(path_to_file).filter(
 
 
 def custom_standardization(input_data):
-  lowercase = tf.strings.lower(input_data)
-  return tf.strings.regex_replace(lowercase,
-                                  '[%s]' % re.escape(string.punctuation), '')
+    lowercase = tf.strings.lower(input_data)
+    return tf.strings.regex_replace(lowercase,
+        '[%s]' % re.escape(string.punctuation), '')
 
 
 # Define the vocabulary size and number of words in a sequence.
@@ -84,13 +84,13 @@ def generate_training_data(sequences, window_size, num_ns, vocab_size, seed):
             context_class = tf.expand_dims(tf.constant(
                 [context_word], dtype='int64'), 1)
             negative_sampling_candidates, _, _ = tf.random.log_uniform_candidate_sampler(
-                    true_classes=context_class,
-                    num_true=1,
-                    num_sampled=num_ns,
-                    unique=True,
-                    range_max=vocab_size,
-                    seed=SEED,
-                    name='negative_sampling')
+                true_classes=context_class,
+                num_true=1,
+                num_sampled=num_ns,
+                unique=True,
+                range_max=vocab_size,
+                seed=SEED,
+                name='negative_sampling')
             # Build context and label vectors (for one target word)
             negative_sampling_candidates = tf.expand_dims(
                 negative_sampling_candidates, 1)
