@@ -20,18 +20,38 @@ class Classifier():
     def __init__(self, model_name):
         self.model = Sentence2Vec(model_name)
 
+    def clean_text(self, text):
+        text = text.lower()
+        # remove interviewer
+        text = re.sub(r'iv[0-9]*[ \t].*', '', text)
+        # remove interview format
+        regexp = (r'p[0-9]+\w*|speaker key|r*user\s*\d+( - study \d+)*|'
+                  '(iv[0-9]*|ie|um|a[0-9]+)\t|'
+                  '(interviewer|interviewee|person [0-9]|participant)|'
+                  '\d{2}:\d{2}:\d{2}|\[(.*?)\]|\[|\]')
+        text = re.sub(regexp, '', text)
+        # replace "..." at the end of a line with "."
+        text = re.sub(r'\.\.\.[\r\n]', '.', text)
+        # replace multiple spaces or newlines with one space
+        text = re.sub(r' +|[\r\n\t]+', ' ', text)
+        return text
+
+
+    def clean_sentence(self, sentence):
+        return re.sub(r'[^A-Za-z ]+', '', sentence)
+
     def classify(self, text):
-        text = clean_text(text)
-        cleaned_sentences = []
+        text = self.clean_text(text)
+        clean_sentences = []
 
         for sentence in sent_tokenize(text):
-            cleaned_sentence = self.clean_sentence(sentence)
-            self.original_sentence_dict[cleaned_sentence] = sentence
-            if not re.match('[.,…:;–\'’!?-]', cleaned_sentence):
-                cleaned_sentences.append(cleaned_sentence)
+            clean_sentence = self.clean_sentence(sentence)
+            self.original_sentence_dict[clean_sentence] = sentence
+            if not re.match('[.,…:;–\'’!?-]', clean_sentence):
+                clean_sentences.append(clean_sentence)
 
         self.sentence_embeddings = np.array([self.model.get_vector(sentence)
-            for sentence in cleaned_sentences])
+            for sentence in clean_sentences])
 
         # elbow method
         inertias = []
@@ -86,23 +106,3 @@ class Classifier():
             output_dict[original_sentence] = [cluster, confidence]
         # print(output_dict)
         return output_dict
-
-
-    # def testsentence(self, num):
-    #     print('---------------------------------------------------------------')
-    #     print('sentence: "' + self.model.get_sentence(
-    #            self.sentence_embeddings[num]) + '"')
-    #     print('cluster: ' + str(self.get_cluster_from_label(num)))
-    #     print('confidence: ' + str(self.get_confidence(
-    #           self.sentence_embeddings[num],
-    #           self.kmeans.cluster_centers_[self.get_cluster_from_label(num)])))
-
-# classifier = Classifier()
-#
-# file_name = 'joint_groupbuy_jhim'
-# # file_name = 'joint_reorder_exit'
-# text = clean_text(open('text\\' + file_name + '.txt', 'r').read())
-# classifier.classify(text)
-#
-# for i in range(15):
-#     classifier.testsentence(i)
