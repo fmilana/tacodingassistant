@@ -6,12 +6,10 @@ Using k-means clustering on word2vec embeddings to generate coding suggestions.
 ```
 flask run
 ```
-3) Launch the Qt application:
+2) Launch the Qt application:
 ```
 python qt.py
 ```
-4) Load a .txt file and press the "Code" button.
-
-4) Visualise word embedding in Tensorflow's [Embedding Projector](https://projector.tensorflow.org/) by uploading vectors.tsv and metadata.tsv
+3) Load a .txt file and press the "Code" button.
 
 KMeans classification dumped in "classification.txt".
