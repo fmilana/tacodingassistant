@@ -1,5 +1,6 @@
 import re
 import numpy as np
+import gensim.downloader
 from numpy import dot
 from numpy.linalg import norm
 from gensim.models import Word2Vec
@@ -9,11 +10,8 @@ from nltk import word_tokenize
 class Sentence2Vec:
     vector_sentence_dict = {}
 
-    def __init__(self, model_file):
-        self.load(model_file)
-
-    def load(self, model_file):
-        self.model = Word2Vec.load(model_file)
+    def __init__(self, model_name):
+        self.model = gensim.downloader.load(model_name)
 
     def get_vector(self, sentence):
         # convert to lowercase, ignore all special characters - keep only

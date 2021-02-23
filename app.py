@@ -5,6 +5,7 @@ from classify import Classifier
 
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
+classifier = Classifier('word2vec-google-news-300')
 
 
 @app.route('/')
@@ -14,10 +15,7 @@ def hello():
 
 @app.route('/code/', methods=['POST'])
 def code():
-    train_text = open('text/combined_telephone.txt', 'r').read()
-    train(train_text)
     text = request.form['text']
-    classifier = Classifier()
     classifier.classify(text)
     output_dict = classifier.get_output_dict()
     dump_classification(output_dict)

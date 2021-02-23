@@ -17,12 +17,13 @@ class Classifier():
     cluster_label_dict = {}
     original_sentence_dict = {}
 
+    def __init__(self, model_name):
+        self.model = Sentence2Vec(model_name)
+
     def classify(self, text):
-        self.model = Sentence2Vec('./data/word2vec.model')
         text = clean_text(text)
-
         cleaned_sentences = []
-
+        
         for sentence in sent_tokenize(text):
             cleaned_sentence = clean_sentence(sentence)
             self.original_sentence_dict[cleaned_sentence] = sentence
