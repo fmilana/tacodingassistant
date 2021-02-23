@@ -2,11 +2,7 @@
 
 Using k-means clustering on word2vec embeddings to generate coding suggestions.
 
-1) Train the word2vec model:
-```
-python word_embedding.py
-```
-2) Run the local server:
+1) Run the local server (wait ~1 minute for the pre-trained model to load):
 ```
 flask run
 ```
