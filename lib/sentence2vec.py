@@ -1,6 +1,7 @@
 import re
 import csv
 import numpy as np
+import gensim.downloader
 from numpy import dot
 from numpy.linalg import norm
 from gensim.models import Word2Vec
@@ -11,10 +12,8 @@ class Sentence2Vec:
     word_vector_dict = {}
     vector_sentence_dict = {}
 
-    def __init__(self, words_vectors_file):
-        reader = csv.reader(open(words_vectors_file), delimiter='\t')
-        for row in reader:
-            self.word_vector_dict[row[0]] = np.fromstring(row[1][1:-1], sep=',')
+    def __init__(self, model_name):
+        self.model = gensim.downloader.load(model_name)
 
     def get_vector(self, sentence):
         # convert to lowercase, ignore all special characters - keep only
