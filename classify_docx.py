@@ -1,66 +1,47 @@
+import sys, os
+import re
+import zipfile
+import csv
 import docx
+import pandas as pd
 import numpy as np
-from export_docx_comments import process
+from bs4 import BeautifulSoup
 from nltk import sent_tokenize
 from sklearn.naive_bayes import MultinomialNB
 from lib.sentence2vec import Sentence2Vec
+from preprocess import clean_text, clean_sentence
 
 
-def get_text(file_name):
-    doc = docx.Document(file_name)
+model = Sentence2Vec('word2vec-google-news-300')
+sentence_embeddings_codes_dict = {}
+
+
+def get_text(file_path):
+    doc = docx.Document(file_path)
     full_text = []
     for paragraph in doc.paragraphs:
         full_text.append(paragraph.text)
     return '\n'.join(full_text)
 
 
-def clean_text(text):
-    text = text.lower()
-    # remove interviewer
-    text = re.sub(r'iv[0-9]*[ \t].*', '', text)
-    # remove interview format
-    regexp = (r'p[0-9]+\w*|speaker key|r*user\s*\d+( - study \d+)*|'
-              '(iv[0-9]*|ie|um|a[0-9]+)\t|'
-              '(interviewer|interviewee|person [0-9]|participant)|'
-              '\d{2}:\d{2}:\d{2}|\[(.*?)\]|\[|\]')
-    text = re.sub(regexp, '', text)
-    # replace "..." at the end of a line with "."
-    text = re.sub(r'\.\.\.[\r\n]', '.', text)
-    # replace multiple spaces or newlines with one space
-    text = re.sub(r' +|[\r\n\t]+', ' ', text)
-    return text
+def generate_sentence_embeddings_codes_dict(file_name):
+    docx_path = 'text/' + file_name + '.docx'
+    csv_path = 'text/' + file_name + '.csv'
 
+    text = get_text(docx_path)
 
-def clean_sentence(sentence):
-    return re.sub(r'[^A-Za-z ]+', '', sentence)
+    cleaned_sentences = []
+    for sentence in sent_tokenize(text):
+        cleaned_sentence = clean_sentence(clean_text(sentence))
+        if not re.match('[.,…:;–\'’!?-]', cleaned_sentence):
+            cleaned_sentences.append(cleaned_sentence)
 
-
-docx_name = 'joint_groupbuy_jhim.docx'
-src_dir = 'text/'
-dst_dir = 'text/'
-
-process(src_dir, src_dir)
-
-print('docx processed')
-
-text = get_text(src_dir + docx_name)
-clean_text = clean_text(text)
-
-model = Sentence2Vec('word2vec-google-news-300')
-
-clean_sentences = []
-
-for sentence in sent_tokenize(clean_text):
-    clean_sentence = self.clean_sentence(sentence)
-    self.original_sentence_dict[clean_sentence] = sentence
-    if not re.match('[.,…:;–\'’!?-]', clean_sentence):
-        clean_sentences.append(clean_sentence)
-
-self.sentence_embeddings = np.array([self.model.get_vector(sentence)
-    for sentence in clean_sentences])
-
-
-
-
-
-clf = MultinomialNB
+    df = pd.read_csv(csv_path, encoding='Windows-1252')
+    for cleaned_sentence in cleaned_sentences:
+        csv_df = df[df.iloc[:, 3].str.match(r'^' + cleaned_sentence + '$',
+            na=False)]
+        codes = []
+        if not csv_df.empty:
+            codes = list(csv_df.iloc[:, 4])
+        sentence_embeddings_codes_dict[
+            np.array([model.get_vector(cleaned_sentence)]).tobytes()] = codes
