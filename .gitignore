@@ -1,5 +1,7 @@
 *.pyc
 *.tsv
 *.model
+*.docx
+*.csv
 /logs
 classification.txt

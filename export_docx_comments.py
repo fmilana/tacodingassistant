@@ -4,6 +4,10 @@ import csv
 from nltk import sent_tokenize
 from bs4 import BeautifulSoup
 from preprocess import clean_text, clean_sentence
+from lib.sentence2vec import Sentence2Vec
+
+
+model = Sentence2Vec('word2vec-google-news-300')
 
 
 def transverse(start, end, text):
@@ -43,7 +47,7 @@ def process(in_filename, out_filename):
     with zipfile.ZipFile(in_filename, 'r') as archive:
         #for name in archive.namelist():
         #    print name
-        writer = csv.writer(open(out_filename, 'w'))
+        writer = csv.writer(open(out_filename, 'w', newline=''))
 
         doc_xml = archive.read('word/document.xml')
         #doc_soup = BeautifulSoup(doc_xml, 'xml')
@@ -70,15 +74,16 @@ def process(in_filename, out_filename):
             sentence_to_cleaned_dict = {}
             # split into sentences
             for sentence in sent_tokenize(text):
-                sentence_to_cleaned_dict[sentence] = clean_sentence(
-                    clean_text(sentence))
+                cleaned_sentence = clean_sentence(clean_text(sentence))
+                sentence_to_cleaned_dict[sentence] = [cleaned_sentence,
+                    model.get_vector(cleaned_sentence)]
 
             for code in all_codes:
                 if len(code.strip()) == 0:
                     continue
-                for sentence, cleaned_sentence in sentence_to_cleaned_dict.items():
-                    row = [in_filename, comment_id, sentence, cleaned_sentence,
-                        code]
+                for sentence, tuple in sentence_to_cleaned_dict.items():
+                    row = [in_filename, comment_id, sentence, tuple[0],
+                        tuple[1], code]
                     writer.writerow(row)
 
         os.remove('tmp.xml')

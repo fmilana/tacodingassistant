@@ -1,47 +1,38 @@
-import sys, os
-import re
-import zipfile
-import csv
-import docx
 import pandas as pd
 import numpy as np
-from bs4 import BeautifulSoup
-from nltk import sent_tokenize
-from sklearn.naive_bayes import MultinomialNB
-from lib.sentence2vec import Sentence2Vec
-from preprocess import clean_text, clean_sentence
+from sklearn import preprocessing
+from sklearn.neighbors import KNeighborsClassifier
 
 
-model = Sentence2Vec('word2vec-google-news-300')
-sentence_embeddings_codes_dict = {}
+csv_file_path = 'text/joint_groupbuy_jhim.csv'
 
 
-def get_text(file_path):
-    doc = docx.Document(file_path)
-    full_text = []
-    for paragraph in doc.paragraphs:
-        full_text.append(paragraph.text)
-    return '\n'.join(full_text)
+def generate_data_from_csv():
+    df = pd.read_csv(csv_file_path, encoding='Windows-1252')
+    # convert embedding string to np array
+    df.iloc[:, 4] = df.iloc[:, 4].apply(lambda x: np.fromstring(
+        x.replace('\n','')
+        .replace('[','')
+        .replace(']','')
+        .replace('  ',' '), sep=' '))
+    # create matrix from embedding array column
+    embedding_matrix = np.array(df.iloc[:, 4].tolist())
+    codes_array = df.iloc[:, 5].to_numpy()
+
+    print(f'embedding_matrix shape = {embedding_matrix.shape}')
+    print(f'codes_array shape = {codes_array.shape}')
+
+    le = preprocessing.LabelEncoder()
+    codes_encoded = le.fit_transform(codes_array)
+
+    return embedding_matrix, codes_encoded
 
 
-def generate_sentence_embeddings_codes_dict(file_name):
-    docx_path = 'text/' + file_name + '.docx'
-    csv_path = 'text/' + file_name + '.csv'
+def knn_classify(sentence_embedding_matrix):
+    training_embedding_matrix, codes_encoded = generate_data_from_csv()
 
-    text = get_text(docx_path)
-
-    cleaned_sentences = []
-    for sentence in sent_tokenize(text):
-        cleaned_sentence = clean_sentence(clean_text(sentence))
-        if not re.match('[.,…:;–\'’!?-]', cleaned_sentence):
-            cleaned_sentences.append(cleaned_sentence)
-
-    df = pd.read_csv(csv_path, encoding='Windows-1252')
-    for cleaned_sentence in cleaned_sentences:
-        csv_df = df[df.iloc[:, 3].str.match(r'^' + cleaned_sentence + '$',
-            na=False)]
-        codes = []
-        if not csv_df.empty:
-            codes = list(csv_df.iloc[:, 4])
-        sentence_embeddings_codes_dict[
-            np.array([model.get_vector(cleaned_sentence)]).tobytes()] = codes
+    clf = KNeighborsClassifier(n_neighbors=3)
+    clf.fit(training_embedding_matrix, codes_encoded)
+    print(f'predict = {clf.predict(sentence_embedding_matrix)}')
+    print(f'predict_proba = {clf.predict_proba(sentence_embedding_matrix)}')
+    print(f'score = {clf.score(sentence_embedding_matrix, codes_encoded)}')
