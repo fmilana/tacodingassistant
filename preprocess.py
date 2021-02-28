@@ -3,8 +3,6 @@ import re
 
 def clean_text(text):
     text = text.lower()
-    # remove interviewer
-    text = re.sub(r'iv[0-9]*[ \t].*', '', text)
     # remove interview format
     regexp = (r'p[0-9]+\w*|speaker key|r*user\s*\d+( - study \d+)*|'
               '(iv[0-9]*|ie|um|a[0-9]+)\t|'
@@ -16,6 +14,10 @@ def clean_text(text):
     # replace multiple spaces or newlines with one space
     text = re.sub(r' +|[\r\n\t]+', ' ', text)
     return text
+
+
+def remove_interviewer(text):
+    return re.sub(r'(?i)iv[0-9]*[ \t].*', '', text)
 
 
 def clean_sentence(sentence):

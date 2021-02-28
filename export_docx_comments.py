@@ -3,7 +3,7 @@ import zipfile
 import csv
 from nltk import sent_tokenize
 from bs4 import BeautifulSoup
-from preprocess import clean_text, clean_sentence
+from preprocess import clean_text, clean_sentence, remove_interviewer
 from lib.sentence2vec import Sentence2Vec
 
 
@@ -45,9 +45,10 @@ def transverse(start, end, text):
 def process(in_filename, out_filename):
     print('processing', in_filename)
     with zipfile.ZipFile(in_filename, 'r') as archive:
-        #for name in archive.namelist():
-        #    print name
         writer = csv.writer(open(out_filename, 'w', newline=''))
+        # csv header
+        writer.writerow(['file name', 'comment id', 'original sentence',
+            'cleaned sentence', 'sentence embedding', 'code'])
 
         doc_xml = archive.read('word/document.xml')
         #doc_soup = BeautifulSoup(doc_xml, 'xml')
@@ -70,6 +71,8 @@ def process(in_filename, out_filename):
 
             text = transverse(range_start, range_end, '')
             text = text.replace('\n', ' ')
+
+            text = remove_interviewer(text)
 
             sentence_to_cleaned_dict = {}
             # split into sentences
@@ -96,7 +99,7 @@ if os.path.isdir(src) and os.path.isdir(dst):
     files = [f for f in os.listdir(src) if f.endswith('.docx')]
     for f in files:
         src_file = os.path.join(src, f)
-        dst_file = os.path.join(dst, f.replace('.docx', '.csv'))
+        dst_file = os.path.join(dst, f.replace('.docx', '_train.csv'))
         process(src_file, dst_file)
 else:
     # src and dst are files
