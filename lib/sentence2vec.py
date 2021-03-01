@@ -12,7 +12,9 @@ class Sentence2Vec:
     vector_sentence_dict = {}
 
     def __init__(self, model_name):
+        print('loading model...')
         self.model = gensim.downloader.load(model_name)
+        print('done!')
 
     def get_vector(self, sentence):
         # convert to lowercase, ignore all special characters - keep only

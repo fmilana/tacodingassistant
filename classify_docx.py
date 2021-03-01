@@ -21,7 +21,8 @@ def generate_training_data():
             .replace('  ',' '), sep=' '))
     # create matrix from embedding array column
     embedding_matrix = np.array(train_df['sentence embedding'].tolist())
-    codes_array = train_df['code'].to_numpy()
+    # create array from codes column
+    codes_array = train_df['codes'].to_numpy()
 
     print(f'training_embedding_matrix shape = {embedding_matrix.shape}')
     print(f'codes_array shape = {codes_array.shape}')
@@ -63,7 +64,12 @@ import docx
 import pandas as pd
 from nltk import sent_tokenize
 from lib.sentence2vec import Sentence2Vec
-from preprocess import clean_text, clean_sentence, remove_interviewer
+from preprocess import (
+    clean_sentence,
+    clean_text,
+    remove_interviewer,
+    remove_stop_words)
+
 
 model = Sentence2Vec('word2vec-google-news-300')
 
@@ -94,7 +100,7 @@ uncoded_original_sentences = [sentence for sentence in all_original_sentences
 sentence_embedding_list = []
 
 for sentence in uncoded_original_sentences:
-    cleaned_sentence = clean_sentence(clean_text(sentence))
+    cleaned_sentence = clean_sentence(remove_stop_words(clean_text(sentence)))
     sentence_embedding = model.get_vector(cleaned_sentence)
 
     writer.writerow([docx_file_path, sentence, cleaned_sentence,

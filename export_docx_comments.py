@@ -3,7 +3,11 @@ import zipfile
 import csv
 from nltk import sent_tokenize
 from bs4 import BeautifulSoup
-from preprocess import clean_text, clean_sentence, remove_interviewer
+from preprocess import (
+    clean_sentence,
+    clean_text,
+    remove_interviewer,
+    remove_stop_words)
 from lib.sentence2vec import Sentence2Vec
 
 
@@ -48,7 +52,7 @@ def process(in_filename, out_filename):
         writer = csv.writer(open(out_filename, 'w', newline=''))
         # csv header
         writer.writerow(['file name', 'comment id', 'original sentence',
-            'cleaned sentence', 'sentence embedding', 'code'])
+            'cleaned sentence', 'sentence embedding', 'codes'])
 
         doc_xml = archive.read('word/document.xml')
         #doc_soup = BeautifulSoup(doc_xml, 'xml')
@@ -59,15 +63,15 @@ def process(in_filename, out_filename):
 
         #print 'comments:'#, comments_soup.find_all('w:comment')
         for comment in comments_soup.find_all('w:comment'):
-            #print '+++'
-            all_codes = comment.find_all('w:t')
-            all_codes = ''.join([x.text for x in all_codes])
-            all_codes = all_codes.split(';')
-            all_codes = [x.strip().rstrip().lower() for x in all_codes]
+            codes = comment.find_all('w:t')
+            codes = ''.join([x.text for x in codes])
+            codes = codes.strip().rstrip().lower()
             comment_id = comment['w:id']
 
-            range_start = doc_soup.find('w:commentrangestart', attrs={'w:id': comment_id})
-            range_end = doc_soup.find('w:commentrangeend', attrs={'w:id': comment_id})
+            range_start = doc_soup.find('w:commentrangestart',
+                attrs={'w:id': comment_id})
+            range_end = doc_soup.find('w:commentrangeend',
+                attrs={'w:id': comment_id})
 
             text = transverse(range_start, range_end, '')
             text = text.replace('\n', ' ')
@@ -75,19 +79,17 @@ def process(in_filename, out_filename):
             text = remove_interviewer(text)
 
             sentence_to_cleaned_dict = {}
-            # split into sentences
+            # split text into sentences
             for sentence in sent_tokenize(text):
-                cleaned_sentence = clean_sentence(clean_text(sentence))
+                cleaned_sentence = clean_sentence(
+                    remove_stop_words(clean_text(sentence)))
                 sentence_to_cleaned_dict[sentence] = [cleaned_sentence,
                     model.get_vector(cleaned_sentence)]
 
-            for code in all_codes:
-                if len(code.strip()) == 0:
-                    continue
-                for sentence, tuple in sentence_to_cleaned_dict.items():
-                    row = [in_filename, comment_id, sentence, tuple[0],
-                        tuple[1], code]
-                    writer.writerow(row)
+            for sentence, tuple in sentence_to_cleaned_dict.items():
+                row = [in_filename, comment_id, sentence, tuple[0],
+                    tuple[1], codes]
+                writer.writerow(row)
 
         os.remove('tmp.xml')
 

@@ -1,4 +1,12 @@
 import re
+from nltk.tokenize import word_tokenize
+# from nltk.corpus import stopwords
+
+
+def remove_interviewer(text):
+    text = re.sub(r'(?i)iv[0-9]*[ \t].*', '', text)
+    text = re.sub(r'[ ]{2,}', ' ', text).strip()
+    return text
 
 
 def clean_text(text):
@@ -9,16 +17,32 @@ def clean_text(text):
               '(interviewer|interviewee|person [0-9]|participant)|'
               '\d{2}:\d{2}:\d{2}|\[(.*?)\]|\[|\]')
     text = re.sub(regexp, '', text)
-    # replace "..." at the end of a line with "."
+    # replace '...' at the end of a line with '.'
     text = re.sub(r'\.\.\.[\r\n]', '.', text)
     # replace multiple spaces or newlines with one space
     text = re.sub(r' +|[\r\n\t]+', ' ', text)
+    # replace multiple spaces with one and strip string
+    text = re.sub(r'[ ]{2,}', ' ', text).strip()
     return text
 
 
-def remove_interviewer(text):
-    return re.sub(r'(?i)iv[0-9]*[ \t].*', '', text)
+def remove_stop_words(text):
+    stopwords_text = open('text/gist_stopwords.txt', 'r').read()
+    stopwords = stopwords_text.split(',')
 
+    word_tokens = [word for word in word_tokenize(text)
+        if word not in stopwords]
+    text = ' '.join(word_tokens)
+    return text
 
 def clean_sentence(sentence):
-    return re.sub(r'[^A-Za-z ]+', '', sentence)
+    sentence = re.sub(r'[^A-Za-z ]+', '', sentence)
+    sentence = re.sub(r'[ ]{2,}', ' ', sentence).strip()
+    return sentence
+
+
+# Order:
+# 1. remove interviewer
+# 2. clean text
+# 3. remove stopwords
+# 4. clean_sentence
