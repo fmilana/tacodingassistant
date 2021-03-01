@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 from kneed import KneeLocator
 from nltk import sent_tokenize
 from lib.sentence2vec import Sentence2Vec
-from preprocess import clean_text, clean_sentence
+from preprocess import remove_interview_format, clean_sentence
 
 
 class Classifier():
@@ -18,12 +18,12 @@ class Classifier():
     cluster_label_dict = {}
     original_sentence_dict = {}
 
-    def __init__(self, model_name):
-        self.model = Sentence2Vec(model_name)
+    def __init__(self):
+        self.model = Sentence2Vec()
 
 
     def classify(self, text):
-        text = clean_text(text)
+        text = remove_interview_format(text)
         cleaned_sentences = []
 
         for sentence in sent_tokenize(text):

@@ -9,12 +9,14 @@ from nltk import word_tokenize
 
 
 class Sentence2Vec:
+    model_name = 'word2vec-google-news-300'
+
     vector_sentence_dict = {}
 
-    def __init__(self, model_name):
+    def __init__(self):
         print('loading model...')
-        self.model = gensim.downloader.load(model_name)
-        print('done!')
+        self.model = gensim.downloader.load(self.model_name)
+        print('done')
 
     def get_vector(self, sentence):
         # convert to lowercase, ignore all special characters - keep only

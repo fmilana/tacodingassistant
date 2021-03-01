@@ -1,7 +1,7 @@
 from lib.sentence2vec import Sentence2Vec
 
 
-model = Sentence2Vec('./data/word2vec.model')
+model = Sentence2Vec()
 
 print(model.get_vector('All right'))
 

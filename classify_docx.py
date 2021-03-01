@@ -8,53 +8,78 @@ from sklearn.neighbors import KNeighborsClassifier
 train_file_path = 'text/joint_groupbuy_jhim_train.csv'
 predict_file_path = 'text/joint_groupbuy_jhim_predict.csv'
 
-train_df = pd.read_csv(train_file_path, encoding='Windows-1252')
+coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 
 
-def generate_training_data():
+def generate_training_and_testing_data():
     # convert embedding string to np array
-    train_df['sentence embedding'] = train_df['sentence embedding'].apply(
+    coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
         lambda x: np.fromstring(
             x.replace('\n','')
             .replace('[','')
             .replace(']','')
             .replace('  ',' '), sep=' '))
-    # create matrix from embedding array column
-    embedding_matrix = np.array(train_df['sentence embedding'].tolist())
-    # create array from codes column
-    codes_array = train_df['codes'].to_numpy()
 
-    print(f'training_embedding_matrix shape = {embedding_matrix.shape}')
-    print(f'codes_array shape = {codes_array.shape}')
 
+    # split into training and testing
+    by_codes = coded_df.groupby('codes')
+
+    training_list = []
+    testing_list = []
+    # we now iterate by codes
+    for name, group in by_codes:
+        training = group.sample(frac=.8)
+        testing = group.loc[~group.index.isin(training.index)]
+        training_list.append(training)
+        testing_list.append(testing)
+    # create two new dataframes from the lists
+    train_df = pd.concat(training_list)
+    test_df = pd.concat(testing_list)
+
+
+    # create matrices from embedding array columns
+    train_embedding_matrix = np.array(train_df['sentence embedding'].tolist())
+    test_embedding_matrix = np.array(test_df['sentence embedding'].tolist())
+    # create arrays from codes column
+    codes_array = coded_df['codes'].to_numpy()
+    # fit label encoder on all codes
     le = preprocessing.LabelEncoder()
-    codes_encoded = le.fit_transform(codes_array)
+    le.fit(codes_array)
+    # create arrays from training and testing codes
+    train_codes_array = train_df['codes'].to_numpy()
+    test_codes_array = test_df['codes'].to_numpy()
+    # encode them
+    train_codes_encoded = le.transform(train_codes_array)
+    test_codes_encoded = le.transform(test_codes_array)
 
-    return embedding_matrix, codes_encoded, le
+    return (train_embedding_matrix, test_embedding_matrix,
+        train_codes_encoded, test_codes_encoded, le)
 
 
 def add_classification_to_csv(predicted_codes, predicted_proba):
-    # print(predicted_codes.tolist())
-
     predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
-    new_columns = pd.DataFrame({'predicted code': predicted_codes.tolist()})
-        # 'probability': predicted_proba.tolist()})
+    new_columns = pd.DataFrame({'predicted code': predicted_codes.tolist(),
+        'probability': list(map(np.amax, predicted_proba.tolist()))})
     predict_df = predict_df.merge(new_columns, left_index=True,
         right_index=True)
     predict_df.to_csv(predict_file_path, index=False)
 
 
 def knn_classify(sentence_embedding_matrix):
-    training_embedding_matrix, codes_encoded, le = generate_training_data()
+    (train_embedding_matrix, test_embedding_matrix, train_codes_encoded,
+        test_codes_encoded, le) = generate_training_and_testing_data()
 
-    clf = KNeighborsClassifier(n_neighbors=3)
-    clf.fit(training_embedding_matrix, codes_encoded)
+    clf = KNeighborsClassifier(n_neighbors=5)
+    clf.fit(train_embedding_matrix, train_codes_encoded)
+
+    test_score = clf.score(test_embedding_matrix, test_codes_encoded)
+    print(f'test score >>>>>>>>>> {test_score}')
+
     prediction_array = clf.predict(sentence_embedding_matrix)
+
     predicted_codes = le.inverse_transform(prediction_array)
 
     predicted_proba = clf.predict_proba(sentence_embedding_matrix)
-    print(f'predicted_codes.shape: {predicted_codes.shape}')
-    print(f'predicted_proba.shape: {predicted_proba.shape}')
 
     add_classification_to_csv(predicted_codes, predicted_proba)
 
@@ -66,12 +91,12 @@ from nltk import sent_tokenize
 from lib.sentence2vec import Sentence2Vec
 from preprocess import (
     clean_sentence,
-    clean_text,
+    remove_interview_format,
     remove_interviewer,
     remove_stop_words)
 
 
-model = Sentence2Vec('word2vec-google-news-300')
+model = Sentence2Vec()
 
 def get_text(file_path):
     doc = docx.Document(file_path)
@@ -90,7 +115,7 @@ writer = csv.writer(open(predict_file_path, 'w', newline=''))
 writer.writerow(['file name', 'original sentence', 'cleaned_sentence',
     'sentence embedding'])
 
-coded_original_sentences = train_df['original sentence'].tolist()
+coded_original_sentences = coded_df['original sentence'].tolist()
 
 all_original_sentences = sent_tokenize(text)
 
@@ -100,7 +125,8 @@ uncoded_original_sentences = [sentence for sentence in all_original_sentences
 sentence_embedding_list = []
 
 for sentence in uncoded_original_sentences:
-    cleaned_sentence = clean_sentence(remove_stop_words(clean_text(sentence)))
+    cleaned_sentence = clean_sentence(remove_stop_words(
+        remove_interview_format(sentence)))
     sentence_embedding = model.get_vector(cleaned_sentence)
 
     writer.writerow([docx_file_path, sentence, cleaned_sentence,

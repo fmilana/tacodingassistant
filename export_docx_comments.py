@@ -5,13 +5,13 @@ from nltk import sent_tokenize
 from bs4 import BeautifulSoup
 from preprocess import (
     clean_sentence,
-    clean_text,
+    remove_interview_format,
     remove_interviewer,
     remove_stop_words)
 from lib.sentence2vec import Sentence2Vec
 
 
-model = Sentence2Vec('word2vec-google-news-300')
+model = Sentence2Vec()
 
 
 def transverse(start, end, text):
@@ -82,7 +82,7 @@ def process(in_filename, out_filename):
             # split text into sentences
             for sentence in sent_tokenize(text):
                 cleaned_sentence = clean_sentence(
-                    remove_stop_words(clean_text(sentence)))
+                    remove_stop_words(remove_interview_format(sentence)))
                 sentence_to_cleaned_dict[sentence] = [cleaned_sentence,
                     model.get_vector(cleaned_sentence)]
 
