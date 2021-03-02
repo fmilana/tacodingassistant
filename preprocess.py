@@ -27,12 +27,12 @@ def remove_interview_format(text):
 
 
 def remove_stop_words(text):
-    # stopwords_text = open('text/gist_stopwords.txt', 'r').read()
-    # stopwords = stopwords_text.split(',')
-    #
-    # word_tokens = [word for word in word_tokenize(text)
-    #     if word not in stopwords]
-    # text = ' '.join(word_tokens)
+    stopwords_text = open('text/gist_stopwords.txt', 'r').read()
+    stopwords = stopwords_text.split(',')
+
+    word_tokens = [word for word in word_tokenize(text)
+        if word not in stopwords]
+    text = ' '.join(word_tokens)
     return text
 
 def clean_sentence(sentence):

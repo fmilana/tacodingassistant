@@ -9,14 +9,17 @@ from nltk import word_tokenize
 
 
 class Sentence2Vec:
+    # https://github.com/RaRe-Technologies/gensim-data
     model_name = 'word2vec-google-news-300'
 
     vector_sentence_dict = {}
+
 
     def __init__(self):
         print('loading model...')
         self.model = gensim.downloader.load(self.model_name)
         print('done')
+
 
     def get_vector(self, sentence):
         # convert to lowercase, ignore all special characters - keep only
@@ -36,8 +39,10 @@ class Sentence2Vec:
 
         return sentence_vector
 
+
     def get_sentence(self, vector):
         return self.vector_sentence_dict.get(vector.tobytes())
+
 
     def similarity(self, x, y):
         # calculates similarity based on distance between vectors

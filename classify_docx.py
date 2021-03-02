@@ -1,8 +1,12 @@
 import csv
 import pandas as pd
 import numpy as np
-from sklearn import preprocessing
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import MultinomialNB, GaussianNB
+from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.neural_network import MLPClassifier
 
 
 train_file_path = 'text/joint_groupbuy_jhim_train.csv'
@@ -41,13 +45,13 @@ def generate_training_and_testing_data():
     train_embedding_matrix = np.array(train_df['sentence embedding'].tolist())
     test_embedding_matrix = np.array(test_df['sentence embedding'].tolist())
     # create arrays from codes column
-    codes_array = coded_df['codes'].to_numpy()
+    codes_array = coded_df['codes'].values
     # fit label encoder on all codes
-    le = preprocessing.LabelEncoder()
+    le = LabelEncoder()
     le.fit(codes_array)
     # create arrays from training and testing codes
-    train_codes_array = train_df['codes'].to_numpy()
-    test_codes_array = test_df['codes'].to_numpy()
+    train_codes_array = train_df['codes'].values
+    test_codes_array = test_df['codes'].values
     # encode them
     train_codes_encoded = le.transform(train_codes_array)
     test_codes_encoded = le.transform(test_codes_array)
@@ -65,11 +69,16 @@ def add_classification_to_csv(predicted_codes, predicted_proba):
     predict_df.to_csv(predict_file_path, index=False)
 
 
-def knn_classify(sentence_embedding_matrix):
+def classify(sentence_embedding_matrix, clf):
     (train_embedding_matrix, test_embedding_matrix, train_codes_encoded,
         test_codes_encoded, le) = generate_training_and_testing_data()
 
-    clf = KNeighborsClassifier(n_neighbors=5)
+    # scale data to [0-1] to avoid negative data passed to MultinomialNB
+    if isinstance(clf, MultinomialNB):
+        scaler = MinMaxScaler()
+        train_embedding_matrix = scaler.fit_transform(train_embedding_matrix)
+        test_embedding_matrix = scaler.fit_transform(test_embedding_matrix)
+
     clf.fit(train_embedding_matrix, train_codes_encoded)
 
     test_score = clf.score(test_embedding_matrix, test_codes_encoded)
@@ -136,5 +145,13 @@ for sentence in uncoded_original_sentences:
 
 sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
+# Classifiers:
+# clf = KNeighborsClassifier(n_neighbors=5)
+# clf = MultinomialNB()
+# clf = GaussianNB()
+clf = tree.DecisionTreeClassifier()
+# clf = RandomForestClassifier(max_depth=2, random_state=0)
+# clf = MLPClassifier(alpha=1, max_iter=1000)
+# clf = AdaBoostClassifier()
 
-knn_classify(sentence_embedding_matrix)
+classify(sentence_embedding_matrix, clf)
