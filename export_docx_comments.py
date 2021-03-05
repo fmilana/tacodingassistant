@@ -52,10 +52,13 @@ def transverse(start, end, text):
 def process(in_filename, out_filename):
     print('processing', in_filename)
     with zipfile.ZipFile(in_filename, 'r') as archive:
+        # write header
+        header = ['file name', 'comment id', 'original sentence',
+            'cleaned sentence', 'sentence embedding', 'codes', 'themes']
+        themes_list = cat_df.category.unique()
+        header.extend(themes_list)
         writer = csv.writer(open(out_filename, 'w', newline=''))
-        # csv header
-        writer.writerow(['file name', 'comment id', 'original sentence',
-            'cleaned sentence', 'sentence embedding', 'codes', 'themes'])
+        writer.writerow(header)
 
         doc_xml = archive.read('word/document.xml')
         #doc_soup = BeautifulSoup(doc_xml, 'xml')
@@ -110,8 +113,15 @@ def process(in_filename, out_filename):
 
             if len(themes) > 0:
                 for sentence, tuple in sentence_to_cleaned_dict.items():
+                    themes_binary = []
+                    for theme in themes_list:
+                        if theme in themes:
+                            themes_binary.append(1)
+                        else:
+                            themes_binary.append(0)
                     row = [in_filename, comment_id, sentence, tuple[0],
                         tuple[1], codes, themes]
+                    row.extend(themes_binary)
                     writer.writerow(row)
 
         os.remove('tmp.xml')

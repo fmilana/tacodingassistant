@@ -13,6 +13,7 @@ train_file_path = 'text/reorder_exit_train.csv'
 predict_file_path = 'text/reorder_exit_predict.csv'
 
 coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
+cat_df = pd.read_csv('text/reorder_categories.csv')
 
 
 def generate_training_and_testing_data():
@@ -42,36 +43,27 @@ def generate_training_and_testing_data():
     # create matrices from embedding array columns
     train_embedding_matrix = np.array(train_df['sentence embedding'].tolist())
     test_embedding_matrix = np.array(test_df['sentence embedding'].tolist())
-    # create arrays from codes column
-    themes_array = coded_df['themes'].values
-    # fit label encoder on all codes
-    le = LabelEncoder()
-    le.fit(themes_array)
-    # create arrays from training and testing codes
-    train_themes_array = train_df['themes'].values
-    test_themes_array = test_df['themes'].values
-    # encode them
-    train_themes_encoded = le.transform(train_themes_array)
-    test_themes_encoded = le.transform(test_themes_array)
+    # create matrices from theme binary columns
+    train_themes_binary_matrix = train_df.iloc[:, 7:].to_numpy()
+    test_themes_binary_matrix = test_df.iloc[:, 7:].to_numpy()
 
     return (train_embedding_matrix, test_embedding_matrix,
-        train_themes_encoded, test_themes_encoded, le)
+        train_themes_binary_matrix, test_themes_binary_matrix)
 
 
-def add_classification_to_csv(predicted_themes, predicted_proba):
+def add_classification_to_csv(prediction_array, predicted_proba):
     predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
-    new_columns = pd.DataFrame({'predicted theme': predicted_themes.tolist(),
-        'probability': list(map(np.amax, predicted_proba.tolist()))})
-    predict_df = predict_df.merge(new_columns, left_index=True,
-        right_index=True)
+
+    themes_list = cat_df.category.unique()
+    new_df = pd.DataFrame(data=prediction_array, columns=themes_list)
+
+    predict_df = predict_df.merge(new_df, left_index=True, right_index=True)
     predict_df.to_csv(predict_file_path, index=False)
 
 
 def classify(sentence_embedding_matrix, clf):
-    (train_embedding_matrix, test_embedding_matrix, train_themes_encoded,
-        test_themes_encoded, le) = generate_training_and_testing_data()
-
-    print(f'number of themes in train: {np.unique(train_themes_encoded).size}')
+    (train_embedding_matrix, test_embedding_matrix, train_themes_binary_matrix,
+        test_themes_binary_matrix) = generate_training_and_testing_data()
 
     # scale data to [0-1] to avoid negative data passed to MultinomialNB
     if isinstance(clf, MultinomialNB):
@@ -79,18 +71,16 @@ def classify(sentence_embedding_matrix, clf):
         train_embedding_matrix = scaler.fit_transform(train_embedding_matrix)
         test_embedding_matrix = scaler.fit_transform(test_embedding_matrix)
 
-    clf.fit(train_embedding_matrix, train_themes_encoded)
+    clf.fit(train_embedding_matrix, train_themes_binary_matrix)
 
-    test_score = clf.score(test_embedding_matrix, test_themes_encoded)
+    test_score = clf.score(test_embedding_matrix, test_themes_binary_matrix)
     print(f'test score >>>>>>>>>> {test_score}')
 
     prediction_array = clf.predict(sentence_embedding_matrix)
 
-    predicted_themes = le.inverse_transform(prediction_array)
-
     predicted_proba = clf.predict_proba(sentence_embedding_matrix)
 
-    add_classification_to_csv(predicted_themes, predicted_proba)
+    add_classification_to_csv(prediction_array, predicted_proba)
 
 
 # move to app.py?
@@ -114,8 +104,8 @@ def get_text(file_path):
         full_text.append(paragraph.text)
     return '\n'.join(full_text)
 
-docx_file_path = 'text/groupbuy_jhim.docx'
-predict_file_path = 'text/groupbuy_jhim_predict.csv'
+docx_file_path = 'text/reorder_exit.docx'
+predict_file_path = 'text/reorder_exit_predict.csv'
 
 text = get_text(docx_file_path)
 text = remove_interviewer(text)
