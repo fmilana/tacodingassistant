@@ -1,10 +1,10 @@
 import re
 from nltk.tokenize import word_tokenize
-# from nltk.corpus import stopwords
+from nltk.corpus import stopwords
 
 
 def remove_interviewer(text):
-    text = re.sub(r'(?i)iv[0-9]*[ \t].*', '', text)
+    text = re.sub(r'(?i)(p1|iv[0-9]*)[ \t].*', '', text)
     text = re.sub(r'[ ]{2,}', ' ', text).strip()
     return text
 
@@ -27,11 +27,12 @@ def remove_interview_format(text):
 
 
 def remove_stop_words(text):
-    stopwords_text = open('text/gist_stopwords.txt', 'r').read()
-    stopwords = stopwords_text.split(',')
+    stop_words = set(stopwords.words('english'))
+    extra_stop_words_text = open('text/extra_stopwords.txt', 'r').read()
+    extra_stop_words = extra_stop_words_text.split(',')
 
     word_tokens = [word for word in word_tokenize(text)
-        if word not in stopwords]
+        if word not in stop_words and word not in extra_stop_words]
     text = ' '.join(word_tokens)
     return text
 

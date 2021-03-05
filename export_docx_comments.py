@@ -1,6 +1,7 @@
 import sys, os
 import zipfile
 import csv
+import pandas as pd
 from nltk import sent_tokenize
 from bs4 import BeautifulSoup
 from preprocess import (
@@ -12,6 +13,8 @@ from lib.sentence2vec import Sentence2Vec
 
 
 model = Sentence2Vec()
+
+cat_df = pd.read_csv('text/reorder_categories.csv')
 
 
 def transverse(start, end, text):
@@ -52,7 +55,7 @@ def process(in_filename, out_filename):
         writer = csv.writer(open(out_filename, 'w', newline=''))
         # csv header
         writer.writerow(['file name', 'comment id', 'original sentence',
-            'cleaned sentence', 'sentence embedding', 'codes'])
+            'cleaned sentence', 'sentence embedding', 'codes', 'themes'])
 
         doc_xml = archive.read('word/document.xml')
         #doc_soup = BeautifulSoup(doc_xml, 'xml')
@@ -86,10 +89,30 @@ def process(in_filename, out_filename):
                 sentence_to_cleaned_dict[sentence] = [cleaned_sentence,
                     model.get_vector(cleaned_sentence)]
 
-            for sentence, tuple in sentence_to_cleaned_dict.items():
-                row = [in_filename, comment_id, sentence, tuple[0],
-                    tuple[1], codes]
-                writer.writerow(row)
+            if ';' in codes:
+                themes = []
+                for code in codes.split('; '):
+                    theme_df = cat_df.loc[cat_df['code'] == code, 'category']
+                    if theme_df.shape[0] > 0:
+                        theme = theme_df.item()
+                    # else:
+                    #     theme = 'none'
+                    if theme not in themes:
+                        themes.append(theme)
+                themes = sorted(themes, key=str.casefold)
+                themes = '; '.join(themes)
+            else:
+                theme_df = cat_df.loc[cat_df['code'] == codes, 'category']
+                if theme_df.shape[0] > 0:
+                    themes = theme_df.item()
+                # else:
+                #     themes = 'none'
+
+            if len(themes) > 0:
+                for sentence, tuple in sentence_to_cleaned_dict.items():
+                    row = [in_filename, comment_id, sentence, tuple[0],
+                        tuple[1], codes, themes]
+                    writer.writerow(row)
 
         os.remove('tmp.xml')
 

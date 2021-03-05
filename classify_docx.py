@@ -9,8 +9,8 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.neural_network import MLPClassifier
 
 
-train_file_path = 'text/joint_groupbuy_jhim_train.csv'
-predict_file_path = 'text/joint_groupbuy_jhim_predict.csv'
+train_file_path = 'text/reorder_exit_train.csv'
+predict_file_path = 'text/reorder_exit_predict.csv'
 
 coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 
@@ -24,14 +24,13 @@ def generate_training_and_testing_data():
             .replace(']','')
             .replace('  ',' '), sep=' '))
 
-
     # split into training and testing
-    by_codes = coded_df.groupby('codes')
+    by_themes = coded_df.groupby('themes')
 
     training_list = []
     testing_list = []
     # we now iterate by codes
-    for name, group in by_codes:
+    for name, group in by_themes:
         training = group.sample(frac=.8)
         testing = group.loc[~group.index.isin(training.index)]
         training_list.append(training)
@@ -40,29 +39,28 @@ def generate_training_and_testing_data():
     train_df = pd.concat(training_list)
     test_df = pd.concat(testing_list)
 
-
     # create matrices from embedding array columns
     train_embedding_matrix = np.array(train_df['sentence embedding'].tolist())
     test_embedding_matrix = np.array(test_df['sentence embedding'].tolist())
     # create arrays from codes column
-    codes_array = coded_df['codes'].values
+    themes_array = coded_df['themes'].values
     # fit label encoder on all codes
     le = LabelEncoder()
-    le.fit(codes_array)
+    le.fit(themes_array)
     # create arrays from training and testing codes
-    train_codes_array = train_df['codes'].values
-    test_codes_array = test_df['codes'].values
+    train_themes_array = train_df['themes'].values
+    test_themes_array = test_df['themes'].values
     # encode them
-    train_codes_encoded = le.transform(train_codes_array)
-    test_codes_encoded = le.transform(test_codes_array)
+    train_themes_encoded = le.transform(train_themes_array)
+    test_themes_encoded = le.transform(test_themes_array)
 
     return (train_embedding_matrix, test_embedding_matrix,
-        train_codes_encoded, test_codes_encoded, le)
+        train_themes_encoded, test_themes_encoded, le)
 
 
-def add_classification_to_csv(predicted_codes, predicted_proba):
+def add_classification_to_csv(predicted_themes, predicted_proba):
     predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
-    new_columns = pd.DataFrame({'predicted code': predicted_codes.tolist(),
+    new_columns = pd.DataFrame({'predicted theme': predicted_themes.tolist(),
         'probability': list(map(np.amax, predicted_proba.tolist()))})
     predict_df = predict_df.merge(new_columns, left_index=True,
         right_index=True)
@@ -70,8 +68,10 @@ def add_classification_to_csv(predicted_codes, predicted_proba):
 
 
 def classify(sentence_embedding_matrix, clf):
-    (train_embedding_matrix, test_embedding_matrix, train_codes_encoded,
-        test_codes_encoded, le) = generate_training_and_testing_data()
+    (train_embedding_matrix, test_embedding_matrix, train_themes_encoded,
+        test_themes_encoded, le) = generate_training_and_testing_data()
+
+    print(f'number of themes in train: {np.unique(train_themes_encoded).size}')
 
     # scale data to [0-1] to avoid negative data passed to MultinomialNB
     if isinstance(clf, MultinomialNB):
@@ -79,18 +79,18 @@ def classify(sentence_embedding_matrix, clf):
         train_embedding_matrix = scaler.fit_transform(train_embedding_matrix)
         test_embedding_matrix = scaler.fit_transform(test_embedding_matrix)
 
-    clf.fit(train_embedding_matrix, train_codes_encoded)
+    clf.fit(train_embedding_matrix, train_themes_encoded)
 
-    test_score = clf.score(test_embedding_matrix, test_codes_encoded)
+    test_score = clf.score(test_embedding_matrix, test_themes_encoded)
     print(f'test score >>>>>>>>>> {test_score}')
 
     prediction_array = clf.predict(sentence_embedding_matrix)
 
-    predicted_codes = le.inverse_transform(prediction_array)
+    predicted_themes = le.inverse_transform(prediction_array)
 
     predicted_proba = clf.predict_proba(sentence_embedding_matrix)
 
-    add_classification_to_csv(predicted_codes, predicted_proba)
+    add_classification_to_csv(predicted_themes, predicted_proba)
 
 
 # move to app.py?
@@ -114,8 +114,8 @@ def get_text(file_path):
         full_text.append(paragraph.text)
     return '\n'.join(full_text)
 
-docx_file_path = 'text/joint_groupbuy_jhim.docx'
-predict_file_path = 'text/joint_groupbuy_jhim_predict.csv'
+docx_file_path = 'text/groupbuy_jhim.docx'
+predict_file_path = 'text/groupbuy_jhim_predict.csv'
 
 text = get_text(docx_file_path)
 text = remove_interviewer(text)
@@ -149,9 +149,9 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 # clf = KNeighborsClassifier(n_neighbors=5)
 # clf = MultinomialNB()
 # clf = GaussianNB()
-clf = tree.DecisionTreeClassifier()
+# clf = tree.DecisionTreeClassifier()
 # clf = RandomForestClassifier(max_depth=2, random_state=0)
-# clf = MLPClassifier(alpha=1, max_iter=1000)
+clf = MLPClassifier(alpha=1, max_iter=1000)
 # clf = AdaBoostClassifier()
 
 classify(sentence_embedding_matrix, clf)
