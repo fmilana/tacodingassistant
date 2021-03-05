@@ -114,8 +114,8 @@ def get_text(file_path):
         full_text.append(paragraph.text)
     return '\n'.join(full_text)
 
-docx_file_path = 'text/groupbuy_jhim.docx'
-predict_file_path = 'text/groupbuy_jhim_predict.csv'
+docx_file_path = 'text/reorder_exit.docx'
+predict_file_path = 'text/reorder_exit_predict.csv'
 
 text = get_text(docx_file_path)
 text = remove_interviewer(text)
