@@ -1,6 +1,7 @@
 import csv
 import pandas as pd
 import numpy as np
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB, GaussianNB
@@ -71,6 +72,7 @@ def classify(sentence_embedding_matrix, clf):
         train_embedding_matrix = scaler.fit_transform(train_embedding_matrix)
         test_embedding_matrix = scaler.fit_transform(test_embedding_matrix)
 
+    clf = OneVsRestClassifier(clf)
     clf.fit(train_embedding_matrix, train_themes_binary_matrix)
 
     test_score = clf.score(test_embedding_matrix, test_themes_binary_matrix)
@@ -136,12 +138,13 @@ for sentence in uncoded_original_sentences:
 sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
 # Classifiers:
-# clf = KNeighborsClassifier(n_neighbors=5)
+clf = KNeighborsClassifier(n_neighbors=5)
 # clf = MultinomialNB()
 # clf = GaussianNB()
 # clf = tree.DecisionTreeClassifier()
 # clf = RandomForestClassifier(max_depth=2, random_state=0)
-clf = MLPClassifier(alpha=1, max_iter=1000)
+# clf = MLPClassifier(alpha=1, max_iter=1000)
 # clf = AdaBoostClassifier()
+
 
 classify(sentence_embedding_matrix, clf)
