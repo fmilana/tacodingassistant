@@ -12,4 +12,4 @@ python qt.py
 ```
 3) Load a .txt file and press the "Code" button.
 
-KMeans classification dumped in "classification.txt".
+KMeans classification dumped in "clusters.txt".

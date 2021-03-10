@@ -10,7 +10,7 @@ from nltk import word_tokenize
 
 class Sentence2Vec:
     # https://github.com/RaRe-Technologies/gensim-data
-    model_name = 'glove-twitter-25'
+    model_name = 'glove-twitter-50'
 
     vector_sentence_dict = {}
 

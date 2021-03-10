@@ -22,5 +22,5 @@ def code():
 
 
 def dump_classification(dict):
-    with open('classification.txt', 'w') as f:
+    with open('clusters.txt', 'w') as f:
         json.dump(dict, f, indent=4, ensure_ascii=False)

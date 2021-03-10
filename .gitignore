@@ -4,4 +4,4 @@
 *.docx
 *.csv
 /logs
-classification.txt
+clusters.txt

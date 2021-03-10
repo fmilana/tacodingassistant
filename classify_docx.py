@@ -15,14 +15,15 @@ predict_file_path = 'text/reorder_exit_predict.csv'
 coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 
 
-def generate_training_and_testing_data():
+def generate_training_and_testing_data(many_together):
     # convert embedding string to np array
-    coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
-        lambda x: np.fromstring(
-            x.replace('\n','')
-            .replace('[','')
-            .replace(']','')
-            .replace('  ',' '), sep=' '))
+    if not many_together:
+        coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
+            lambda x: np.fromstring(
+                x.replace('\n','')
+                .replace('[','')
+                .replace(']','')
+                .replace('  ',' '), sep=' '))
 
     # split into training and testing
     by_themes = coded_df.groupby('themes')
@@ -67,9 +68,10 @@ def add_classification_to_csv(predicted_themes, predicted_proba):
     predict_df.to_csv(predict_file_path, index=False)
 
 
-def classify(sentence_embedding_matrix, clf):
+def classify(sentence_embedding_matrix, clf, many_together):
     (train_embedding_matrix, test_embedding_matrix, train_themes_encoded,
-        test_themes_encoded, le) = generate_training_and_testing_data()
+        test_themes_encoded, le) = generate_training_and_testing_data(
+            many_together)
 
     print(f'number of themes in train: {np.unique(train_themes_encoded).size}')
 
@@ -90,7 +92,8 @@ def classify(sentence_embedding_matrix, clf):
 
     predicted_proba = clf.predict_proba(sentence_embedding_matrix)
 
-    add_classification_to_csv(predicted_themes, predicted_proba)
+    if not many_together:
+        add_classification_to_csv(predicted_themes, predicted_proba)
 
 
 # move to app.py?
@@ -147,11 +150,51 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
 # Classifiers:
 # clf = KNeighborsClassifier(n_neighbors=5)
-# clf = MultinomialNB()
+clf = MultinomialNB()
 # clf = GaussianNB()
 # clf = tree.DecisionTreeClassifier()
-# clf = RandomForestClassifier(max_depth=2, random_state=0)
-clf = MLPClassifier(alpha=1, max_iter=1000)
-# clf = AdaBoostClassifier()
+# clf = RandomForestClassifier(random_state=0)
+# clf = MLPClassifier(alpha=1, max_iter=1000)
+# clf = AdaBoostClassifier(n_estimators=50)
 
-classify(sentence_embedding_matrix, clf)
+
+coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
+    lambda x: np.fromstring(
+        x.replace('\n','')
+        .replace('[','')
+        .replace(']','')
+        .replace('  ',' '), sep=' '))
+
+
+print('-----------kNN(k=1)-------------')
+for i in range(5):
+    clf = KNeighborsClassifier(n_neighbors=1)
+    classify(sentence_embedding_matrix, clf, True)
+print('-----------kNN(k=5)-------------')
+for i in range(5):
+    clf = KNeighborsClassifier(n_neighbors=5)
+    classify(sentence_embedding_matrix, clf, True)
+print('-----------MultinomialNB-------------')
+for i in range(5):
+    clf = MultinomialNB()
+    classify(sentence_embedding_matrix, clf, True)
+print('-----------GaussianNB-------------')
+for i in range(5):
+    clf = GaussianNB()
+    classify(sentence_embedding_matrix, clf, True)
+print('-----------DecisionTree-------------')
+for i in range(5):
+    clf = tree.DecisionTreeClassifier()
+    classify(sentence_embedding_matrix, clf, True)
+print('-----------RandomForest-------------')
+for i in range(5):
+    clf = RandomForestClassifier(random_state=0)
+    classify(sentence_embedding_matrix, clf, True)
+print('-----------MLP-------------')
+for i in range(5):
+    clf = MLPClassifier(alpha=1, max_iter=1000)
+    classify(sentence_embedding_matrix, clf, True)
+print('-----------AdaBoost-------------')
+for i in range(5):
+    clf = AdaBoostClassifier(n_estimators=50)
+    classify(sentence_embedding_matrix, clf, True)
