@@ -1,0 +1,2162 @@
+{
+    "you had the online.": [
+        0,
+        0.7110126874253274
+    ],
+    "i wanted them to confirm before i did any purchase.": [
+        0,
+        0.7995366875108669
+    ],
+    "i didn't know what was going on.": [
+        0,
+        0.8902853077192185
+    ],
+    "if they did it randomly they might pick a high price or not.": [
+        2,
+        0.8259451381373295
+    ],
+    "i mean, i mainly tried to use as many online system as much as i can but due to time constraints... you know, coming back from the i was... sometimes some of the bids actually failed.": [
+        1,
+        0.9205209673094257
+    ],
+    "so, i couldn't be bothered just back again, so i just went on the online supermarket.": [
+        2,
+        0.8909661646653316
+    ],
+    "no reason.": [
+        0,
+        0.5549697965500454
+    ],
+    "it's just time pressure.": [
+        0,
+        0.5624456377285544
+    ],
+    "it was .": [
+        0,
+        0.634328691725406
+    ],
+    "when i had confirm to buy it was and i can't be bothered so i just switched.": [
+        2,
+        0.8658123876245031
+    ],
+    "not really.": [
+        0,
+        0.8202958022963681
+    ],
+    "the thing told me that it's going to find me the most expensive one.": [
+        2,
+        0.8506231211549397
+    ],
+    "i mean, tells me that.": [
+        0,
+        0.803144456121905
+    ],
+    "because of the time pressures i was under... i mean, to look at the other bids and then we start again, .": [
+        2,
+        0.8807654760928179
+    ],
+    "very pressured.": [
+        0,
+        0.434347034903108
+    ],
+    "time pressure.": [
+        0,
+        0.3672920531154056
+    ],
+    "if i had more time i was able to do it time but i was there 20 minutes and the second task was so... i mean, some of the pictures was easy to make references but some of them, i mean, like sometimes it came up but it's like it's just too much effort.": [
+        1,
+        0.9503092594665594
+    ],
+    ": the manager.": [
+        0,
+        0.27867166241631
+    ],
+    "the main strategy was the manager.": [
+        0,
+        0.46689249990520537
+    ],
+    "when the time was not enough, i chose to buy a single price.": [
+        0,
+        0.8032105537954196
+    ],
+    "the time of the manager.": [
+        0,
+        0.4899994936370804
+    ],
+    "the deadline, yes.": [
+        0,
+        0.5459837710865448
+    ],
+    "because one minute, failed; two minutes, failed.": [
+        0,
+        0.4635928892132466
+    ],
+    "so in order not to get a penalty, i prefer to… instead of paying more money, i preferred to pay the price for a single item.": [
+        2,
+        0.842328733247254
+    ],
+    "although compared to group-buying it was more expensive, because the penalty is much more expensive, so this is… this was… no, not reading, just accepted.": [
+        2,
+        0.8293935320005106
+    ],
+    "because i knew that all… every time… all the time, always it would be better group-buying than single-buying, so that’s why i trusted that the manager… even 1p less, group-buy gets much more worth it .": [
+        1,
+        0.9324752682549613
+    ],
+    "in terms of all circumstances, all time.": [
+        0,
+        0.6313469286888574
+    ],
+    "not only time, because compare both things, single-buying and group-buying, group buying always will be cheaper.": [
+        2,
+        0.8406544173761855
+    ],
+    "always.": [
+        0,
+        0.5861880864822878
+    ],
+    "so that’s why i preferred group-buying.": [
+        0,
+        0.7835268658129488
+    ],
+    "i didn’t need to look because i took my trust on the software of the manager.": [
+        2,
+        0.8424393762801679
+    ],
+    "i still want to have information before the final deal, i want to have the final decision.": [
+        2,
+        0.8457662406762552
+    ],
+    "actually, i didn’t want straight, directly the manager, i wanted to approve it.": [
+        2,
+        0.8450566636714977
+    ],
+    "just in case.": [
+        0,
+        0.6360056539167954
+    ],
+    "i wanted to approve because, in the worst moment, i could have changed my decision and instead of putting my trust in the manager group-buying, i could have done single buying.": [
+        2,
+        0.8987663502711646
+    ],
+    "so that’s why, for me, it was important, what you’re asking me.": [
+        2,
+        0.8701702485901213
+    ],
+    "it was steady, yes.": [
+        0,
+        0.711141124162412
+    ],
+    "the trust is in the… in the structure of group-buying.": [
+        0,
+        0.5663187226137076
+    ],
+    "always will be cheaper.": [
+        0,
+        0.6369509124717646
+    ],
+    "so this is the trust.": [
+        0,
+        0.7277674392058354
+    ],
+    "i know that always group-buying will be cheaper.": [
+        0,
+        0.8501212056509917
+    ],
+    "so that’s why i put my trust in the manager, and that’s why i didn’t look at the prices of other people.": [
+        2,
+        0.8890035190082394
+    ],
+    "because it’s… it wouldn’t bring anything to me.": [
+        0,
+        0.8554773019086773
+    ],
+    "i trust.": [
+        0,
+        0.5156777063834476
+    ],
+    "why should i be interested in other people’s prices?": [
+        0,
+        0.7670634519396855
+    ],
+    "nothing.": [
+        0,
+        0.5215448869530227
+    ],
+    "they don’t bring anything to me.": [
+        0,
+        0.8396187859841473
+    ],
+    "pressure with the images, because some of the things which… the pictures, i put… but the system said no.": [
+        2,
+        0.8229771900724431
+    ],
+    "yes, i know.": [
+        0,
+        0.8065301069493472
+    ],
+    "i don’t use it… i use very much but… and computers very much, but flickr… i know but… no, never.": [
+        2,
+        0.8724837807270852
+    ],
+    "never, but… this is a concept, a conception, yes.": [
+        0,
+        0.7318508791344
+    ],
+    "if it’s group-buying always will be cheaper, then this is the philosophy of modern business.": [
+        2,
+        0.7848383244740357
+    ],
+    "so this is what tesco, sainsbury, everyone does.": [
+        0,
+        0.8552102265805802
+    ],
+    "they buy lorry-driver… lorries with stuff, with items.": [
+        0,
+        0.5912340307139502
+    ],
+    "tons of bread and tomatoes and lentils.": [
+        0,
+        0.23246424387355205
+    ],
+    "and after that… so they buy it for small price, because they pay much money, they get discount.": [
+        2,
+        0.8258291271660918
+    ],
+    "so after that, they do a higher price in the shop, so that’s why group-buying, or otherwise called bulk-buying, always will be cheaper.": [
+        2,
+        0.9054299422783889
+    ],
+    "i don’t use it.": [
+        0,
+        0.74177383848512
+    ],
+    "no, i don’t use automatic software, but i know that there is.": [
+        2,
+        0.8309328945377743
+    ],
+    "but i don’t… i haven’t used it.": [
+        0,
+        0.7328850118410771
+    ],
+    "i haven’t used them, i don’t use them.": [
+        0,
+        0.7232539146375578
+    ],
+    "i don’t need to use it.": [
+        0,
+        0.7789575038203058
+    ],
+    "i don’t need it because i’m not… i don’t have that big money to buy big stuff.": [
+        2,
+        0.8549378580277892
+    ],
+    "it’s made for big companies or relatively big companies.": [
+        0,
+        0.5561715737838422
+    ],
+    ": so, i, kind of, early on, figured out the… well, i thought the best thing to do was probably to add as many things as possible with, at least, sort of, like, ten minutes, give us 20 minutes in total to have agents looking for the cheapest things.": [
+        1,
+        0.9442995673067333
+    ],
+    "so i just, sort of, went through the list and made sure all those were being searched for.": [
+        2,
+        0.8501082537589246
+    ],
+    "and then, mostly, after a while, i think i was just… it did seem, mostly, when i looked at, kind of, the other bits, like, the ones that were coming up first looked okay, so given that there was limited time, i just generally accepted what the… that came through first.": [
+        1,
+        0.9369811333762145
+    ],
+    "and then, once i the list… the list, i was able to then just move on and focus mainly on the image task, and then go back, as and when something came up.": [
+        2,
+        0.8678695479269102
+    ],
+    "yes, there were a couple, but then, i think, in the interests of, kind of, not wanting to, sort of, having to keep going back and look after stuff, it just seemed to… need to accept as long as there was some saving, as long as i was making some saving.": [
+        1,
+        0.9427543768674763
+    ],
+    "i think those ones, i had a look at what the other bids were, and they did seem they were, like… they were potentially other, better offers on the table.": [
+        2,
+        0.8676613917096306
+    ],
+    "but i think for the… in the… for most of them, it seemed like… i think, especially, it looked like they didn’t seem they were… there was a possibility of, like, a huge amount of what i was saving.": [
+        1,
+        0.9414571449873155
+    ],
+    "given the, you know, time limitation, it just seemed better to… just to start accepting them, so i had … yes, they were a bit shorter, and then i decided, actually, it made more sense to … them a… 20 minutes, just to, kind of… just to give as many as possible, long as possible.": [
+        1,
+        0.9526582912005703
+    ],
+    "and then, some of the shorter ones, i ended up… kind of, didn’t find anything, so i just ended up setting up new deadlines for them anyway, so… it was just to get… basically, i looked at how much time was left and made sure that, at the end, i had… i would have, like, at least three, four minutes to… just wanted to make sure i knew what was going on, basically.": [
+        1,
+        0.9568325166666951
+    ],
+    "so if it wasn’t… if it was coming back with bits that were only, like, 1p less than what i was paying, i would have paid anyway, so maybe i might have wanted to set it working again anyway.": [
+        1,
+        0.9542656102232809
+    ],
+    "i don’t really know that i could see much pattern to it.": [
+        2,
+        0.8871163970364584
+    ],
+    "yes, i mean, i’m not… did it depend on, kind of, when other people were bidding?": [
+        2,
+        0.8958899035676143
+    ],
+    "maybe if other people put in first, they got a better deal or…?": [
+        2,
+        0.8714731374213827
+    ],
+    "i don’t… but i don’t… well, it, mostly, did seem to have some, kind of, a noticeable amount of discount, so it did feel like it was helping me, yes.": [
+        1,
+        0.9304538895523916
+    ],
+    "there was… the ones i looked at, there did seem to be a bit of variation, so some people were paying less, some people were paying more.": [
+        2,
+        0.850995257917417
+    ],
+    "i mean, it didn’t… i’d obviously prefer not to pay more, but, like, i… it’s hard to see how to… how i was… because it wasn’t, like, was going on, it was hard to, sort of, feel either way whether i should… whether there was something i could be doing differently to… so as long as i was still getting discount, it didn’t feel… yes, opening those sales, it… there was… i definitely… as i went sort of seemed to get… it was, sort of, fairly consistent in the amount of savings, so i, sort of, had the feeling a bit like i sort of knew, roughly, about how much it was going to save me and whether it was going to be bad or good new one coming in was like… was going to be obviously wrong compared to the other ones, or obviously, like, the discount would be a lot less, yes.": [
+        3,
+        1.0
+    ],
+    "i remember seeing adverts for some website that i think offered some sort of thing like that, if more than one… years ago.": [
+        2,
+        0.9002607705979081
+    ],
+    "not .": [
+        0,
+        0.7139318546391892
+    ],
+    "i mean, maybe.": [
+        0,
+        0.7511443610794959
+    ],
+    "i mean, i guess i’ve bought things on ebay which i guess has that, like… it puts in bids for you, up to your maximum, so yes, i guess i would use something like that .": [
+        1,
+        0.9093287852424017
+    ],
+    ": in terms of shopping i try to find the cheap option first by setting them to look for groups.": [
+        2,
+        0.8247749823118412
+    ],
+    "first i set them mainly for three minutes or two minutes and then for a second time i'd set some of them up for five minutes to see if a longer search would help and then in the end when that... after two searches and no groups were found, i would just buy the product myself out straight.": [
+        1,
+        0.877142872839705
+    ],
+    "because i didn't think after two searches that anything would come of it in the time that i had.": [
+        2,
+        0.9248633012811841
+    ],
+    "yes.": [
+        0,
+        0.634724798561444
+    ],
+    "because for some people who were buying in bulk, obviously if they're buying more units it should be cheaper for them, but some people were getting more units but paying more than me.": [
+        1,
+        0.8553853918139351
+    ],
+    "so, yes, you're just comparing the bids and seeing which... and if i had a fair bid or if mine was the highest.": [
+        2,
+        0.8802883416146339
+    ],
+    "so.": [
+        0,
+        0.7169535294524315
+    ],
+    "i did a couple of times but not that much.": [
+        0,
+        0.8509934992637321
+    ],
+    "because i thought that i was paying too much for the amount i wanted compared to other bids.": [
+        2,
+        0.8888832963614154
+    ],
+    "because i didn't want him to by without me having a say-so or being able to confirm it in case he did make a bad deal or different things.": [
+        2,
+        0.9219087514945894
+    ],
+    "so, yes, i wanted to be able to see with what it was concerned.": [
+        2,
+        0.915530898116657
+    ],
+    "see the actual bid so i confirmed that it's okay.": [
+        0,
+        0.8395792322978239
+    ],
+    "i think it's mostly just a software with different things that you can have there.": [
+        2,
+        0.9222864863527495
+    ],
+    "you just choose it at random.": [
+        0,
+        0.780046272147117
+    ],
+    "i think that's set as random, the same, i think.": [
+        2,
+        0.8345645774175746
+    ],
+    "no, i think it helped because it did find cheaper... so, i think some of them saved me 40p.": [
+        2,
+        0.9268546587830626
+    ],
+    "when you're buying stuff, quite a bit of stuff, that can add up to savings.": [
+        2,
+        0.8037610197282606
+    ],
+    "finding a deal, on some of the products it couldn't find any deals even though i searched twice.": [
+        2,
+        0.8288586642260356
+    ],
+    "so, i trusted it but always had a doubt that it might not find a deal, so i'd have to purchase it myself outright.": [
+        2,
+        0.9175820432222014
+    ],
+    "most of the time they weren't good deals, it was mainly 30p or 40p or so.": [
+        2,
+        0.8307780037020795
+    ],
+    "well, now sometimes it was less, sometimes it was more.": [
+        0,
+        0.7565468702787475
+    ],
+    "well, not more but sometimes it was less.": [
+        0,
+        0.7816030424463017
+    ],
+    "towards the end the trust of it finding a deal was more... was less because there was less time and the point of it's that you're searching for a deal i'd already searched for before.": [
+        2,
+        0.8413662507377134
+    ],
+    "not... no.": [
+        0,
+        0.6571722392530795
+    ],
+    "okay.": [
+        0,
+        0.6533031296574677
+    ],
+    "so, in the first part of the experiment i tried to buy as much as i could and i tried to buy everything in groups.": [
+        2,
+        0.8768425013768181
+    ],
+    "so, at the beginning i forgot to put the timer, like five minutes or so, so some of the objects weren't found, so after two or three objects i started to put a bigger time so that i could have more possibilities to find the items i wanted to buy.": [
+        1,
+        0.9357983253238085
+    ],
+    "so, i bought i think most of them except for one.": [
+        0,
+        0.8547970378704736
+    ],
+    "i bought them in the group buying thing and then i bought one of them from the retainer because i... because the computer didn't... the software didn't find me a group for buying in the group.": [
+        2,
+        0.8652599557977816
+    ],
+    "and then in the meantime, while i was waiting for the software to let me know if it found a group for buying, i started doing the image tagging but before i was working totally on the image tagging i finished buying my items.": [
+        1,
+        0.9086594159751147
+    ],
+    "and then for the image tagging i tried to image in everything that was in the picture, even maybe colours or... and then putting the names in singular or plural because sometimes i found that the singular maybe didn't work, so i tried the plural, the contrary, and, yes, i think that's where i sit.": [
+        1,
+        0.9082704199835295
+    ],
+    "i just didn't think i... i forgot to try again and i just bought it.": [
+        2,
+        0.8291798403869327
+    ],
+    "yes, because i think i... i knew that i had to buy everything, so then i was thinking that i also had to do the image.": [
+        2,
+        0.8961655988587839
+    ],
+    "so, i just thought, okay, i'll just buy it and then that's it.": [
+        2,
+        0.8928947773763349
+    ],
+    "i don't have to worry about it anymore.": [
+        0,
+        0.8482390644129537
+    ],
+    "no, because i thought that that was the price i had to buy anyway.": [
+        2,
+        0.8760444420136358
+    ],
+    "so, i just didn't check.": [
+        0,
+        0.785160583769174
+    ],
+    "and also because of the time.": [
+        0,
+        0.6502470442292868
+    ],
+    "i thought that i didn't want to waste too much time because i wanted to do as many as possible.": [
+        2,
+        0.9021568892676867
+    ],
+    "yes, i was checking how much i was saving.": [
+        0,
+        0.8186688730195989
+    ],
+    "at the same time i accepted it because i thought i didn't want to make the two tasks too much.": [
+        2,
+        0.9305957927581382
+    ],
+    "so, that's why i thought, okay, i'll just buy them and then i'll go on with image-tagging.": [
+        2,
+        0.8745191089171659
+    ],
+    "well, because i thought if i wasn't saving anything or i was just... the price was the same, maybe i would also buy it from the normal price so that it was sure i didn't have to check and... yes, that's it.": [
+        1,
+        0.9418889488964283
+    ],
+    "so, yes, that's why i thought, okay, i'll just check but i accepted it.": [
+        2,
+        0.8738000675763046
+    ],
+    "i checked the price.": [
+        0,
+        0.6110442904706066
+    ],
+    "so, yes, that's why i thought it's good to check as you know how much you are saving.": [
+        2,
+        0.9223525062427556
+    ],
+    "no, i think it helps because you... because it gives you like a range of possibilities and you know how much you're saving.": [
+        2,
+        0.899480008975753
+    ],
+    "so, i think it's good than... in this way i think it helps and then, yes, i mean, i think it's easier for a software to find a group than for a single person.": [
+        1,
+        0.9171237173324095
+    ],
+    "so, yes, i think it's helpful.": [
+        0,
+        0.8712503212823253
+    ],
+    "i don't know.": [
+        0,
+        0.7107318809516535
+    ],
+    "maybe if you have an account, i don't know, maybe online, it can see more or less how much you are willing to spend.": [
+        2,
+        0.9060316520185536
+    ],
+    "i'm not sure.": [
+        0,
+        0.7476024870893332
+    ],
+    "and then maybe if you buy certain products, then more or less he knows what you usually buy and then it puts you together with people who have the same interests as you.": [
+        1,
+        0.913940847040863
+    ],
+    "i don't know, i'm just guessing.": [
+        0,
+        0.7539565261088594
+    ],
+    "probably it also depends on how many other products the... each person has bought and then maybe if you have bought more items, then it gives you a lower price.": [
+        2,
+        0.8911955083421538
+    ],
+    "if you have got less items, then it gives you a higher price.": [
+        2,
+        0.855353167529852
+    ],
+    "no, no.": [
+        0,
+        0.46702380833648705
+    ],
+    "yes, i think i trusted it because i knew that i couldn't find a better deal of my own.": [
+        2,
+        0.8665698548305861
+    ],
+    "and also because of the time i had.": [
+        0,
+        0.7658288204282322
+    ],
+    "i couldn't spend too much time looking for deals and good deals as well.": [
+        2,
+        0.808549390932739
+    ],
+    "so, that's why i think i trusted it.": [
+        0,
+        0.8351703358398481
+    ],
+    "and also it told me how much i was saving.": [
+        0,
+        0.8399971626361079
+    ],
+    "so, yes, i think that's why i trusted it.": [
+        2,
+        0.8294697391960438
+    ],
+    "just a bit at the beginning because i needed to get used to the software but, yes, not too much.": [
+        2,
+        0.9106662119153088
+    ],
+    "it's fine.": [
+        0,
+        0.37464325205955895
+    ],
+    "yes, i did.": [
+        0,
+        0.7786559983070541
+    ],
+    "to be honest, no.": [
+        0,
+        0.6809900124151191
+    ],
+    "no.": [
+        0,
+        0.46702380833648705
+    ],
+    "i think so, yes, because i think it makes you save quite a lot.": [
+        2,
+        0.9039345836778225
+    ],
+    "so, yes, i think so.": [
+        0,
+        0.8762006794307532
+    ],
+    ": actually, the shopping, i thought it was quite easy, compared to what i thought it was going to be.": [
+        2,
+        0.9075981840714576
+    ],
+    "anyway, sorry, you can ask me these questions.": [
+        0,
+        0.8401518633730118
+    ],
+    "sure, no, whatever.": [
+        0,
+        0.6901719609257182
+    ],
+    "okay, so maybe let’s start with the shopping.": [
+        0,
+        0.829179899358202
+    ],
+    "did you…?": [
+        0,
+        0.7582027068276638
+    ],
+    "what was your strategy or general approach?": [
+        0,
+        0.6880877494805149
+    ],
+    "my strategy was i knew i had a limited time to get the best deal on 15 items, so i just went through the list, five at a time, and gave five minutes to each item, just to see, you know.": [
+        1,
+        0.921812416071305
+    ],
+    "i don’t really think, you know, if we… if i spent five minutes.": [
+        2,
+        0.8870629567327869
+    ],
+    "if i maybe spent ten minutes, i might’ve got a slightly better deal, but my priority was to, kind of, always sell them for less than was the… sort of, the mean… the high price.": [
+        1,
+        0.9360044210667184
+    ],
+    "right.": [
+        0,
+        0.510944695794025
+    ],
+    "always try and get it for less.": [
+        0,
+        0.8073177481575042
+    ],
+    "so you think that the longer your agent is searching, the better deal you would get?": [
+        2,
+        0.886678653242356
+    ],
+    "possibly, but i didn’t feel that i wanted to have, you know, sort of, like, 15 items all at once, being searched for.": [
+        2,
+        0.9350523963238875
+    ],
+    "you know, i’d rather do them in blocks to see, you know, what was coming back.": [
+        2,
+        0.8950280723880996
+    ],
+    "i think it was easier to keep tabs on a small part of the list rather than the whole list, you know, then think it was maybe getting a bit confusing, you know.": [
+        1,
+        0.9297826391469938
+    ],
+    "i’m not saying that was the best strategy.": [
+        0,
+        0.8014104923875801
+    ],
+    "sure, yes.": [
+        0,
+        0.7367433101930808
+    ],
+    "but that was… no, it’s really… there is no right or wrong strategy really.": [
+        2,
+        0.8433871843599036
+    ],
+    "but i was just… i was just going basically for the, kind of, the best deal in the shortest time really.": [
+        2,
+        0.9012621822502356
+    ],
+    "do you think the agent did a good job or…?": [
+        0,
+        0.8482241362311149
+    ],
+    "i think generally, on… i think on about 80… 70 or 80% of the deals that he got were pretty okay, i think.": [
+        2,
+        0.9295787663056251
+    ],
+    "some of the ones that i checked with, you know, view offers, most of them were… everybody was paying in around the same kind of price, so i didn’t really feel like i was losing out, you know, or even gaining that much in that respect, either.": [
+        1,
+        0.9663329756672148
+    ],
+    "so it was, kind of, just… you know, just about right.": [
+        2,
+        0.902134258287178
+    ],
+    "so you think you were treated well, you know?": [
+        2,
+        0.8417802583401401
+    ],
+    "it seemed like a fair deal, yes.": [
+        0,
+        0.7924253710956788
+    ],
+    "do you shop online privately or is that not a fact ?": [
+        0,
+        0.8308521459074673
+    ],
+    "i do, yes.": [
+        0,
+        0.8220407267922674
+    ],
+    "groceries or…?": [
+        0,
+        0.39498163789296725
+    ],
+    "groceries, no.": [
+        0,
+        0.43943646479195925
+    ],
+    "i tend to shop for items like things i collect, like cds, for instance, that i can’t get online, for instance, music that isn’t online and books and odds and… bits and pieces like that.": [
+        2,
+        0.8388373307736731
+    ],
+    "is there a reason why you don’t shop for groceries online?": [
+        0,
+        0.8074651536665197
+    ],
+    "because i’m already during the day and i find it easier just to pick things up as i go around, you know.": [
+        2,
+        0.9368469665811501
+    ],
+    "maybe once a month, i would do online shopping, you know, if i’m going to be at home all weekend and i have time to actually sit down and work out what i’m going to need, you know.": [
+        1,
+        0.9344090382049894
+    ],
+    "but it’s about once a month.": [
+        0,
+        0.5779487714193815
+    ],
+    "let’s see.": [
+        0,
+        0.5247996806614882
+    ],
+    "have you heard of this group buying idea somewhere?": [
+        0,
+        0.7803193956612292
+    ],
+    "or not even… i haven’t actually, no.": [
+        0,
+        0.8333075758799314
+    ],
+    "i haven’t heard of this at all.": [
+        0,
+        0.7365242538180639
+    ],
+    "are you familiar with groupon or…?": [
+        0,
+        0.6737856792326083
+    ],
+    "i’ve heard of… i’ve heard the name but i’ve never really discovered it, to be honest.": [
+        2,
+        0.7482008325028745
+    ],
+    "and it’s basically because i’ve never really had time, you know.": [
+        2,
+        0.8853639526113168
+    ],
+    "but now, you have, kind of, sparked my interest so i’ll probably investigate it a bit further, you know.": [
+        2,
+        0.8958000286789548
+    ],
+    "i mean, this is… in a way, this is, kind of, similar to shopping on, say, amazon, for instance.": [
+        2,
+        0.8539339177495532
+    ],
+    "you know, i work in music and, you know, i’m always looking… a lot of stuff that i’m looking for, which is jazz – like, very rare jazz stuff – is… a lot of it isn’t available on download.": [
+        1,
+        0.8671229867185216
+    ],
+    "it’s just not available because of licencing and all of this.": [
+        0,
+        0.8155706831815681
+    ],
+    "and you might have to buy it from japan or somewhere like that.": [
+        2,
+        0.87153329562055
+    ],
+    "and you might see it advertised in the uk at, like, say… just for a figure like £25.": [
+        2,
+        0.8889561913838075
+    ],
+    "and sometimes you think, well, i don’t really want to pay £25 for that, you know, it’s too much.": [
+        2,
+        0.9184146584067755
+    ],
+    "yes, it makes sense.": [
+        0,
+        0.7429065844721188
+    ],
+    "and then they have other options.": [
+        0,
+        0.6899122346079992
+    ],
+    "like you can get this, like, almost new or… and actually, what i’ve found is in most cases, even the ones which say it’s in okay condition, it actually comes in a very good condition to you, and you get it for, like, a third of the price.": [
+        1,
+        0.9483808454681547
+    ],
+    "so… you know, so it’s the same kind of thing really; you’re almost like your own agent, searching for the best deal, you know.": [
+        2,
+        0.9027887493678204
+    ],
+    "so you don’t… you were never disappointed when you bought things online?": [
+        2,
+        0.8867000013054643
+    ],
+    "never been.": [
+        0,
+        0.5444637234597012
+    ],
+    "never have got anything which was damaged or anything like that, you know.": [
+        2,
+        0.8787044763283651
+    ],
+    "because i think, again, a lot of these independent retailers, they rely on good feedback.": [
+        2,
+        0.820249477837562
+    ],
+    "obviously.": [
+        0,
+        0.6646885947181614
+    ],
+    "exactly.": [
+        0,
+        0.5428802442673347
+    ],
+    "and that’s how they get their business, you know.": [
+        0,
+        0.8670015395236574
+    ],
+    "if you write, well, you know, the record came and it was, like, completely scratched and it was useless, it was a rip-off – they’re going to go, well, i’m not going to buy from him, you know.": [
+        1,
+        0.9277433739034148
+    ],
+    "exactly, yes.": [
+        0,
+        0.726673191410754
+    ],
+    "so… makes sense.": [
+        0,
+        0.644816524828359
+    ],
+    "speaking of the agent, so i’ve noticed you’ve only had it in one setting, if i’m… if i’m… correct.": [
+        2,
+        0.8546059977123701
+    ],
+    "any particular reason for that?": [
+        0,
+        0.7073636075162234
+    ],
+    "well, i think the other two options didn’t really… i think i needed to see what kind of deal i was getting before i proceeded rather than him just going off and buying something without me knowing what he was paying, you know.": [
+        1,
+        0.9596438532420025
+    ],
+    "whether it was good or bad, you know, i like to know what i’m going to pay.": [
+        2,
+        0.9112142520213827
+    ],
+    "and the other setting, i think, was… the middle one was… he was buying and then notifying you?": [
+        2,
+        0.8613776105115257
+    ],
+    "i didn’t… i didn’t know i wasn’t going to be giving him permission to spend my money.": [
+        2,
+        0.8336956449779286
+    ],
+    "why is that?": [
+        0,
+        0.7145598353661041
+    ],
+    "well, i just basically… you know, he could’ve turned around and said, well, you know, i got you this for 90 pence, when everybody else knew he was getting it for 60. you know?": [
+        1,
+        0.9312785554567239
+    ],
+    "so you need to… you need to know what you’re getting.": [
+        2,
+        0.8203621416899975
+    ],
+    "and in regards to that, how do you think the agent… like, based on your own, sort of, perception, how do you think it found a deal for you in relation to the other people?": [
+        1,
+        0.900148974733385
+    ],
+    "can you take a guess?": [
+        0,
+        0.8197631615206863
+    ],
+    "probably by going on something of average price.": [
+        0,
+        0.7333935436286666
+    ],
+    "and i’m presuming also that these agents, although you haven’t specified, they work on some kind of commission, so they have to make money from the deals or… right, okay.": [
+        2,
+        0.9171526358049729
+    ],
+    "so, you know, you’ve got to take that factor into consideration.": [
+        0,
+        0.8493988003352815
+    ],
+    "we’ll let you know after.": [
+        0,
+        0.8570728941486186
+    ],
+    "but that’s a good answer.": [
+        0,
+        0.7986327964285816
+    ],
+    "but it’s actually, i’m not sure actually why they do it, you know.": [
+        2,
+        0.9175011565702546
+    ],
+    "i presume it’s a bit like trading.": [
+        0,
+        0.725798208895131
+    ],
+    "it’s, kind of, like, you know, he’s negotiating with everybody to try and get the best deal or the worst, whatever, you know.": [
+        2,
+        0.8825041509127743
+    ],
+    "all right.": [
+        0,
+        0.6560402206831417
+    ],
+    "i think i have no other questions.": [
+        0,
+        0.8193457513662173
+    ],
+    "do you have more questions?": [
+        0,
+        0.7775295685394745
+    ],
+    "let’s stop the interview right here.": [
+        0,
+        0.6602150819647796
+    ],
+    ": all right, there we go.": [
+        0,
+        0.8054943858162765
+    ],
+    "so can you tell me a little bit about how you approached the entire thing?": [
+        2,
+        0.8757800486892121
+    ],
+    "did you have a strategy?": [
+        0,
+        0.7777292476635207
+    ],
+    "no strategy?": [
+        0,
+        0.45144253267382556
+    ],
+    "or…?": [
+        0,
+        0.4765018329304647
+    ],
+    "yes, i think i had a strategy from the offset.": [
+        0,
+        0.806871396394198
+    ],
+    "my strategy was to go into the shop task and place every item in the hands of the agent for 12 minutes.": [
+        2,
+        0.7565803163438954
+    ],
+    "and then that would give me time to pursue another agent if some of the items weren’t found, which turned out to be the case on three or four occasions.": [
+        2,
+        0.8533543320194364
+    ],
+    "and then right at the very end, after the majority of my items were discovered by the agent, there were still a few that were left, so i allocated about two minutes to just simply purchase the item through the standard price, the standard shop kind of option.": [
+        1,
+        0.8758614959018962
+    ],
+    "and then obviously, whilst the timer was going and the agent was looking for the products, i was on the image task, trying to get as many descriptive words as i could to… yes, to win.": [
+        2,
+        0.8903755389864819
+    ],
+    "all right, okay.": [
+        0,
+        0.7609488250697568
+    ],
+    "interesting.": [
+        0,
+        0.3693193117832353
+    ],
+    "so yes, that was my strategy.": [
+        0,
+        0.8426079130083067
+    ],
+    "it was very simple, actually.": [
+        0,
+        0.7773691269111465
+    ],
+    "do you think it worked out well for you?": [
+        0,
+        0.8880489368157938
+    ],
+    "i think i did pretty well.": [
+        0,
+        0.8246942596397479
+    ],
+    "yes, i think i did pretty well.": [
+        0,
+        0.8596711874459648
+    ],
+    "i didn’t allocate too much time, i felt; at least for each image, i had a, kind of, 20 to 30 second… i mean, 30 second very top end, but 20 second limit for each… image.": [
+        2,
+        0.8660660795207755
+    ],
+    "…image, yes.": [
+        0,
+        0.49042215689917673
+    ],
+    "so yes, it was… okay.": [
+        0,
+        0.8774393502980055
+    ],
+    "do you think the agent did a… did a good job or…?": [
+        2,
+        0.8232633253621436
+    ],
+    "yes, i think so.": [
+        0,
+        0.8611746676587744
+    ],
+    "i think… i mean, the majority of my products were found and obviously, i’m still saving money in comparison to purchasing it straight through the standardised route.": [
+        2,
+        0.9004344553074437
+    ],
+    "so yes, in that respect, yes, it’s a win.": [
+        0,
+        0.8054624497364381
+    ],
+    "i never saw you checking the other bids, what are other people paying.": [
+        2,
+        0.8557094126364971
+    ],
+    "can you elaborate on that?": [
+        0,
+        0.7568005729828365
+    ],
+    "yes, absolutely.": [
+        0,
+        0.6666257120410634
+    ],
+    "so it was, kind of, a balance between the image task and the shop task, and i felt that really, i was always going to take the agent’s offer.": [
+        2,
+        0.892067815957336
+    ],
+    "if there was an offer there, it’s, kind of, like weighing it up between do i decline and look elsewhere?": [
+        2,
+        0.8864302280285047
+    ],
+    "do i reject what was always going to be better than the standard, kind of, shop-bought route, which would be more time consuming and i would have to, kind of, sacrifice images if i was to do that?": [
+        1,
+        0.927669663078845
+    ],
+    "and then there’s no guarantee that the second agent may find the product, for instance, so i might’ve thrown away an offer, in my mind, at least.": [
+        2,
+        0.8871649019034711
+    ],
+    "so no, i was… i was comfortable with saving money through that route, regardless of what it was.": [
+        2,
+        0.8879875289245243
+    ],
+    "and, you know, it seemed like it was relatively good.": [
+        0,
+        0.8729137795221186
+    ],
+    "perhaps if i had more time, like, i would, of course, spend more time with, like, you know, having agents on loan for, like, days or something, which one could do, i suppose, with this… with this application.": [
+        1,
+        0.9520729840286299
+    ],
+    "so you said… just to confirm, you said that whatever offer the agent makes, you are fine with it because you knew… i was… i was fine with it because there were too many other risks involved.": [
+        1,
+        0.9363221108522761
+    ],
+    "so with the time factor, you know, there’s always the possibility of… in my mind, at least, of the agent… if i refuse that offer and then somebody else takes that product and subsequently i’m left in a situation where the second agent can’t find anything and then i have to buy the product through the main kind of channels.": [
+        1,
+        0.9443311140775397
+    ],
+    "so yes, i mean, i’m comfortable with the saving and it’s… yes, it’s about time balance, time management, i think, so.": [
+        2,
+        0.8835407440798767
+    ],
+    "what else do i have left?": [
+        0,
+        0.8713130448627062
+    ],
+    "how do you think the agent works?": [
+        0,
+        0.8147069186470012
+    ],
+    "do you have any idea, any guess?": [
+        0,
+        0.870955969654619
+    ],
+    "i mean, in terms of the system, i’m no expert with computers but, i mean, it’s… i can’t think of really a comparison site that would… i mean… i mean, i suppose it’s a bit like blablacar, like i said earlier; you know, you put your vehicle on the webpage and, you know, you wait for enough passengers to fill that car.": [
+        1,
+        0.9235911818690812
+    ],
+    "it’s the same thing, you know, in that sense, you know; you put peanuts up, you need, let’s say, six people to purchase in order to get the best price for that to be sold at, kind of, the expected… with the expected savings.": [
+        1,
+        0.9146658837887602
+    ],
+    "so i imagine it works in a relatively similar kind of way for each product.": [
+        2,
+        0.8562674768519868
+    ],
+    "but yes, i imagine the moment, like, for instance, you’ve got six people for a certain product, then that’s gone and it starts again from scratch.": [
+        2,
+        0.9189340049053181
+    ],
+    "so i suppose there’s always that risk.": [
+        0,
+        0.853937522059196
+    ],
+    "but then again, that’s an incentive to buy quite quickly.": [
+        0,
+        0.8108211144931083
+    ],
+    "it adds momentum to that kind of… it adds a sense of fear into people’s minds, but in a positive light, i think, so people are, kind of, more inclined to really, you know – okay, i need this, i’m going to put a bid in – rather than waiting around because that may mean that they may lose that offer or something like that.": [
+        1,
+        0.9424478803030824
+    ],
+    "so you think there was, like, a slight, as you said, fear.": [
+        2,
+        0.8674392058365931
+    ],
+    "not fear so much.": [
+        0,
+        0.7413808283762209
+    ],
+    "i mean, kind of, but not… that’s not the right word i would use.": [
+        2,
+        0.8866876472230644
+    ],
+    "but it’s an incentive, a little bit of pressure, but in a good way – enough that it kind of gives you the incentive to really bid and purchase and, kind of, manage your money better, i think.": [
+        1,
+        0.8864476350549568
+    ],
+    "straightforward, do you do online shopping yourself?": [
+        0,
+        0.7322163975679836
+    ],
+    "i do a lot, yes.": [
+        0,
+        0.8609562738023816
+    ],
+    "you do a lot?": [
+        0,
+        0.8157088911555344
+    ],
+    "what kind of websites do you use?": [
+        0,
+        0.8043682743398602
+    ],
+    "amazon.": [
+        0,
+        0.22894472965903495
+    ],
+    "i think amazon has… i think amazon really has a monopoly at the moment.": [
+        2,
+        0.768182180220916
+    ],
+    "i used to use ebay a lot but i hate ebay.": [
+        0,
+        0.6864994723322175
+    ],
+    "they… how come?": [
+        0,
+        0.7284257029743142
+    ],
+    "i just think, you know, they’ve gone downhill.": [
+        0,
+        0.8497575874204922
+    ],
+    "the whole idea of ebay was it was originally a community based site.": [
+        0,
+        0.6503069038279161
+    ],
+    "so individuals selling and buying.": [
+        0,
+        0.4750504518119345
+    ],
+    "but now, it’s commercial.": [
+        0,
+        0.5408696059073996
+    ],
+    "most people use gumtree because ebay and paypal started to charge phenomenal fees and paypal charges on top of ebay now, whereas it used to just go through ebay’s standard, kind of, percentage deduction or 15% or whatever it is for using their site.": [
+        1,
+        0.8214322204152432
+    ],
+    "so that’s why no one uses ebay anymore and everyone is going to amazon and amazon has the greatest range of products, i think.": [
+        2,
+        0.8477050130899869
+    ],
+    "last question.": [
+        0,
+        0.4544169243965983
+    ],
+    "do you use some sort of system that does a task for you?": [
+        2,
+        0.8385202490869983
+    ],
+    "so here, the agent was looking for items for you.": [
+        0,
+        0.7880162940437511
+    ],
+    "do you use something similar at home, where you, kind of, rely on whatever?": [
+        2,
+        0.8398510088268909
+    ],
+    "i’ve never come across this, i mean, in the sense that i’ve never used something like this.": [
+        2,
+        0.8748470937576093
+    ],
+    "i am aware that there’s one website where, if people want to sell or are looking for a plane ticket within a certain price bracket, they put it on, like, a forum and the agents look for the best price and then… oh.": [
+        1,
+        0.9065321132726345
+    ],
+    "do you know what the website is called?": [
+        0,
+        0.848187049165621
+    ],
+    "i don’t know the name of the website, no.": [
+        0,
+        0.7797307097759933
+    ],
+    "but it’s quite an old webpage, but i don’t know if it’s that successful because i haven’t, kind of, looked at it, but i know it exists.": [
+        2,
+        0.9189023548453411
+    ],
+    "so you also don’t use… i don’t know if you’ve heard of a nest thermostat?": [
+        2,
+        0.7984541512305389
+    ],
+    "the roomba robot?": [
+        0,
+        0.308142438879725
+    ],
+    "okay, cool.": [
+        0,
+        0.6220390994189331
+    ],
+    "all right, that would be it for the official part.": [
+        0,
+        0.792203621688393
+    ],
+    "cool.": [
+        0,
+        0.37720456457257434
+    ],
+    "do you have any questions or can i thank you?": [
+        2,
+        0.8152444561088982
+    ],
+    "no, it was… it was really good.": [
+        0,
+        0.8183991704796469
+    ],
+    "i really like the layout of the page actually, and it’s… : person one person two all right, there we go.": [
+        2,
+        0.8890707192059296
+    ],
+    "so, how did you approach the entire thing?": [
+        0,
+        0.8398633596363774
+    ],
+    "did you have a strategy or...?": [
+        0,
+        0.7948482904376468
+    ],
+    "so i just, like, implement what i did , so i don’t want to, like... i rather to do, like, things that i need first.": [
+        2,
+        0.8896248762537255
+    ],
+    "so, like, i buy things that i need and then, because i don’t want to think about it when i’m doing my stuff, so i just buy it first and then after that i just, like, have waiting time so i just do my work.": [
+        1,
+        0.9401768498562255
+    ],
+    "if something, like, comes out, so i will deal with it because it’s just like a short time.": [
+        2,
+        0.9256389451821986
+    ],
+    "i don’t need to think about it, and i just do it, and then just buy it because, like, yes.": [
+        2,
+        0.9373200695424596
+    ],
+    "and i don’t really think much about, like, how much reduction that i will get from the .": [
+        2,
+        0.9106773524049555
+    ],
+    "you didn’t?": [
+        0,
+        0.6816654568470327
+    ],
+    "because, no, i mean, like, you asked me before to check it, whether, like, how much that i will get reduction, so i just don’t care.": [
+        2,
+        0.9428225473095759
+    ],
+    "as long as i get the reduction, it is fine.": [
+        0,
+        0.805925818693566
+    ],
+    "so i’ll be satisfied if i buy the cheaper, yes, suit , yes.": [
+        2,
+        0.8118130365664704
+    ],
+    "i saw you setting up agents in the beginning with one minute, and then you increased it to, like, three and four minutes.": [
+        2,
+        0.8270745616113463
+    ],
+    "can you tell me why you did this?": [
+        0,
+        0.8695582299798743
+    ],
+    "actually, before, for the one minute is accidentally, like more than one minute, because , oh, no, one minute.": [
+        2,
+        0.7850636868233926
+    ],
+    "so, like, i put it like the things that idolise for the four minute.": [
+        2,
+        0.912728119290912
+    ],
+    "so, like, yes, it’s just like... it’s, like, a reasonable time for me.": [
+        2,
+        0.8696671919202944
+    ],
+    "like, i will spend, like, five minutes maybe for shopping and then the rest of it i will do my work, and then... because, like, i think i still have ten or more minutes when i already did, like, i left three of them.": [
+        1,
+        0.9356424110051036
+    ],
+    "so, like, okay, i will just make it, like, seven minutes.": [
+        2,
+        0.8856833218854552
+    ],
+    "were you happy how the agent worked?": [
+        0,
+        0.7490642259598526
+    ],
+    "were you satisfied with the outcomes, or...?": [
+        0,
+        0.6952865688956648
+    ],
+    "i like... i really hope that the agent is really exists in the real world, because it’s going to be so much helping in our time and everything, and it is our money.": [
+        1,
+        0.9183839271406321
+    ],
+    "but there isn’t such agent in the real world, yes.": [
+        0,
+        0.7759657174909673
+    ],
+    "so you think it’s helpful.": [
+        0,
+        0.8296504808890609
+    ],
+    "yes, so much helpful.": [
+        0,
+        0.786883061642286
+    ],
+    "so you would use it as well?": [
+        0,
+        0.8518552671864098
+    ],
+    "yes, of course.": [
+        0,
+        0.6321338130958045
+    ],
+    "yes, if there is.": [
+        0,
+        0.8200360767965886
+    ],
+    "can you maybe explain how you think the agent works, just...?": [
+        2,
+        0.86060406120982
+    ],
+    "i think, like, it’s online.": [
+        0,
+        0.7633696809015662
+    ],
+    "basically it’s online.": [
+        0,
+        0.5123245838409571
+    ],
+    "so, like, the agent go like get all the people that are asking for the stuff, and then just, like, match each other and then, yes.": [
+        2,
+        0.9100002461537546
+    ],
+    "but i don’t know whether they... it’s going to be dealing for in the same interests or what.": [
+        2,
+        0.9136886595104179
+    ],
+    "so maybe... i think you already mentioned it.": [
+        0,
+        0.9075108636443776
+    ],
+    "really quickly, can you explain to me why you didn’t care about the money aspect, the savings?": [
+        2,
+        0.8627494321236394
+    ],
+    "actually, it’s not about don’t care.": [
+        0,
+        0.8200568612889892
+    ],
+    "so, like, if i already feel that i already save money, so i don’t care, like, how much i save it.": [
+        2,
+        0.8916647571109221
+    ],
+    "so i’m already satisfied if i get cheaper.": [
+        0,
+        0.8159776920981032
+    ],
+    "because, like, if i count everything, it’s just like i’m going to waste my time and i’m... yes.": [
+        2,
+        0.883469146062285
+    ],
+    "i see.": [
+        0,
+        0.6611708222382785
+    ],
+    "that was it.": [
+        0,
+        0.6974772167166104
+    ],
+    "thank you very much.": [
+        0,
+        0.7256299125182757
+    ],
+    ": person one person two okay, let’s start here.": [
+        0,
+        0.7722525929911949
+    ],
+    "so, thank you very much.": [
+        0,
+        0.7751573050962958
+    ],
+    "so, what was your strategy here?": [
+        0,
+        0.8302659876962845
+    ],
+    "did you have a strategy, or how did you tackle this?": [
+        2,
+        0.8324731569333901
+    ],
+    "so, actually, like, since, like, the agent will obviously find a price which is much cheaper than – what you call – the first... the – what you call...?": [
+        2,
+        0.9043585066865913
+    ],
+    "the regular.": [
+        0,
+        0.3970528853979149
+    ],
+    "regular price, yes.": [
+        0,
+        0.5681774398988935
+    ],
+    "so i just tried to send the agent out to find the prices in the beginning, and since, like... yes.": [
+        2,
+        0.8914687365738435
+    ],
+    "so, what you call, as long as the price was more cheaper than the regular price, i allowed them to buy it, like, on demand so i didn’t have to, like, what you call, agree to, like, check it again.": [
+        1,
+        0.9327144136309543
+    ],
+    "so it would take some time, so... yes, so... and the ones where... actually, in the beginning i set the time limit for them to search too low, like, so they couldn’t find.": [
+        1,
+        0.9422032107951118
+    ],
+    "yes, so for certain things i just bought them at the regular price, but, yes, then i set them to search and buy their, what you call, group buying, and after i set them to search, i just worked on the other task so that it left, what you call, it leaves me with a lot of time to do... yes.": [
+        1,
+        0.9580737042375845
+    ],
+    "so, if i can, like, set the agents to do it, because it’s already, like, sure that they will find it cheaper, so... yes, so it’s best to leave it for them to do it so we can do something else.": [
+        1,
+        0.9467869019774507
+    ],
+    "perfect.": [
+        0,
+        0.29572547083761086
+    ],
+    "so you didn’t... i mean, you checked the prices, how much you would save?": [
+        2,
+        0.884277535662008
+    ],
+    "i asked them to notify so i could just see, yes, actually, like, the... it’s just a bit like they save, like, 0.08. yes.": [
+        2,
+        0.9440881403826258
+    ],
+    "so were you happy with the savings, or...?": [
+        0,
+        0.8069155451142258
+    ],
+    "if i had, like, more time i would, what you call, choose... if, like, the prices which the agents, what you call, give me, i would, like, if i’m not satisfied, if i wanted to get more savings, i would send them out again and keep repeating up till, yes, i find, like, what the median price... what you call, the lowest price that they can give.": [
+        1,
+        0.9500008024232584
+    ],
+    "so it was basically... so you would have done it differently if you had no time restriction?": [
+        2,
+        0.904890137751414
+    ],
+    "i would ask them to notify before they bought it.": [
+        0,
+        0.7871796045182515
+    ],
+    "yes, but if, like, in a certain case where, what you call, yes, i’m short of time, i would just ask them to buy it, like, because i know that the price would still be cheaper than the regular price.": [
+        1,
+        0.9534666847499386
+    ],
+    "do you have any idea how the agent might work?": [
+        0,
+        0.8480310310483489
+    ],
+    "so they search, like, people who want to buy the same item and... and you showed, like, there’s a bidding process, like.": [
+        2,
+        0.8840653019158592
+    ],
+    "so different people bid different amount for that price and, yes, so they find the average of the, what you call, the bids and... yes.": [
+        2,
+        0.8684257379129583
+    ],
+    "so we pay the average of that.": [
+        0,
+        0.7633846400469247
+    ],
+    "correct.": [
+        0,
+        0.37345626708496443
+    ],
+    "were you happy with the agent’s performance, or...?": [
+        0,
+        0.72878820504487
+    ],
+    "i mean, like, if... i usually, like, in most... in some cases, like, the agent doesn’t try, like, to get the most cheapest price.": [
+        2,
+        0.88863359098271
+    ],
+    "like, they just try to get the, what you call, the fastest, like... yes.": [
+        2,
+        0.8876847707170124
+    ],
+    "so, if we did it by ourselves, we could also, like, what you call, bid by ourselves and get even cheaper prices.": [
+        2,
+        0.8774610104534676
+    ],
+    "like, we put the lowest price.": [
+        0,
+        0.6834517514338915
+    ],
+    "but maybe, like, the agent just finds, like, yes, just a bit lower, as long... yes, but doesn’t find the lowest price.": [
+        2,
+        0.8783502622182935
+    ],
+    "nice.": [
+        0,
+        0.5150779969528182
+    ],
+    "that’s it.": [
+        0,
+        0.7428975049554961
+    ],
+    ": so, how did you approach this thing?": [
+        0,
+        0.8512055292308252
+    ],
+    "did you have a strategy, or not at all?": [
+        0,
+        0.8552478098276258
+    ],
+    "not initially, but i was going to, like, go through them one by one, and wait for it to come back with a new price.": [
+        2,
+        0.91938233110523
+    ],
+    "but then i thought; no, because you get more doing the pictures, the image tagging.": [
+        2,
+        0.8989124240603911
+    ],
+    "and then i started worrying, like, with about 11 minutes to go, that i wouldn’t actually have enough budget.": [
+        2,
+        0.8992991131611949
+    ],
+    "but then i was, like, oh, there’s loads of budget, so then i just, kind of, bought everything i want, and then went and focused on the pictures.": [
+        2,
+        0.9231474897939579
+    ],
+    "right, okay.": [
+        0,
+        0.6976844677194348
+    ],
+    "so, you mentioned the savings, basically, the agent fund.": [
+        0,
+        0.7409107793951697
+    ],
+    "were you happy with the savings?": [
+        0,
+        0.7283628132120773
+    ],
+    "it cost, like, it was about 8p per thing, and then when you had a look at what the other people were getting, they were, like, saving £1 and stuff, in some cases.": [
+        1,
+        0.9202556727480238
+    ],
+    "and then i was just, like, oh, whatever, i’ll just buy it.": [
+        2,
+        0.8979196619533352
+    ],
+    "why was that?": [
+        0,
+        0.6922872136454109
+    ],
+    "just because, yes, i wanted to focus on the image tagging.": [
+        0,
+        0.8213872452537349
+    ],
+    "and, yes, and once i’d realised there was actually quite a lot of budget, it didn’t really have much of an impact.": [
+        2,
+        0.8713723667965381
+    ],
+    "how do you think the agent behaved?": [
+        0,
+        0.8088080882503381
+    ],
+    "were you happy with the agent’s behaviour, or not really?": [
+        0,
+        0.8564965740003831
+    ],
+    "the fact i took a… like, he didn’t get one for the chickpeas, that took a while.": [
+        2,
+        0.8211328383793247
+    ],
+    "but i feel like it was okay, because i wasn’t really focusing on it, which his, kind of, like, in a real life sense, i feel like that’s not that good to go by.": [
+        1,
+        0.9275453760783653
+    ],
+    "it feels a bit lazy, yes, because of the lack of care behind that, compared to the image tagging.": [
+        2,
+        0.804597751751487
+    ],
+    "can you maybe explain the lazy part a little bit more?": [
+        0,
+        0.8328853405135868
+    ],
+    "because it reminded me of, you know, like, you’ve got online shopping and then those online shops where they come and just bring your ingredients, and it’s just, like, overpriced and, like, just not as good as going to the supermarket, and going and getting your own stuff, because that would cost a lot more?": [
+        1,
+        0.9352043562616569
+    ],
+    "it reminded me a bit of that.": [
+        0,
+        0.7751927930544598
+    ],
+    "even though you saved money?": [
+        0,
+        0.7522432346355397
+    ],
+    "yes, because i saw what other people were saving.": [
+        0,
+        0.8423785999313314
+    ],
+    "interesting, okay.": [
+        0,
+        0.633776066824918
+    ],
+    "do you do online shopping yourself?": [
+        0,
+        0.7136705099684262
+    ],
+    "not at all.": [
+        0,
+        0.7550267688468837
+    ],
+    "you buy everything in, like, local stores?": [
+        0,
+        0.7295215028313272
+    ],
+    "is there a reason why?": [
+        0,
+        0.6891134870989972
+    ],
+    "because it’s not very good for the environment, getting the deliveries.": [
+        0,
+        0.7621525908458131
+    ],
+    "so, i prefer to walk to the supermarket.": [
+        0,
+        0.7197402224180093
+    ],
+    "and the produce isn’t as good, as fresh.": [
+        0,
+        0.5786533889444807
+    ],
+    "anything you want to add?": [
+        0,
+        0.7730223905859734
+    ],
+    "you’re good?": [
+        0,
+        0.6350468939405427
+    ],
+    "then you stop right here.": [
+        0,
+        0.7968601135202618
+    ],
+    "so, can you tell me how you approached this whole thing?": [
+        2,
+        0.8566978025710578
+    ],
+    "with the shopping, yes.": [
+        0,
+        0.6467785959387075
+    ],
+    "what i did, i first looked at the items that had the biggest penalties and put them in the group search.": [
+        2,
+        0.8619136984916888
+    ],
+    "and found that, more often than not, the group buy was an option, so i just went for that.": [
+        2,
+        0.8820395269922897
+    ],
+    "i probably didn’t need to get notification each time, because most of them were cheaper, but i don’t think i lost any time by doing that.": [
+        2,
+        0.9380086744174152
+    ],
+    "and then once those higher penalty items were eliminated, i just went, more or less systematically, down the list.": [
+        2,
+        0.7885739451253322
+    ],
+    "i mean, for example, ground cinnamon and ground turmeric were listed close together, so i just went, you know, looked for those at the same time.": [
+        2,
+        0.8659514358845644
+    ],
+    "in terms of the image tagging, as the exercise went on, i found that some terms were probably more common, like sky, or water.": [
+        2,
+        0.8365556610140383
+    ],
+    "so, that was okay.": [
+        0,
+        0.8476457675665373
+    ],
+    "what i found harder, especially when it came to finding the third tag, is that whichever variation, the same thing i used, it wasn’t happening.": [
+        2,
+        0.8912266671344596
+    ],
+    "so, there was one with lightning, and i thought, actually, there’s no other word for lightning, but i was wondering why it didn’t come up, so i just passed on that.": [
+        1,
+        0.9132021157889598
+    ],
+    "but then there was the pebbles, and the rocks, and the stones, and i think i totally missed that one.": [
+        2,
+        0.8233512244894494
+    ],
+    "i just gave up on that.": [
+        0,
+        0.7650238731867791
+    ],
+    "so, while i had a strategy for using similar words that, you know, i knew could get through, some others, i had no idea.": [
+        2,
+        0.9273293545350302
+    ],
+    "yes, so that was it, really.": [
+        0,
+        0.8894999701269531
+    ],
+    "and in terms of balancing the two?": [
+        0,
+        0.5108742331671704
+    ],
+    "balancing.": [
+        0,
+        0.21303283159806904
+    ],
+    "i felt that once i’d set the searches on here, i just went to the image tagging.": [
+        2,
+        0.8284943188595103
+    ],
+    "and every time it, sort of, rang, i just went back and, you know, if it came up with a group buzz, like, yes, fine.": [
+        2,
+        0.9074091375697478
+    ],
+    "i didn’t even look at the difference.": [
+        0,
+        0.7797242434449403
+    ],
+    "i thought; it’s better than before price, however, by however much.": [
+        0,
+        0.7736885429219381
+    ],
+    "and in then in terms of the items that didn’t come up with a group save, i just bought them.": [
+        2,
+        0.8565883973666129
+    ],
+    "and then, you know, if i didn’t have searches running, i was doing the image tagging.": [
+        2,
+        0.8788436050053648
+    ],
+    "and then i’d done the searches, and then bought outright when the searches didn’t come up with anything.": [
+        2,
+        0.7856838614120399
+    ],
+    "then i was just left with a few of those, and just flipped between, i think, if i felt like it.": [
+        2,
+        0.9082339639153809
+    ],
+    "i think, for the most part, i probably got that done quite… the shopping thing quite quickly.": [
+        2,
+        0.9071029374633887
+    ],
+    "but i don’t know how that compares.": [
+        0,
+        0.8328318989265443
+    ],
+    "quicker than i thought.": [
+        0,
+        0.6828327904549574
+    ],
+    "i thought it might take longer, actually, yes.": [
+        0,
+        0.8928156021882434
+    ],
+    "i think… i would have thought the image tagging would have taken less, but not so.": [
+        2,
+        0.891751313339862
+    ],
+    "what are your thoughts on the agent?": [
+        0,
+        0.682833517732201
+    ],
+    "did you think it behaved, like, to your satisfaction, or not really?": [
+        2,
+        0.8671108301254641
+    ],
+    "yes, i think it did.": [
+        0,
+        0.8974854244131854
+    ],
+    "i think so.": [
+        0,
+        0.827382065471722
+    ],
+    "because i did feel, i did sense, that the majority of items were available on the group save.": [
+        2,
+        0.8827304385805771
+    ],
+    "so, you know, i was quite pleased with that.": [
+        0,
+        0.8818491612889439
+    ],
+    "i think, in terms of coverage, the agent was good.": [
+        0,
+        0.7769173910675016
+    ],
+    "yes, i didn’t really pay too much attention to the discounts, because, i guess, it just depends who’s available.": [
+        2,
+        0.8903317838756716
+    ],
+    "who the agent finds at the time, and that fluctuates.": [
+        0,
+        0.5934087257200549
+    ],
+    "so, maybe can you elaborate on that a little bit?": [
+        0,
+        0.8613570329723889
+    ],
+    "how come the discounts didn’t matter to you?": [
+        0,
+        0.7479584998938551
+    ],
+    "i think, knowing from the outset that, you know, it was set at, you know, if you could have bought everything just directly, i just thought any saving is a saving.": [
+        1,
+        0.9549896293002987
+    ],
+    "and, i think, with 15 items, it would all tot up anyway to be something, not massively significant, but better than if you pay full price.": [
+        2,
+        0.9301006845580154
+    ],
+    "so, yes, that’s why i didn’t pay attention to it too much.": [
+        2,
+        0.8442771774839963
+    ],
+    "i think, if it was… if they were items that i bought regularly, then i would probably pay more attention to the discounts.": [
+        2,
+        0.9167477059083812
+    ],
+    "yes, i think, generally, that’s my shopping habit, because i, you know, as much as i say shopping habits, i don’t want to be lazy about it, because, yes, i think, over time, these things matter.": [
+        1,
+        0.9011578810636958
+    ],
+    "what else?": [
+        0,
+        0.6873734596208921
+    ],
+    "i want to know what the missing words are?": [
+        0,
+        0.8429105916393279
+    ],
+    "so, you really care more about the image tagging thing?": [
+        0,
+        0.8229415864636218
+    ],
+    "i think so, yes, because i think, you know, with the shopping, it is what it is.": [
+        2,
+        0.9320107520619463
+    ],
+    "the prices are, you know… whereas the image tagging is, kind of, like, well, it just depends, doesn’t it?": [
+        2,
+        0.8766341760103946
+    ],
+    "yes, and i hate shopping.": [
+        0,
+        0.6942362811798817
+    ],
+    "that was fine, because it’s not real, you know.": [
+        0,
+        0.8955545427370194
+    ],
+    "i actually hate going and shopping, grocery shopping.": [
+        0,
+        0.6305417220100789
+    ],
+    "i .": [
+        0,
+        0.47722140996442197
+    ],
+    "anything else you want to add, or are we done with the official part?": [
+        2,
+        0.8637791428436409
+    ],
+    "i just guess i have questions, i suppose.": [
+        0,
+        0.8029540914036355
+    ],
+    "but i’ll wait for the debrief, because it might answer my questions.": [
+        2,
+        0.7774901915335857
+    ],
+    ": i suppose for the buying task what i did was i looked at the difference between the buy now and the agent options, like the price difference.": [
+        2,
+        0.8919791777068325
+    ],
+    "like if the price difference was relatively low, like 20p or so, i would go with buy for the most part.": [
+        2,
+        0.8960611739116847
+    ],
+    "but if it was quite big, like 40p/50p, i would try and go with agent first but if it failed like a few times, i would just end up going with buy anyway because that was still the better option than to not buy it because of the harsh penalties.": [
+        1,
+        0.9409878941224666
+    ],
+    "well, the two... like while i was waiting for the agents, like i started an image tag task and basically i did them but every time i heard like a sound from the shop, i would go back to that to check.": [
+        1,
+        0.9329535380816656
+    ],
+    "most of the time they failed to find a match, so in that case i just bought it anyway.": [
+        2,
+        0.9099573568581011
+    ],
+    "but once i'd bought all the items i pretty much went straight to the image tally task.": [
+        2,
+        0.8221815812714695
+    ],
+    "they did not do a good job.": [
+        0,
+        0.8082301036096403
+    ],
+    "because for the most part they failed to find one and even if they did find one, the price difference was only minimal, like 8p/10p, compared to the buy now.": [
+        2,
+        0.8776526691780089
+    ],
+    "so, it wasn't really that much worth.": [
+        0,
+        0.8371375180603655
+    ],
+    "not really, because like i bought most of the items anyway, like without looking for an agent, like about half of them, like... but i think since considering the price was very minimal, i just decided to keep it.": [
+        1,
+        0.9513899599074398
+    ],
+    "because i didn't want to be surprised and say, oh, it was nothing or.": [
+        2,
+        0.8957023188366273
+    ],
+    "i suppose it'll be a random number generator.": [
+        0,
+        0.7002217909260595
+    ],
+    "like, for example, like sometimes it would come up with a good number, sometimes it wouldn't.": [
+        2,
+        0.885144564810275
+    ],
+    "or a good price in this case.": [
+        0,
+        0.7160817673410628
+    ],
+    "but for the most part it didn't.": [
+        0,
+        0.7161253796309867
+    ],
+    "i guess that's probably random, depending on .": [
+        0,
+        0.762392554750597
+    ],
+    "quite a bit but mostly on amazon, though.": [
+        0,
+        0.6974425145711639
+    ],
+    "so, it's not like i'm using sainsbury's or waitrose.": [
+        0,
+        0.8207601991165645
+    ],
+    "i sometimes go on price comparison websites but, other than that... i don't have an automatic thing.": [
+        2,
+        0.8978618617939025
+    ],
+    "maybe for like food shopping but not for like amazon shopping or argos shopping.": [
+        2,
+        0.7075340189548135
+    ],
+    "because like i would know... because i think... because for what i buy, it's probably too expensive to do an agency thing.": [
+        2,
+        0.9274115608497527
+    ],
+    "like maybe for something like these it wouldn't be such a problem, like chocolates and nuts and all that.": [
+        2,
+        0.8632341070983077
+    ],
+    "no, that's pretty much it.": [
+        0,
+        0.8370144823361116
+    ],
+    "i mean, who was the highest person got on an image?": [
+        0,
+        0.7609425710181639
+    ],
+    "okay, no problem.": [
+        0,
+        0.6854442046284923
+    ],
+    "yes, that's fine.": [
+        0,
+        0.7093692191078989
+    ],
+    "that's fine.": [
+        0,
+        0.5903412611499839
+    ],
+    ": yes, i had a strategy.": [
+        0,
+        0.7226381374580836
+    ],
+    "what i decided to do was to select all of the 15 products, there, and automate them all to start with, and then gave it five minutes to see if they could find a group to buy with.": [
+        2,
+        0.9038973760513592
+    ],
+    "whilst that was going on, i did the image tasks and went through them.": [
+        2,
+        0.8269840220681528
+    ],
+    "the image tasks, i just looked at it and, like, you know, approached it as analytically as possible , so worked… and worked through them as quickly as possible.": [
+        2,
+        0.8406207655028213
+    ],
+    "once i stopped getting alerts for the… for the shopping items, i went back to the shop and saw there were two items remaining, and so i bought those outright, rather than asking it to spend more time looking for a group.": [
+        1,
+        0.8933726527325315
+    ],
+    "well, there were only two items left, and there would have still been some of the budget left, so… and i’d got all the other items at the group-sale price, you know, so it wasn’t much damage to the budget compared to… compared to buying them all outright.": [
+        1,
+        0.8942391004107161
+    ],
+    "and then, that allowed me to then focus on the picture task, like, entirely, so… image task.": [
+        2,
+        0.7524432501621525
+    ],
+    "i found i was able to work through the images quite quickly.": [
+        0,
+        0.7647758903909642
+    ],
+    "0:02:03 i think it did a really good job, you know?": [
+        2,
+        0.8792703256506653
+    ],
+    "i mean, it got… it got me 13 out of the 15 items, like, at a group price.": [
+        2,
+        0.9094922452740488
+    ],
+    "so yes, the majority of the shopping, it got… it got cheaper, you know, by doing it through the… by finding a group, you know?": [
+        2,
+        0.9160455539575977
+    ],
+    "and many of them, it seemed to find a group quite quickly, well within the five minutes.": [
+        2,
+        0.7699972003311858
+    ],
+    "after the… after the five minutes was up, like i said, there were only the two remaining, so… yes, i asked it to buy straight away and notify me, .": [
+        2,
+        0.8787743888591375
+    ],
+    "it was because of the time limit, you know.": [
+        0,
+        0.8669058492348711
+    ],
+    "so because of the time limit, and it’s… you can’t waste time to go through every transaction, to authorise every single one individually and say yes or not.": [
+        2,
+        0.8821368544139238
+    ],
+    "you know, and that… so that takes up a lot of your time to do that.": [
+        2,
+        0.883557583600962
+    ],
+    "so it’s… when you know that you’re going to get it cheaper whatever happens, like, that way, then it’s fine to set it up automatically.": [
+        2,
+        0.9072100147620474
+    ],
+    "and by setting the notifications, you know, i had something… i didn’t have to keep looking at the screen.": [
+        2,
+        0.887364043661064
+    ],
+    "once i stopped getting notifications… well, the notification noise stopped for a while, i knew that there were… they weren’t buying anymore, so i was able to go back to the shop and then buy those remaining two items outright.": [
+        1,
+        0.9049200883103512
+    ],
+    "so that’s… i thought the notification was really useful.": [
+        0,
+        0.8535417547175858
+    ],
+    "buying and notifying, i found that really useful.": [
+        0,
+        0.7144363009867817
+    ],
+    "i think would work if you have people that are, like, working at their computer all day and don’t have time to go out shopping, but they can… they could do this kind of thing here and have buy-and-notify thing, so that they could just have… be doing their work at their computer and then, like, you know, find out what they have left to do at the end of the day, you know?": [
+        1,
+        0.9440771087872778
+    ],
+    "i think it’s a really good idea.": [
+        0,
+        0.8460945022128462
+    ],
+    "it’s always a trouble at home, like, the way is always to balance things, you know, to… you know, you want to buy decent things and eat well, but then, you know, you’re pushed for time.": [
+        1,
+        0.9120768587556756
+    ],
+    "you know, you don’t have time to go out and spend an hour of your day shopping, you know, so, you know, it’s good because you can almost automate that… you can automate that process, you know, so it’s… this is done in five minutes, which is what… it would take someone half an hour or an hour to do in a shop, you know, so… no, i think that’s .": [
+        1,
+        0.9252600214993454
+    ]
+}

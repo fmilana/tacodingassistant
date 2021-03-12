@@ -17,14 +17,15 @@ coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 cat_df = pd.read_csv('text/reorder_categories.csv')
 
 
-def generate_training_and_testing_data():
+def generate_training_and_testing_data(many_together):
     # convert embedding string to np array
-    coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
-        lambda x: np.fromstring(
-            x.replace('\n','')
-            .replace('[','')
-            .replace(']','')
-            .replace('  ',' '), sep=' '))
+    if not many_together:
+        coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
+            lambda x: np.fromstring(
+                x.replace('\n','')
+                .replace('[','')
+                .replace(']','')
+                .replace('  ',' '), sep=' '))
 
     # split into training and testing
     by_themes = coded_df.groupby('themes')
@@ -62,9 +63,10 @@ def add_classification_to_csv(prediction_array, predicted_proba):
     predict_df.to_csv(predict_file_path, index=False)
 
 
-def classify(sentence_embedding_matrix, clf):
+def classify(sentence_embedding_matrix, clf, many_together):
     (train_embedding_matrix, test_embedding_matrix, train_themes_binary_matrix,
-        test_themes_binary_matrix) = generate_training_and_testing_data()
+        test_themes_binary_matrix) = generate_training_and_testing_data(
+            many_together)
 
     # scale data to [0-1] to avoid negative data passed to MultinomialNB
     if isinstance(clf, MultinomialNB):
@@ -82,7 +84,8 @@ def classify(sentence_embedding_matrix, clf):
 
     predicted_proba = clf.predict_proba(sentence_embedding_matrix)
 
-    add_classification_to_csv(prediction_array, predicted_proba)
+    if not many_together:
+        add_classification_to_csv(prediction_array, predicted_proba)
 
 
 # move to app.py?
@@ -147,4 +150,44 @@ clf = KNeighborsClassifier(n_neighbors=5)
 # clf = AdaBoostClassifier()
 
 
-classify(sentence_embedding_matrix, clf)
+# classify(sentence_embedding_matrix, clf, False)
+
+coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
+    lambda x: np.fromstring(
+        x.replace('\n','')
+        .replace('[','')
+        .replace(']','')
+        .replace('  ',' '), sep=' '))
+
+print('---------------kNN(k=1)----------------')
+for i in range(5):
+    clf = KNeighborsClassifier(n_neighbors=1)
+    classify(sentence_embedding_matrix, clf, True)
+print('---------------kNN(k=5)----------------')
+for i in range(5):
+    clf = KNeighborsClassifier(n_neighbors=5)
+    classify(sentence_embedding_matrix, clf, True)
+print('---------------MultinomialNB----------------')
+for i in range(5):
+    clf = MultinomialNB()
+    classify(sentence_embedding_matrix, clf, True)
+print('---------------GaussianNB----------------')
+for i in range(5):
+    clf = GaussianNB()
+    classify(sentence_embedding_matrix, clf, True)
+print('---------------DecisionTree----------------')
+for i in range(5):
+    clf = tree.DecisionTreeClassifier()
+    classify(sentence_embedding_matrix, clf, True)
+print('---------------RandomForest----------------')
+for i in range(5):
+    clf = RandomForestClassifier(max_depth=2, random_state=0)
+    classify(sentence_embedding_matrix, clf, True)
+print('---------------MLP----------------')
+for i in range(5):
+    clf = MLPClassifier(alpha=1, max_iter=1000)
+    classify(sentence_embedding_matrix, clf, True)
+print('---------------AdaBoost----------------')
+for i in range(5):
+    clf = AdaBoostClassifier()
+    classify(sentence_embedding_matrix, clf, True)
