@@ -31,14 +31,15 @@ coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 cat_df = pd.read_csv(categories_file_path)
 
 
-def generate_training_and_testing_data():
+def generate_training_and_testing_data(many_together):
     # convert embedding string to np array
-    coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
-        lambda x: np.fromstring(
-            x.replace('\n','')
-            .replace('[','')
-            .replace(']','')
-            .replace('  ',' '), sep=' '))
+    if not many_together:
+        coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
+            lambda x: np.fromstring(
+                x.replace('\n','')
+                .replace('[','')
+                .replace(']','')
+                .replace('  ',' '), sep=' '))
 
     # split into training and testing
     by_themes = coded_df.groupby('themes')
@@ -134,8 +135,9 @@ def plot_training_data():
     plt.show()
 
 
-def classify(sentence_embedding_matrix, clf):
-    X_train, X_test, Y_train, Y_test, _ = generate_training_and_testing_data()
+def classify(sentence_embedding_matrix, clf, many_together):
+    X_train, X_test, Y_train, Y_test, _ = generate_training_and_testing_data(
+        many_together)
 
     # scale data to [0-1] to avoid negative data passed to MultinomialNB
     if isinstance(clf, MultinomialNB):
@@ -159,13 +161,13 @@ def classify(sentence_embedding_matrix, clf):
     clf.fit(X_train, Y_train)
 
     test_score = clf.score(X_test, Y_test)
-    print(f'test score >>>>>>>>>> {test_score}')
 
     prediction_output = clf.predict(sentence_embedding_matrix)
 
-    print(f'passing prediction_output of shape {prediction_output.shape} to add_classification_to_csv')
+    if not many_together:
+        add_classification_to_csv(clf, prediction_output)
 
-    add_classification_to_csv(clf, prediction_output)
+    return test_score
 
 
 # move to app.py?
@@ -254,11 +256,91 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 # clf = ClassifierChain(
 #     classifier=RandomForestClassifier(max_depth=2, random_state=0)
 # )
-clf = ClassifierChain(
-    classifier=MLPClassifier(alpha=1, max_iter=1000)
-)
+# clf = ClassifierChain(
+#     classifier=MLPClassifier(alpha=1, max_iter=1000)
+# )
 
-classify(sentence_embedding_matrix, clf)
-
+# classify(sentence_embedding_matrix, clf, False)
 
 # plot_training_data()
+
+
+coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
+    lambda x: np.fromstring(
+        x.replace('\n','')
+        .replace('[','')
+        .replace(']','')
+        .replace('  ',' '), sep=' '))
+
+
+scores = []
+for i in range(5):
+    clf = MLkNN(k=1, s=0.5)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'MLkNN(k=1) >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = MLkNN(k=3, s=0.5)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'MLkNN(k=3) >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = BRkNNaClassifier(k=1)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'BRkNN(k=1) >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = BRkNNaClassifier(k=3)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'BRkNN(k=3) >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = MLARAM(threshold=0.04, vigilance=0.99)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'MLARAM >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = BinaryRelevance(classifier=tree.DecisionTreeClassifier())
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'BinaryRelevance Decision Tree >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = BinaryRelevance(classifier=RandomForestClassifier(max_depth=2, random_state=0))
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'BinaryRelevance Random Forest >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = BinaryRelevance(classifier=MLPClassifier(alpha=1, max_iter=1000))
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'BinaryRelevance MLP >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=1))
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'ClassifierChain KNN(k=1) >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = ClassifierChain(classifier=tree.DecisionTreeClassifier())
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'ClassifierChain Decision Tree >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = ClassifierChain(classifier=RandomForestClassifier(max_depth=2, random_state=0))
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'ClassifierChain Random Forest >>>>>> {sum(scores)/len(scores)}')
+
+scores = []
+for i in range(5):
+    clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'ClassifierChain MLP >>>>>> {sum(scores)/len(scores)}')
