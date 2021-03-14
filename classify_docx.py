@@ -78,7 +78,6 @@ def classify(sentence_embedding_matrix, clf, many_together):
     clf.fit(train_embedding_matrix, train_themes_binary_matrix)
 
     test_score = clf.score(test_embedding_matrix, test_themes_binary_matrix)
-    print(f'test score >>>>>>>>>> {test_score}')
 
     prediction_array = clf.predict(sentence_embedding_matrix)
 
@@ -86,6 +85,8 @@ def classify(sentence_embedding_matrix, clf, many_together):
 
     if not many_together:
         add_classification_to_csv(prediction_array, predicted_proba)
+
+    return test_score
 
 
 # move to app.py?
@@ -160,34 +161,50 @@ coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
         .replace('  ',' '), sep=' '))
 
 print('---------------kNN(k=1)----------------')
-for i in range(5):
+scores = []
+for i in range(20):
     clf = KNeighborsClassifier(n_neighbors=1)
-    classify(sentence_embedding_matrix, clf, True)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'{sum(scores)/len(scores)}')
 print('---------------kNN(k=5)----------------')
-for i in range(5):
+scores = []
+for i in range(20):
     clf = KNeighborsClassifier(n_neighbors=5)
-    classify(sentence_embedding_matrix, clf, True)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'{sum(scores)/len(scores)}')
 print('---------------MultinomialNB----------------')
-for i in range(5):
+scores = []
+for i in range(20):
     clf = MultinomialNB()
-    classify(sentence_embedding_matrix, clf, True)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'{sum(scores)/len(scores)}')
 print('---------------GaussianNB----------------')
-for i in range(5):
+scores = []
+for i in range(20):
     clf = GaussianNB()
-    classify(sentence_embedding_matrix, clf, True)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'{sum(scores)/len(scores)}')
 print('---------------DecisionTree----------------')
-for i in range(5):
+scores = []
+for i in range(20):
     clf = tree.DecisionTreeClassifier()
-    classify(sentence_embedding_matrix, clf, True)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'{sum(scores)/len(scores)}')
 print('---------------RandomForest----------------')
-for i in range(5):
+scores = []
+for i in range(20):
     clf = RandomForestClassifier(max_depth=2, random_state=0)
-    classify(sentence_embedding_matrix, clf, True)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'{sum(scores)/len(scores)}')
 print('---------------MLP----------------')
-for i in range(5):
+scores = []
+for i in range(20):
     clf = MLPClassifier(alpha=1, max_iter=1000)
-    classify(sentence_embedding_matrix, clf, True)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'{sum(scores)/len(scores)}')
 print('---------------AdaBoost----------------')
-for i in range(5):
+scores = []
+for i in range(20):
     clf = AdaBoostClassifier()
-    classify(sentence_embedding_matrix, clf, True)
+    scores.append(classify(sentence_embedding_matrix, clf, True))
+print(f'{sum(scores)/len(scores)}')
