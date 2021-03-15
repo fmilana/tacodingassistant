@@ -33,6 +33,10 @@ cat_df = pd.read_csv(categories_file_path)
 
 
 def generate_training_and_testing_data(many_together):
+    themes_list = []
+    for i, col in enumerate(coded_df.columns):
+        if i >= 7:
+            themes_list.append(col)
     # convert embedding string to np array
     if not many_together:
         coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
@@ -64,11 +68,8 @@ def generate_training_and_testing_data(many_together):
     train_themes_binary_matrix = train_df.iloc[:, 7:].to_numpy()
     test_themes_binary_matrix = test_df.iloc[:, 7:].to_numpy()
 
-    # train_themes_list = train_df['themes'].tolist()
-    test_themes_list = test_df['themes'].tolist()
-
     return (train_embedding_matrix, test_embedding_matrix,
-        train_themes_binary_matrix, test_themes_binary_matrix, test_themes_list)
+        train_themes_binary_matrix, test_themes_binary_matrix, themes_list)
 
 
 def add_classification_to_csv(clf, prediction_output):
@@ -86,23 +87,19 @@ def add_classification_to_csv(clf, prediction_output):
     predict_df.to_csv(predict_file_path, index=False)
 
 
-def get_confusion_matrix(Y_true, Y_predicted, test_themes_list):
+def plot_heatmaps(clf_name, Y_true, Y_predicted, themes_list):
     all_cms = multilabel_confusion_matrix(Y_true, Y_predicted.toarray())
-    
-    themes_list = []
-    for themes in test_themes_list:
-        if ';' in themes:
-            for theme in themes.split('; '):
-                if theme not in themes_list:
-                    themes_list.append(theme)
-        else:
-            if themes not in themes_list:
-                themes_list.append(themes)
+    print(all_cms)
+
+    print(f'themes_list = {themes_list}')
 
     fig, ax = plt.subplots(2, 3, figsize=(12, 7))
     for axes, cm, theme in zip(ax.flatten(), all_cms, themes_list):
-        plot_multilabel_confusion_matrix(cm, axes, theme, ['Y', 'N'])
+        plot_multilabel_confusion_matrix(cm, axes, theme, ['N', 'Y'])
+
+    fig.suptitle(clf_name, fontsize=16)
     fig.tight_layout()
+
     plt.show()
 
 
@@ -119,16 +116,16 @@ def plot_multilabel_confusion_matrix(cm, axes, theme, class_names, fontsize=14):
     axes.set_title(theme)
 
 
-def classify(sentence_embedding_matrix, clf, many_together):
+def classify(sentence_embedding_matrix, clf, clf_name, many_together):
     (X_train, X_test,
-    Y_train, Y_test, test_themes_list) = generate_training_and_testing_data(
+    Y_train, Y_test, themes_list) = generate_training_and_testing_data(
         many_together)
 
     # scale data to [0-1] to avoid negative data passed to MultinomialNB
-    if isinstance(clf, MultinomialNB):
-        scaler = MinMaxScaler()
-        X_train = scaler.fit_transform(X_train)
-        X_test = scaler.fit_transform(X_test)
+    # if isinstance(clf, MultinomialNB):
+    #     scaler = MinMaxScaler()
+    #     X_train = scaler.fit_transform(X_train)
+    #     X_test = scaler.fit_transform(X_test)
     # elif isinstance(clf, BRkNNaClassifier):
     #     parameters = {'k': range(1, 5)}
     #     clf = GridSearchCV(clf, parameters, scoring='f1_macro')
@@ -152,7 +149,7 @@ def classify(sentence_embedding_matrix, clf, many_together):
     if not many_together:
         add_classification_to_csv(clf, prediction_output)
 
-    get_confusion_matrix(Y_test, clf.predict(X_test), test_themes_list)
+    plot_heatmaps(clf_name, Y_test, clf.predict(X_test), themes_list)
 
     return test_score
 
@@ -331,5 +328,13 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 #     scores.append(classify(sentence_embedding_matrix, clf, True))
 # print(f'ClassifierChain MLP >>>>>> {sum(scores)/len(scores)}')
 
+
+
 clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
-classify(sentence_embedding_matrix, clf, False)
+classify(sentence_embedding_matrix, clf, 'ClassifierChain MLP', False)
+
+# clf = ClassifierChain(classifier=RandomForestClassifier(max_depth=2, random_state=0))
+# classify(sentence_embedding_matrix, clf, 'ClassifierChain Random Forest', False)
+
+# clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=1))
+# classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=1)', False)
