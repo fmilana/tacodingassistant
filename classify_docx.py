@@ -4,6 +4,7 @@ import numpy as np
 import scipy
 import math
 import matplotlib.pyplot as plt
+import seaborn as sns
 from matplotlib.colors import ListedColormap
 from matplotlib.cm import hsv
 from sklearn.multiclass import OneVsRestClassifier
@@ -20,7 +21,7 @@ from skmultilearn.problem_transform import (
     LabelPowerset
 )
 from sklearn.model_selection import GridSearchCV
-from sklearn.decomposition import PCA
+from sklearn.metrics import multilabel_confusion_matrix
 
 
 train_file_path = 'text/reorder_exit_train.csv'
@@ -63,10 +64,11 @@ def generate_training_and_testing_data(many_together):
     train_themes_binary_matrix = train_df.iloc[:, 7:].to_numpy()
     test_themes_binary_matrix = test_df.iloc[:, 7:].to_numpy()
 
-    train_themes_list = train_df['themes'].tolist()
+    # train_themes_list = train_df['themes'].tolist()
+    test_themes_list = test_df['themes'].tolist()
 
     return (train_embedding_matrix, test_embedding_matrix,
-        train_themes_binary_matrix, test_themes_binary_matrix, train_themes_list)
+        train_themes_binary_matrix, test_themes_binary_matrix, test_themes_list)
 
 
 def add_classification_to_csv(clf, prediction_output):
@@ -84,59 +86,42 @@ def add_classification_to_csv(clf, prediction_output):
     predict_df.to_csv(predict_file_path, index=False)
 
 
-def generate_colormap(number_of_distinct_colors: int = 80):
-    if number_of_distinct_colors == 0:
-        number_of_distinct_colors = 80
-    number_of_shades = 7
-    number_of_distinct_colors_with_multiply_of_shades = int(math.ceil(number_of_distinct_colors / number_of_shades) * number_of_shades)
-    # Create an array with uniformly drawn floats taken from <0, 1) partition
-    linearly_distributed_nums = np.arange(number_of_distinct_colors_with_multiply_of_shades) / number_of_distinct_colors_with_multiply_of_shades
-    # We are going to reorganise monotonically growing numbers in such way that there will be single array with saw-like pattern
-    #     but each saw tooth is slightly higher than the one before
-    # First divide linearly_distributed_nums into number_of_shades sub-arrays containing linearly distributed numbers
-    arr_by_shade_rows = linearly_distributed_nums.reshape(number_of_shades, number_of_distinct_colors_with_multiply_of_shades // number_of_shades)
-    # Transpose the above matrix (columns become rows) - as a result each row contains saw tooth with values slightly higher than row above
-    arr_by_shade_columns = arr_by_shade_rows.T
-    # Keep number of saw teeth for later
-    number_of_partitions = arr_by_shade_columns.shape[0]
-    # Flatten the above matrix - join each row into single array
-    nums_distributed_like_rising_saw = arr_by_shade_columns.reshape(-1)
-    # HSV colour map is cyclic (https://matplotlib.org/tutorials/colors/colormaps.html#cyclic), we'll use this property
-    initial_cm = hsv(nums_distributed_like_rising_saw)
-    lower_partitions_half = number_of_partitions // 2
-    upper_partitions_half = number_of_partitions - lower_partitions_half
-    # Modify lower half in such way that colours towards beginning of partition are darker
-    # First colours are affected more, colours closer to the middle are affected less
-    lower_half = lower_partitions_half * number_of_shades
-    for i in range(3):
-        initial_cm[0:lower_half, i] *= np.arange(0.2, 1, 0.8/lower_half)
-    # Modify second half in such way that colours towards end of partition are less intense and brighter
-    # Colours closer to the middle are affected less, colours closer to the end are affected more
-    for i in range(3):
-        for j in range(upper_partitions_half):
-            modifier = np.ones(number_of_shades) - initial_cm[lower_half + j * number_of_shades: lower_half + (j + 1) * number_of_shades, i]
-            modifier = j * modifier / upper_partitions_half
-            initial_cm[lower_half + j * number_of_shades: lower_half + (j + 1) * number_of_shades, i] += modifier
-    return ListedColormap(initial_cm)
+def get_confusion_matrix(Y_true, Y_predicted, test_themes_list):
+    all_cms = multilabel_confusion_matrix(Y_true, Y_predicted.toarray())
+    
+    themes_list = []
+    for themes in test_themes_list:
+        if ';' in themes:
+            for theme in themes.split('; '):
+                if theme not in themes_list:
+                    themes_list.append(theme)
+        else:
+            if themes not in themes_list:
+                themes_list.append(themes)
 
-
-def plot_training_data():
-    train_embedding_matrix, _, _, _, train_themes_list = generate_training_and_testing_data()
-    le = LabelEncoder()
-    train_themes_encoded = le.fit_transform(train_themes_list)
-    pca = PCA(2)
-    projected = pca.fit_transform(train_embedding_matrix)
-    plt.scatter(projected[:, 0], projected[:, 1],
-        c=train_themes_encoded,
-        edgecolors='none',
-        cmap=generate_colormap(len(set(train_themes_list)))
-    )
-    plt.colorbar()
+    fig, ax = plt.subplots(2, 3, figsize=(12, 7))
+    for axes, cm, theme in zip(ax.flatten(), all_cms, themes_list):
+        plot_multilabel_confusion_matrix(cm, axes, theme, ['Y', 'N'])
+    fig.tight_layout()
     plt.show()
 
 
+def plot_multilabel_confusion_matrix(cm, axes, theme, class_names, fontsize=14):
+    cm_df = pd.DataFrame(cm, columns=class_names, index=class_names)
+
+    heatmap = sns.heatmap(cm_df, annot=True, fmt='d', cbar=False, ax=axes)
+    heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0,
+        ha='right', fontsize=fontsize)
+    heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45,
+        ha='right', fontsize=fontsize)
+    axes.set_ylabel('True label')
+    axes.set_xlabel('Predicted label')
+    axes.set_title(theme)
+
+
 def classify(sentence_embedding_matrix, clf, many_together):
-    X_train, X_test, Y_train, Y_test, _ = generate_training_and_testing_data(
+    (X_train, X_test,
+    Y_train, Y_test, test_themes_list) = generate_training_and_testing_data(
         many_together)
 
     # scale data to [0-1] to avoid negative data passed to MultinomialNB
@@ -166,6 +151,8 @@ def classify(sentence_embedding_matrix, clf, many_together):
 
     if not many_together:
         add_classification_to_csv(clf, prediction_output)
+
+    get_confusion_matrix(Y_test, clf.predict(X_test), test_themes_list)
 
     return test_score
 
@@ -262,85 +249,87 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
 # classify(sentence_embedding_matrix, clf, False)
 
-# plot_training_data()
 
 
-coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
-    lambda x: np.fromstring(
-        x.replace('\n','')
-        .replace('[','')
-        .replace(']','')
-        .replace('  ',' '), sep=' '))
+# coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
+#     lambda x: np.fromstring(
+#         x.replace('\n','')
+#         .replace('[','')
+#         .replace(']','')
+#         .replace('  ',' '), sep=' '))
+#
+#
+# scores = []
+# for i in range(5):
+#     clf = MLkNN(k=1, s=0.5)
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'MLkNN(k=1) >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = MLkNN(k=3, s=0.5)
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'MLkNN(k=3) >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = BRkNNaClassifier(k=1)
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'BRkNN(k=1) >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = BRkNNaClassifier(k=3)
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'BRkNN(k=3) >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = MLARAM(threshold=0.04, vigilance=0.99)
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'MLARAM >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = BinaryRelevance(classifier=tree.DecisionTreeClassifier())
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'BinaryRelevance Decision Tree >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = BinaryRelevance(classifier=RandomForestClassifier(max_depth=2, random_state=0))
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'BinaryRelevance Random Forest >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = BinaryRelevance(classifier=MLPClassifier(alpha=1, max_iter=1000))
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'BinaryRelevance MLP >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=1))
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'ClassifierChain KNN(k=1) >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = ClassifierChain(classifier=tree.DecisionTreeClassifier())
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'ClassifierChain Decision Tree >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = ClassifierChain(classifier=RandomForestClassifier(max_depth=2, random_state=0))
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# # print(f'ClassifierChain Random Forest >>>>>> {sum(scores)/len(scores)}')
+#
+# scores = []
+# for i in range(5):
+#     clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
+#     scores.append(classify(sentence_embedding_matrix, clf, True))
+# print(f'ClassifierChain MLP >>>>>> {sum(scores)/len(scores)}')
 
-
-scores = []
-for i in range(5):
-    clf = MLkNN(k=1, s=0.5)
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'MLkNN(k=1) >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = MLkNN(k=3, s=0.5)
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'MLkNN(k=3) >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = BRkNNaClassifier(k=1)
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'BRkNN(k=1) >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = BRkNNaClassifier(k=3)
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'BRkNN(k=3) >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = MLARAM(threshold=0.04, vigilance=0.99)
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'MLARAM >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = BinaryRelevance(classifier=tree.DecisionTreeClassifier())
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'BinaryRelevance Decision Tree >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = BinaryRelevance(classifier=RandomForestClassifier(max_depth=2, random_state=0))
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'BinaryRelevance Random Forest >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = BinaryRelevance(classifier=MLPClassifier(alpha=1, max_iter=1000))
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'BinaryRelevance MLP >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=1))
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'ClassifierChain KNN(k=1) >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = ClassifierChain(classifier=tree.DecisionTreeClassifier())
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'ClassifierChain Decision Tree >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = ClassifierChain(classifier=RandomForestClassifier(max_depth=2, random_state=0))
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'ClassifierChain Random Forest >>>>>> {sum(scores)/len(scores)}')
-
-scores = []
-for i in range(5):
-    clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
-    scores.append(classify(sentence_embedding_matrix, clf, True))
-print(f'ClassifierChain MLP >>>>>> {sum(scores)/len(scores)}')
+clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
+classify(sentence_embedding_matrix, clf, False)
