@@ -12,7 +12,11 @@ from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB, GaussianNB
 from sklearn import tree
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.ensemble import (
+    AdaBoostClassifier,
+    GradientBoostingClassifier,
+    RandomForestClassifier
+)
 from sklearn.neural_network import MLPClassifier
 from skmultilearn.adapt import MLkNN, BRkNNaClassifier, MLARAM
 from skmultilearn.problem_transform import (
@@ -21,7 +25,7 @@ from skmultilearn.problem_transform import (
     LabelPowerset
 )
 from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import multilabel_confusion_matrix
+from sklearn.metrics import classification_report, multilabel_confusion_matrix
 
 
 train_file_path = 'text/reorder_exit_train.csv'
@@ -89,9 +93,9 @@ def add_classification_to_csv(clf, prediction_output):
 
 def plot_heatmaps(clf_name, Y_true, Y_predicted, themes_list):
     all_cms = multilabel_confusion_matrix(Y_true, Y_predicted.toarray())
-    print(all_cms)
-
-    print(f'themes_list = {themes_list}')
+    # print(all_cms)
+    #
+    # print(f'themes_list = {themes_list}')
 
     fig, ax = plt.subplots(2, 3, figsize=(12, 7))
     for axes, cm, theme in zip(ax.flatten(), all_cms, themes_list):
@@ -142,16 +146,25 @@ def classify(sentence_embedding_matrix, clf, clf_name, many_together):
 
     clf.fit(X_train, Y_train)
 
-    test_score = clf.score(X_test, Y_test)
+    # test_score = clf.score(X_test, Y_test)
+    scores = []
+
+    test_pred = clf.predict(X_test).toarray()
+    for col in range(test_pred.shape[1]):
+        equals = np.equal(test_pred[:, col], Y_test[:, col])
+        score = np.sum(equals)/equals.size
+        # print(f'{target_names[col]}: {np.sum(equals)}/{equals.size} = {score}')
+        scores.append(score)
+    # print(classification_report(test_pred, Y_test, target_names=target_names))
 
     prediction_output = clf.predict(sentence_embedding_matrix)
 
     if not many_together:
         add_classification_to_csv(clf, prediction_output)
 
-    plot_heatmaps(clf_name, Y_test, clf.predict(X_test), themes_list)
+    # plot_heatmaps(clf_name, Y_test, clf.predict(X_test), themes_list)
 
-    return test_score
+    return scores
 
 
 # move to app.py?
@@ -247,14 +260,14 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 # classify(sentence_embedding_matrix, clf, False)
 
 
-
-# coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
-#     lambda x: np.fromstring(
-#         x.replace('\n','')
-#         .replace('[','')
-#         .replace(']','')
-#         .replace('  ',' '), sep=' '))
 #
+coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
+    lambda x: np.fromstring(
+        x.replace('\n','')
+        .replace('[','')
+        .replace(']','')
+        .replace('  ',' '), sep=' '))
+# #
 #
 # scores = []
 # for i in range(5):
@@ -323,18 +336,84 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 # # print(f'ClassifierChain Random Forest >>>>>> {sum(scores)/len(scores)}')
 #
 # scores = []
-# for i in range(5):
+# for i in range(20):
 #     clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
+#     scores.append(classify(sentence_embedding_matrix, clf,
+#         'ClassifierChain MLP', True))
 # print(f'ClassifierChain MLP >>>>>> {sum(scores)/len(scores)}')
 
+# scores = []
+# for i in range(20):
+#     clf = ClassifierChain(classifier=AdaBoostClassifier(
+#         n_estimators=2, learning_rate=0.4))
+#     scores.append(classify(sentence_embedding_matrix, clf,
+#         'ClassifierChain AdaBoost', True))
+# print(f'ClassifierChain AdaBoost >>>>>>> {sum(scores)/len(scores)}')
+
+class_names = ['practices', 'social', 'study vs product',
+    'system perception', 'system use', 'value judgements']
+practices_score = []
+social_score = []
+study_vs_product_score = []
+system_perception_score = []
+system_use_score = []
+value_judgements_score = []
+iter = 20
+for i in range(iter):
+    clf = ClassifierChain(classifier=GradientBoostingClassifier(n_estimators=2,
+        learning_rate=0.4, max_depth=1))
+    scores = classify(sentence_embedding_matrix, clf,
+        'CCkNN(k=3)', True)
+    practices_score.append(scores[0])
+    social_score.append(scores[1])
+    study_vs_product_score.append(scores[2])
+    system_perception_score.append(scores[3])
+    system_use_score.append(scores[4])
+    value_judgements_score.append(scores[5])
+    print(f'{i+1}/{iter}')
+print(f'practices: {sum(practices_score)/len(practices_score)}')
+print(f'social: {sum(social_score)/len(social_score)}')
+print(f'study vs product: {sum(study_vs_product_score)/len(study_vs_product_score)}')
+print(f'system perception: {sum(system_perception_score)/len(system_perception_score)}')
+print(f'system use: {sum(system_use_score)/len(system_use_score)}')
+print(f'value judgements: {sum(value_judgements_score)/len(value_judgements_score)}')
 
 
-clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
-classify(sentence_embedding_matrix, clf, 'ClassifierChain MLP', False)
+
+
+# clf = ClassifierChain(classifier=AdaBoostClassifier())
+#
+# parameters = {
+#     'classifier__n_estimators': [2, 10, 25, 50],
+#     'classifier__learning_rate': [0.3, 0.4, 0.5, 0.6, 0.7]
+# }
+#
+# grid_search_cv = GridSearchCV(clf, parameters)
+#
+# # for param in grid_search_cv.get_params().keys():
+# #     print(param)
+#
+# X_train, _, Y_train, _, _ = generate_training_and_testing_data(False)
+#
+# grid_search_cv.fit(X_train, Y_train)
+# print(grid_search_cv.best_score_)
+# print(grid_search_cv.best_params_)
+
+
+
+
+
+# clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
+# classify(sentence_embedding_matrix, clf, 'ClassifierChain MLP', False)
 
 # clf = ClassifierChain(classifier=RandomForestClassifier(max_depth=2, random_state=0))
 # classify(sentence_embedding_matrix, clf, 'ClassifierChain Random Forest', False)
 
 # clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=1))
 # classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=1)', False)
+
+
+# clf = ClassifierChain(classifier=GradientBoostingClassifier(n_estimators=2,
+#     learning_rate=0.4, max_depth=1))
+# classify(sentence_embedding_matrix, clf, 'ClassifierChain Gradient Boosting',
+#     False)
