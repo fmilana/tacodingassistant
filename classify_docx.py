@@ -5,6 +5,8 @@ import scipy
 import math
 import matplotlib.pyplot as plt
 import seaborn as sns
+from nltk import word_tokenize
+from collections import Counter
 from matplotlib.colors import ListedColormap
 from matplotlib.cm import hsv
 from sklearn.multiclass import OneVsRestClassifier
@@ -26,7 +28,6 @@ from skmultilearn.problem_transform import (
 )
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, multilabel_confusion_matrix
-
 
 train_file_path = 'text/reorder_exit_train.csv'
 predict_file_path = 'text/reorder_exit_predict.csv'
@@ -68,12 +69,14 @@ def generate_training_and_testing_data(many_together):
     # create matrices from embedding array columns
     train_embedding_matrix = np.array(train_df['sentence embedding'].tolist())
     test_embedding_matrix = np.array(test_df['sentence embedding'].tolist())
+    test_cleaned_sentences = test_df['cleaned sentence'].tolist()
     # create matrices from theme binary columns
     train_themes_binary_matrix = train_df.iloc[:, 7:].to_numpy()
     test_themes_binary_matrix = test_df.iloc[:, 7:].to_numpy()
 
     return (train_embedding_matrix, test_embedding_matrix,
-        train_themes_binary_matrix, test_themes_binary_matrix, themes_list)
+        train_themes_binary_matrix, test_themes_binary_matrix,
+        test_cleaned_sentences, themes_list)
 
 
 def add_classification_to_csv(clf, prediction_output):
@@ -91,15 +94,15 @@ def add_classification_to_csv(clf, prediction_output):
     predict_df.to_csv(predict_file_path, index=False)
 
 
-def plot_heatmaps(clf_name, Y_true, Y_predicted, themes_list):
+def plot_heatmaps(clf_name, Y_true, Y_predicted, sentences_dict, themes_list):
     all_cms = multilabel_confusion_matrix(Y_true, Y_predicted.toarray())
-    # print(all_cms)
-    #
-    # print(f'themes_list = {themes_list}')
+
+    all_label_cms = get_keyword_labels(sentences_dict, themes_list)
 
     fig, ax = plt.subplots(2, 3, figsize=(12, 7))
-    for axes, cm, theme in zip(ax.flatten(), all_cms, themes_list):
-        plot_multilabel_confusion_matrix(cm, axes, theme, ['N', 'Y'])
+    for axes, labels, cm, theme in zip(ax.flatten(), all_label_cms, all_cms,
+        themes_list):
+        plot_multilabel_confusion_matrix(cm, labels, axes, theme, ['N', 'Y'])
 
     fig.suptitle(clf_name, fontsize=16)
     fig.tight_layout()
@@ -107,10 +110,67 @@ def plot_heatmaps(clf_name, Y_true, Y_predicted, themes_list):
     plt.show()
 
 
-def plot_multilabel_confusion_matrix(cm, axes, theme, class_names, fontsize=14):
-    cm_df = pd.DataFrame(cm, columns=class_names, index=class_names)
+def get_keyword_labels(sentences_dict, themes_list):
+    word_freq_dict = {}
+    all_cms = []
 
-    heatmap = sns.heatmap(cm_df, annot=True, fmt='d', cbar=False, ax=axes)
+    print('all sentences_dict categories:')
+    for category in sentences_dict:
+        print(f'{category}')
+
+    more_stop_words = ['like', 're', 'would', 'know', 'yes', 'think', 'get',
+        'kind', 'nt', 'oh', 'one', 'something', 'say', 'really']
+
+    for category in sentences_dict:
+        sentence_list = sentences_dict[category]
+        joined_sentences = ''
+
+        for sentence in sentence_list:
+            if isinstance(sentence, str):
+                joined_sentences += (' ' + sentence)
+
+        if len(joined_sentences) > 0:
+            counter = Counter([word for word in word_tokenize(joined_sentences)
+                if word not in more_stop_words])
+            three_most_freq = counter.most_common(3)
+            word_freq_dict[category] = (f'{three_most_freq[0][0]} ' +
+                f'({three_most_freq[0][1]})\n' +
+                f'{three_most_freq[1][0]} ({three_most_freq[1][1]})\n' +
+                f'{three_most_freq[2][0]} ({three_most_freq[2][1]})')
+        else:
+            word_freq_dict[category] = ''
+
+    for theme in themes_list:
+        print(f'theme = {theme}')
+        true_negative_keyword = word_freq_dict[theme + ' true_negatives']
+        print(f'true_negative_keyword = {true_negative_keyword}')
+        false_positive_keyword = word_freq_dict[theme + ' false_positives']
+        print(f'false_positive_keyword = {false_positive_keyword}')
+        false_negative_keyword = word_freq_dict[theme + ' false_negatives']
+        print(f'false_negative_keyword = {false_negative_keyword}')
+        true_positive_keyword = word_freq_dict[theme + ' true_positives']
+        print(f'true_positive_keyword = {true_positive_keyword}')
+        # create 2x2 keyword confusion matrix array for each theme
+        all_cms.append(np.array([[true_negative_keyword, false_positive_keyword],
+                                [false_negative_keyword, true_positive_keyword]]))
+
+    for cm in all_cms:
+        print(f'cm.shape = {cm.shape}')
+    all_cms = np.dstack(all_cms)
+    print(f'all_cms.shape = {all_cms.shape}')
+    all_cms = np.transpose(all_cms, (2, 0, 1))
+    print(f'all_cms.shape = {all_cms.shape}')
+
+    return all_cms
+
+
+def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names, fontsize=14):
+    annot = (np.asarray([f'{count}\n {keyword}'
+        for keyword, count in zip(labels.flatten(), cm.flatten())])
+        ).reshape(2, 2)
+
+    heatmap = sns.heatmap(cm, annot=annot, fmt='', cbar=False,
+        xticklabels=class_names, yticklabels=class_names, ax=axes)
     heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0,
         ha='right', fontsize=fontsize)
     heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45,
@@ -121,8 +181,8 @@ def plot_multilabel_confusion_matrix(cm, axes, theme, class_names, fontsize=14):
 
 
 def classify(sentence_embedding_matrix, clf, clf_name, many_together):
-    (X_train, X_test,
-    Y_train, Y_test, themes_list) = generate_training_and_testing_data(
+    (X_train, X_test, Y_train, Y_test,
+    test_cleaned_sentences, themes_list) = generate_training_and_testing_data(
         many_together)
 
     # scale data to [0-1] to avoid negative data passed to MultinomialNB
@@ -162,9 +222,37 @@ def classify(sentence_embedding_matrix, clf, clf_name, many_together):
     if not many_together:
         add_classification_to_csv(clf, prediction_output)
 
-    # plot_heatmaps(clf_name, Y_test, clf.predict(X_test), themes_list)
+    sentences_dict = {}
 
-    return scores
+    # for col in range(test_pred.shape[1]):
+    for col, class_name in enumerate(themes_list):
+        true_positives = []
+        true_negatives = []
+        false_positives = []
+        false_negatives = []
+
+        for row in range(test_pred.shape[0]):
+            if test_pred[row, col] == 1 and Y_test[row, col] == 1:
+                true_positives.append(test_cleaned_sentences[row])
+            elif test_pred[row, col] == 0 and Y_test[row, col] == 0:
+                true_negatives.append(test_cleaned_sentences[row])
+            elif test_pred[row, col] == 1 and Y_test[row, col] == 0:
+                false_positives.append(test_cleaned_sentences[row])
+            elif test_pred[row, col] == 0 and Y_test[row, col] == 1:
+                false_negatives.append(test_cleaned_sentences[row])
+
+        sentences_dict[class_name + ' true_positives'] = true_positives
+        sentences_dict[class_name + ' true_negatives'] = true_negatives
+        sentences_dict[class_name + ' false_positives'] = false_positives
+        sentences_dict[class_name + ' false_negatives'] = false_negatives
+
+    plot_heatmaps(clf_name, Y_test, clf.predict(X_test), sentences_dict,
+        themes_list)
+
+    # print(f'sentences_dict = {sentences_dict}')
+
+    return (scores, true_positives, true_negatives, false_positives,
+        false_negatives)
 
 
 # move to app.py?
@@ -261,12 +349,12 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
 
 #
-coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
-    lambda x: np.fromstring(
-        x.replace('\n','')
-        .replace('[','')
-        .replace(']','')
-        .replace('  ',' '), sep=' '))
+# coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
+#     lambda x: np.fromstring(
+#         x.replace('\n','')
+#         .replace('[','')
+#         .replace(']','')
+#         .replace('  ',' '), sep=' '))
 # #
 #
 # scores = []
@@ -350,33 +438,33 @@ coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
 #         'ClassifierChain AdaBoost', True))
 # print(f'ClassifierChain AdaBoost >>>>>>> {sum(scores)/len(scores)}')
 
-class_names = ['practices', 'social', 'study vs product',
-    'system perception', 'system use', 'value judgements']
-practices_score = []
-social_score = []
-study_vs_product_score = []
-system_perception_score = []
-system_use_score = []
-value_judgements_score = []
-iter = 20
-for i in range(iter):
-    clf = ClassifierChain(classifier=GradientBoostingClassifier(n_estimators=2,
-        learning_rate=0.4, max_depth=1))
-    scores = classify(sentence_embedding_matrix, clf,
-        'CCkNN(k=3)', True)
-    practices_score.append(scores[0])
-    social_score.append(scores[1])
-    study_vs_product_score.append(scores[2])
-    system_perception_score.append(scores[3])
-    system_use_score.append(scores[4])
-    value_judgements_score.append(scores[5])
-    print(f'{i+1}/{iter}')
-print(f'practices: {sum(practices_score)/len(practices_score)}')
-print(f'social: {sum(social_score)/len(social_score)}')
-print(f'study vs product: {sum(study_vs_product_score)/len(study_vs_product_score)}')
-print(f'system perception: {sum(system_perception_score)/len(system_perception_score)}')
-print(f'system use: {sum(system_use_score)/len(system_use_score)}')
-print(f'value judgements: {sum(value_judgements_score)/len(value_judgements_score)}')
+# class_names = ['practices', 'social', 'study vs product',
+#     'system perception', 'system use', 'value judgements']
+# practices_score = []
+# social_score = []
+# study_vs_product_score = []
+# system_perception_score = []
+# system_use_score = []
+# value_judgements_score = []
+# iter = 20
+# for i in range(iter):
+#     clf = ClassifierChain(classifier=GradientBoostingClassifier(n_estimators=2,
+#         learning_rate=0.4, max_depth=1))
+#     scores = classify(sentence_embedding_matrix, clf,
+#         'CCkNN(k=3)', True)
+#     practices_score.append(scores[0])
+#     social_score.append(scores[1])
+#     study_vs_product_score.append(scores[2])
+#     system_perception_score.append(scores[3])
+#     system_use_score.append(scores[4])
+#     value_judgements_score.append(scores[5])
+#     print(f'{i+1}/{iter}')
+# print(f'practices: {sum(practices_score)/len(practices_score)}')
+# print(f'social: {sum(social_score)/len(social_score)}')
+# print(f'study vs product: {sum(study_vs_product_score)/len(study_vs_product_score)}')
+# print(f'system perception: {sum(system_perception_score)/len(system_perception_score)}')
+# print(f'system use: {sum(system_use_score)/len(system_use_score)}')
+# print(f'value judgements: {sum(value_judgements_score)/len(value_judgements_score)}')
 
 
 
@@ -393,7 +481,7 @@ print(f'value judgements: {sum(value_judgements_score)/len(value_judgements_scor
 # # for param in grid_search_cv.get_params().keys():
 # #     print(param)
 #
-# X_train, _, Y_train, _, _ = generate_training_and_testing_data(False)
+# X_train, _, Y_train, _, _, _ = generate_training_and_testing_data(False)
 #
 # grid_search_cv.fit(X_train, Y_train)
 # print(grid_search_cv.best_score_)
@@ -413,7 +501,5 @@ print(f'value judgements: {sum(value_judgements_score)/len(value_judgements_scor
 # classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=1)', False)
 
 
-# clf = ClassifierChain(classifier=GradientBoostingClassifier(n_estimators=2,
-#     learning_rate=0.4, max_depth=1))
-# classify(sentence_embedding_matrix, clf, 'ClassifierChain Gradient Boosting',
-#     False)
+clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
+classify(sentence_embedding_matrix, clf, 'ClassifierChain MLP', False)
