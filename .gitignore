@@ -5,3 +5,5 @@
 *.csv
 /logs
 classification.txt
+/models
+text/glove.twitter.27B.100d.txt

@@ -56,7 +56,7 @@ def generate_training_and_testing_data(many_together):
 
     training_list = []
     testing_list = []
-    # we now iterate by codes
+    # we now iterate by themes
     for name, group in by_themes:
         training = group.sample(frac=.8)
         testing = group.loc[~group.index.isin(training.index)]
