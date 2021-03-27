@@ -79,16 +79,26 @@ def generate_training_and_testing_data(many_together):
         test_cleaned_sentences, themes_list)
 
 
-def add_classification_to_csv(clf, prediction_output):
+def add_classification_to_csv(clf, prediction_output, prediction_proba):
     predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
 
     themes_list = cat_df.category.unique()
 
     if isinstance(prediction_output, scipy.sparse.spmatrix):
-        new_df = pd.DataFrame.sparse.from_spmatrix(data=prediction_output,
+        out_df = pd.DataFrame.sparse.from_spmatrix(data=prediction_output,
             columns=themes_list)
     else:
-        new_df = pd.DataFrame(data=prediction_output, columns=themes_list)
+        out_df = pd.DataFrame(data=prediction_output, columns=themes_list)
+
+    proba_cols = [f'{theme} probability' for theme in themes_list]
+
+    if isinstance(prediction_proba, scipy.sparse.spmatrix):
+        proba_df = pd.DataFrame.sparse.from_spmatrix(data=prediction_proba,
+            columns=proba_cols)
+    else:
+        proba_df = pd.DataFrame(data=prediction_proba, columns=proba_cols)
+
+    new_df = pd.concat([out_df, proba_df], axis=1)
 
     predict_df = predict_df.merge(new_df, left_index=True, right_index=True)
     predict_df.to_csv(predict_file_path, index=False)
@@ -114,52 +124,50 @@ def get_keyword_labels(sentences_dict, themes_list):
     word_freq_dict = {}
     all_cms = []
 
-    print('all sentences_dict categories:')
-    for category in sentences_dict:
-        print(f'{category}')
-
-    more_stop_words = ['like', 're', 'would', 'know', 'yes', 'think', 'get',
-        'kind', 'nt', 'oh', 'one', 'something', 'say', 'really']
+    more_stop_words = ['like', 'yes', 'actually', 'something', 'going', 'could',
+        'would', 'oh', 'things', 'think', 'know', 'really', 'well', 'kind',
+        'always', 'mean', 'maybe', 'get', 'guess', 'bit', 'much', 'go', 'one',
+        'thing', 'probably']
 
     for category in sentences_dict:
         sentence_list = sentences_dict[category]
         joined_sentences = ''
+        joined_vocab = []
 
         for sentence in sentence_list:
             if isinstance(sentence, str):
                 joined_sentences += (' ' + sentence)
 
+                for word in set(word_tokenize(sentence)):
+                    joined_vocab.append(word)
+
         if len(joined_sentences) > 0:
-            counter = Counter([word for word in word_tokenize(joined_sentences)
+            counter_freq = Counter([word for word in word_tokenize(joined_sentences)
                 if word not in more_stop_words])
-            three_most_freq = counter.most_common(3)
-            word_freq_dict[category] = (f'{three_most_freq[0][0]} ' +
-                f'({three_most_freq[0][1]})\n' +
-                f'{three_most_freq[1][0]} ({three_most_freq[1][1]})\n' +
-                f'{three_most_freq[2][0]} ({three_most_freq[2][1]})')
+
+            counter_vocab = Counter(joined_vocab)
+
+            first_most_freq = counter_freq.most_common(3)[0]
+            second_most_freq = counter_freq.most_common(3)[1]
+            third_most_freq = counter_freq.most_common(3)[2]
+            word_freq_dict[category] = (f'{first_most_freq[0]} ' +
+                f'(f: {first_most_freq[1]}, s: {counter_vocab[first_most_freq[0]]})\n' +
+                f'{second_most_freq[0]} (f: {second_most_freq[1]}, s: {counter_vocab[second_most_freq[0]]})\n' +
+                f'{third_most_freq[0]} (f: {third_most_freq[1]}, s: {counter_vocab[third_most_freq[0]]})')
         else:
             word_freq_dict[category] = ''
 
     for theme in themes_list:
-        print(f'theme = {theme}')
         true_negative_keyword = word_freq_dict[theme + ' true_negatives']
-        print(f'true_negative_keyword = {true_negative_keyword}')
         false_positive_keyword = word_freq_dict[theme + ' false_positives']
-        print(f'false_positive_keyword = {false_positive_keyword}')
         false_negative_keyword = word_freq_dict[theme + ' false_negatives']
-        print(f'false_negative_keyword = {false_negative_keyword}')
         true_positive_keyword = word_freq_dict[theme + ' true_positives']
-        print(f'true_positive_keyword = {true_positive_keyword}')
         # create 2x2 keyword confusion matrix array for each theme
         all_cms.append(np.array([[true_negative_keyword, false_positive_keyword],
                                 [false_negative_keyword, true_positive_keyword]]))
 
-    for cm in all_cms:
-        print(f'cm.shape = {cm.shape}')
     all_cms = np.dstack(all_cms)
-    print(f'all_cms.shape = {all_cms.shape}')
     all_cms = np.transpose(all_cms, (2, 0, 1))
-    print(f'all_cms.shape = {all_cms.shape}')
 
     return all_cms
 
@@ -219,8 +227,12 @@ def classify(sentence_embedding_matrix, clf, clf_name, many_together):
 
     prediction_output = clf.predict(sentence_embedding_matrix)
 
+    prediction_output = prediction_output.astype(int)
+
+    prediction_proba = clf.predict_proba(sentence_embedding_matrix)
+
     if not many_together:
-        add_classification_to_csv(clf, prediction_output)
+        add_classification_to_csv(clf, prediction_output, prediction_proba)
 
     sentences_dict = {}
 
@@ -282,7 +294,8 @@ predict_file_path = 'text/reorder_exit_predict.csv'
 text = get_text(docx_file_path)
 text = remove_interviewer(text)
 
-writer = csv.writer(open(predict_file_path, 'w', newline=''))
+file = open(predict_file_path, 'w', newline='')
+writer = csv.writer(file, delimiter=',')
 writer.writerow(['file name', 'original sentence', 'cleaned_sentence',
     'sentence embedding'])
 
@@ -304,6 +317,8 @@ for sentence in uncoded_original_sentences:
         sentence_embedding])
 
     sentence_embedding_list.append(sentence_embedding)
+
+file.close()
 
 sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
@@ -491,8 +506,8 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
 
 
-# clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
-# classify(sentence_embedding_matrix, clf, 'ClassifierChain MLP', False)
+clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
+classify(sentence_embedding_matrix, clf, 'ClassifierChain MLP', False)
 
 # clf = ClassifierChain(classifier=RandomForestClassifier(max_depth=2, random_state=0))
 # classify(sentence_embedding_matrix, clf, 'ClassifierChain Random Forest', False)
@@ -500,6 +515,14 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 # clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=1))
 # classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=1)', False)
 
+# clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=3))
+# classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=3)', False)
 
-clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
-classify(sentence_embedding_matrix, clf, 'ClassifierChain MLP', False)
+# clf = ClassifierChain(classifier=GradientBoostingClassifier(n_estimators=2,
+#         learning_rate=0.4, max_depth=1))
+# classify(sentence_embedding_matrix, clf, 'ClassifierChain Gradient Boosting',
+#     False)
+# #
+# clf = ClassifierChain(classifier=AdaBoostClassifier(n_estimators=2,
+#     learning_rate=0.4))
+# classify(sentence_embedding_matrix, clf, 'ClassifierChain AdaBoost', False)
