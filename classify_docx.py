@@ -38,10 +38,11 @@ cat_df = pd.read_csv(categories_file_path)
 
 
 def generate_training_and_testing_data(many_together):
-    themes_list = []
-    for i, col in enumerate(coded_df.columns):
-        if i >= 7:
-            themes_list.append(col)
+    # themes_list = []
+    # for i, col in enumerate(coded_df.columns):
+    #     if i >= 7:
+    #         themes_list.append(col)
+    themes_list = cat_df.category.unique()
     # convert embedding string to np array
     if not many_together:
         coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
