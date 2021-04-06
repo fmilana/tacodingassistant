@@ -4,4 +4,6 @@
 *.docx
 *.csv
 /logs
-clusters.txt
+classification.txt
+/models
+/embeddings

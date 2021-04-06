@@ -27,13 +27,13 @@ class Sentence2Vec:
         sentence = re.sub(r'[^A-Za-z0-9\s]', r'', str(sentence).lower())
         # get word vectors from model
         word_vectors = [self.model.wv[word] for word in word_tokenize(sentence)
-                   if word in self.model.wv]
+            if word in self.model.wv]
         # create empty sentence vector
         sentence_vector = np.zeros(self.model.vector_size)
         # sentence vector equals average of word vectors
         if (len(word_vectors) > 0):
             sentence_vector = (np.array([sum(word_vector) for word_vector
-                                in zip(*word_vectors)])) / sentence_vector.size
+                in zip(*word_vectors)])) / sentence_vector.size
 
         self.vector_sentence_dict[sentence_vector.tobytes()] = sentence
 
