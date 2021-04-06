@@ -259,13 +259,47 @@ def classify(sentence_embedding_matrix, clf, clf_name, many_together):
         sentences_dict[class_name + ' false_positives'] = false_positives
         sentences_dict[class_name + ' false_negatives'] = false_negatives
 
-    plot_heatmaps(clf_name, Y_test, clf.predict(X_test), sentences_dict,
-        themes_list)
+    # plot_heatmaps(clf_name, Y_test, clf.predict(X_test), sentences_dict,
+    #     themes_list)
+
+    ##### evaluate f-measure per class ######
+
+    f_measures = []
+
+    for col in range(test_pred.shape[1]):
+        tp = 0
+        fp = 0
+        fn = 0
+
+        for row in range(test_pred.shape[0]):
+            if test_pred[row][col] == 1 and Y_test[row][col] == 1:
+                tp += 1
+            elif test_pred[row][col] == 1 and Y_test[row][col] == 0:
+                fp += 1
+            elif test_pred[row][col] == 0 and Y_test[row][col] == 1:
+                fn += 1
+
+        if (tp + fp) > 0:
+            precision = tp / (tp + fp)
+        else:
+            precision = 0
+
+        if (tp + fn) > 0:
+            recall = tp / (tp + fn)
+        else:
+            recall = 0
+
+        if (precision + recall) > 0:
+            f_measure = (2 * precision * recall) / (precision + recall)
+        else:
+            f_measure = 0
+
+        f_measures.append(f_measure)
 
     # print(f'sentences_dict = {sentences_dict}')
 
     return (scores, true_positives, true_negatives, false_positives,
-        false_negatives)
+        false_negatives, f_measures)
 
 
 # move to app.py?
@@ -505,25 +539,37 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
 
 
+# clf = MLkNN(k=1, s=0.5)
+# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'MLkNN(k=1)', False)
 
+# clf = MLkNN(k=3, s=0.5)
+# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'MLkNN(k=3)', False)
 
-clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
-classify(sentence_embedding_matrix, clf, 'ClassifierChain MLP', False)
+clf = MLARAM(threshold=0.04, vigilance=0.99)
+_, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'MLARAM', False)
+
+# clf = ClassifierChain(classifier=tree.DecisionTreeClassifier())
+# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain Decision Tree', False)
+
+# clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
+# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain MLP', False)
 
 # clf = ClassifierChain(classifier=RandomForestClassifier(max_depth=2, random_state=0))
-# classify(sentence_embedding_matrix, clf, 'ClassifierChain Random Forest', False)
+# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain Random Forest', False)
 
 # clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=1))
-# classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=1)', False)
+# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=1)', False)
 
 # clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=3))
-# classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=3)', False)
+# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=3)', False)
 
 # clf = ClassifierChain(classifier=GradientBoostingClassifier(n_estimators=2,
 #         learning_rate=0.4, max_depth=1))
-# classify(sentence_embedding_matrix, clf, 'ClassifierChain Gradient Boosting',
+# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain Gradient Boosting',
 #     False)
-# #
+
 # clf = ClassifierChain(classifier=AdaBoostClassifier(n_estimators=2,
 #     learning_rate=0.4))
-# classify(sentence_embedding_matrix, clf, 'ClassifierChain AdaBoost', False)
+# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain AdaBoost', False)
+
+print(f_measures)

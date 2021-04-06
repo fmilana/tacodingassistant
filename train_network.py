@@ -26,6 +26,7 @@ from keras.layers import (
     LSTM,
     MaxPooling1D,
     Input)
+from keras.utils import plot_model
 from sklearn.metrics import accuracy_score, multilabel_confusion_matrix
 from sklearn.model_selection import RepeatedKFold
 from sklearn.utils import class_weight
@@ -44,7 +45,7 @@ cat_df = pd.read_csv('text/reorder_categories.csv')
 
 
 def get_embedding_matrix(word_index):
-    glove_file = open('embeddings/glove.twitter.27B.100d.txt', encoding='utf-8')
+    glove_file = open('embeddings/glove.twitter.27B.200d.txt', encoding='utf-8')
 
     embedding_dict = {}
 
@@ -55,7 +56,7 @@ def get_embedding_matrix(word_index):
         embedding_dict[word] = vector_dimensions
     glove_file.close()
 
-    embedding_matrix = np.zeros((len(word_index) + 1, 100))
+    embedding_matrix = np.zeros((len(word_index) + 1, 200))
     for word, index in word_index.items():
         try:
             embedding_vector = embedding_dict[word]
@@ -174,7 +175,7 @@ def get_model(version, vocab_size, max_sentence_length, embedding_matrix, y_trai
     if version == 'pretrained_lstm':
         model = Sequential()
         model.add(Input(shape=(max_sentence_length,)))
-        model.add(Embedding(vocab_size, 100, weights=[embedding_matrix],
+        model.add(Embedding(vocab_size, 200, weights=[embedding_matrix],
             mask_zero=True, trainable=False))
         model.add(LSTM(8))
         # model.add(Dropout(0.2))
@@ -183,7 +184,7 @@ def get_model(version, vocab_size, max_sentence_length, embedding_matrix, y_trai
     elif version == 'pretrained_conv1d':
         # 27.47% accuracy
         model = Sequential()
-        model.add(Embedding(vocab_size, 100, input_length=max_sentence_length,
+        model.add(Embedding(vocab_size, 200, input_length=max_sentence_length,
             weights=[embedding_matrix], mask_zero=True, trainable=False))
         model.add(Conv1D(32, 6, padding='valid', activation='relu'))
         model.add(MaxPooling1D(5))
@@ -195,7 +196,7 @@ def get_model(version, vocab_size, max_sentence_length, embedding_matrix, y_trai
     elif version == 'non_pretrained_conv1d':
         # 23.98% accuracy
         model = Sequential()
-        model.add(Embedding(vocab_size, 100, input_length=max_sentence_length,
+        model.add(Embedding(vocab_size, 200, input_length=max_sentence_length,
             mask_zero=True))
         model.add(Conv1D(32, 6, padding='valid', activation='relu'))
         model.add(MaxPooling1D(5))
@@ -261,13 +262,35 @@ def get_keyword_labels(sentences_dict, themes_list):
 
             counter_vocab = Counter(joined_vocab)
 
-            first_most_freq = counter_freq.most_common(3)[0]
-            second_most_freq = counter_freq.most_common(3)[1]
-            third_most_freq = counter_freq.most_common(3)[2]
-            word_freq_dict[category] = (f'{first_most_freq[0]} ' +
-                f'(f: {first_most_freq[1]}, s: {counter_vocab[first_most_freq[0]]})\n' +
-                f'{second_most_freq[0]} (f: {second_most_freq[1]}, s: {counter_vocab[second_most_freq[0]]})\n' +
-                f'{third_most_freq[0]} (f: {third_most_freq[1]}, s: {counter_vocab[third_most_freq[0]]})')
+            text = ''
+
+            try:
+                first_most_freq = counter_freq.most_common(3)[0]
+                text += (f'{first_most_freq[0]} ' +
+                    f'(f: {first_most_freq[1]}, ' +
+                    f's: {counter_vocab[first_most_freq[0]]})\n')
+            except IndexError:
+                word_freq_dict[category] = ''
+                continue
+            try:
+                second_most_freq = counter_freq.most_common(3)[1]
+                text += (f'{second_most_freq[0]} ' +
+                    f'(f: {second_most_freq[1]}, ' +
+                    f's: {counter_vocab[second_most_freq[0]]})\n')
+            except IndexError:
+                word_freq_dict[category] = text
+                continue
+            try:
+                third_most_freq = counter_freq.most_common(3)[2]
+                text += (f'{third_most_freq[0]} ' +
+                    f'(f: {third_most_freq[1]}, ' +
+                    f's: {counter_vocab[third_most_freq[0]]})')
+            except IndexError:
+                word_freq_dict[category] = text
+                continue
+
+            word_freq_dict[category] = text
+
         else:
             word_freq_dict[category] = ''
 
@@ -384,42 +407,48 @@ print(f'y_test.shape = {y_test.shape}')
 # model = get_model('pretrained_lstm', vocab_size, max_sentence_length,
 #     embedding_matrix, y_train)
 
-model = get_model('pretrained_lstm', vocab_size, max_sentence_length,
+model = get_model('pretrained_conv1d', vocab_size, max_sentence_length,
     embedding_matrix, y_train)
 
 # model = get_model('non_pretrained_conv1d', vocab_size, max_sentence_length,
 #     None, y_train)
 
+# plot_model(model, to_file='models/pretrained_lstm.png', show_shapes=True)
+# plot_model(model, to_file='models/pretrained_conv1d.png', show_shapes=True)
+
 # print(model.summary())
 
 callbacks = [
     EarlyStopping(monitor='val_loss', patience=4),
-    ModelCheckpoint(filepath='models/pretrained_lstm_model.h5',
-        monitor='val_loss', save_best_only=True),
-    # ModelCheckpoint(filepath='models/pretrained_conv1d_model.h5',
+    # ModelCheckpoint(filepath='models/pretrained_lstm_model.h5',
     #     monitor='val_loss', save_best_only=True),
+    ModelCheckpoint(filepath='models/pretrained_conv1d_model.h5',
+        monitor='val_loss', save_best_only=True),
     # ModelCheckpoint(filepath='models/non_pretrained_conv1d_model.h5',
     #     monitor='val_loss', save_best_only=True),
     ReduceLROnPlateau()
 ]
 
-############### WITH CLASS WEIGHTS ########################
-# class_count_list = [sum(i) for i in zip(*y_train)]
-# max_class_count = max(class_count_list)
-# class_weights_list = [(max_class_count/i) * 10 for i in class_count_list]
-#
-# # num_samples = y_test.shape[0]
-# # class_weights_list = [num_samples/count for count in class_count_list]
-#
-# class_weight = dict(enumerate(class_weights_list))
-#
-# print(f'CLASS WEIGHTS ===========> {class_weight}')
-#
-# history = model.fit(x_train, y_train, epochs=100, batch_size=16,
-#     validation_data=(x_val, y_val), class_weight=class_weight,
-#     callbacks=callbacks)
-#
-# plot_graphs(history)
+############### CLASS WEIGHTS ########################
+class_count_list = [sum(i) for i in zip(*y_train)]
+max_class_count = max(class_count_list)
+class_weights_list = [max_class_count/i  for i in class_count_list]
+
+# num_samples = y_test.shape[0]
+# class_weights_list = [num_samples/count for count in class_count_list]
+
+class_weight = dict(enumerate(class_weights_list))
+
+# hard coded:
+# class_weight = {0: 1.4, 1: 4.9, 2: 2, 3: 3.2, 4: 1, 5: 1}
+
+print(f'CLASS WEIGHTS ===========> {class_weight}')
+
+history = model.fit(x_train, y_train, epochs=100, batch_size=16,
+    validation_data=(x_val, y_val), class_weight=class_weight,
+    callbacks=callbacks)
+
+plot_graphs(history)
 
 ################ WITH CUSTOM LOSS ########################
 # history = model.fit(x_train, y_train, epochs=100, batch_size=16,
@@ -437,12 +466,16 @@ callbacks = [
 
 
 
+# RUN *AFTER* classify_with_network.py (really?)
+# model = load_model('models/pretrained_lstm_model.h5', compile=False)
+# model = load_model('models/pretrained_conv1d_model.h5', compile=False)
+# model = load_model('models/non_pretrained_conv1d_model.h5', compile=False)
+# plot_cm(model, x_test, y_test, test_cleaned_sentences)
 
 
 
-
-##### evaluate accuracy #####
-
+##### evaluate accuracy over n iter #####
+#
 # def evaluate_accuracy(model, iter):
 #     accuracy_list = []
 #
@@ -454,14 +487,61 @@ callbacks = [
 #
 #     return sum(accuracy_list)/len(accuracy_list)
 #
-# model = load_model('models/pretrained_lstm_model.h5', compile=False)
-# model = load_model('models/pretrained_conv1d_model.h5', compile=False)
-# model = load_model('models/non_pretrained_conv1d_model.h5', compile=False)
-# print(f'accuracy over 20 iterations = {evaluate_accuracy(model, 20)}')
+# print(f'accuracy over 10 iterations = {evaluate_accuracy(model, 10)}')
+#
+#
 
 
-# RUN *AFTER* classify_with_network.py (really?)
-model = load_model('models/pretrained_lstm_model.h5', compile=False)
-# model = load_model('models/pretrained_conv1d_model.h5', compile=False)
-# model = load_model('models/non_pretrained_conv1d_model.h5', compile=False)
-plot_cm(model, x_test, y_test, test_cleaned_sentences)
+
+
+
+
+
+
+
+# ##### evaluate accuracy and f-measure per class ######
+#
+pred = np.rint(model.predict(x_test))
+
+f_measures = []
+accuracies = []
+
+for col in range(pred.shape[1]):
+    tp = 0
+    fp = 0
+    fn = 0
+
+    accurate = 0
+
+    for row in range(pred.shape[0]):
+        if pred[row][col] == 1 and y_test[row][col] == 1:
+            tp += 1
+            accurate += 1
+        elif pred[row][col] == 1 and y_test[row][col] == 0:
+            fp += 1
+        elif pred[row][col] == 0 and y_test[row][col] == 1:
+            fn += 1
+        else:
+            accurate +=1
+
+    accuracies.append(accurate/pred.shape[0])
+
+    if (tp + fp) > 0:
+        precision = tp / (tp + fp)
+    else:
+        precision = 0
+
+    if (tp + fn) > 0:
+        recall = tp / (tp + fn)
+    else:
+        recall = 0
+
+    if (precision + recall) > 0:
+        f_measure = (2 * precision * recall) / (precision + recall)
+    else:
+        f_measure = 0
+
+    f_measures.append(f_measure)
+
+print(f'accuracy = {accuracies}')
+print(f'f-measure = {f_measures}')
