@@ -35,6 +35,7 @@ def remove_stop_words(text):
         if word not in stop_words and word not in extra_stop_words]
     text = ' '.join(word_tokens)
     return text
+    
 
 def clean_sentence(sentence):
     sentence = re.sub(r'[^A-Za-z ]+', '', sentence)

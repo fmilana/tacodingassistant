@@ -125,10 +125,7 @@ def get_keyword_labels(sentences_dict, themes_list):
     word_freq_dict = {}
     all_cms = []
 
-    more_stop_words = ['like', 'yes', 'actually', 'something', 'going', 'could',
-        'would', 'oh', 'things', 'think', 'know', 'really', 'well', 'kind',
-        'always', 'mean', 'maybe', 'get', 'guess', 'bit', 'much', 'go', 'one',
-        'thing', 'probably']
+    stop_words = open('text/analysis_stopwords.txt', 'r').read().split(',')
 
     for category in sentences_dict:
         sentence_list = sentences_dict[category]
@@ -144,7 +141,7 @@ def get_keyword_labels(sentences_dict, themes_list):
 
         if len(joined_sentences) > 0:
             counter_freq = Counter([word for word in word_tokenize(joined_sentences)
-                if word not in more_stop_words])
+                if word not in stop_words])
 
             counter_vocab = Counter(joined_vocab)
 
