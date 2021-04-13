@@ -28,6 +28,8 @@ from skmultilearn.problem_transform import (
 )
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, multilabel_confusion_matrix
+from xgboost import XGBClassifier
+
 
 train_file_path = 'text/reorder_exit_train.csv'
 predict_file_path = 'text/reorder_exit_predict.csv'
@@ -37,7 +39,30 @@ coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 cat_df = pd.read_csv(categories_file_path)
 
 
-def generate_training_and_testing_data(many_together):
+def get_sample_weights(Y_train):
+    sample_weights = []
+    sums = Y_train.sum(axis=0)
+    num_most_common = np.amax(sums)
+    class_weights = []
+
+    for x in sums:
+        class_weights.append(num_most_common/x)
+
+    for row in range(Y_train.shape[0]):
+        sample_weight = 1
+
+        for col in range(Y_train.shape[1]):
+            if Y_train[row][col] == 1:
+                class_weight = class_weights[col]
+                if class_weight > sample_weight:
+                    sample_weight = class_weight
+
+        sample_weights.append(sample_weight)
+
+    return np.asarray(sample_weights)
+
+
+def generate_training_and_testing_data(oversample, many_together):
     # themes_list = []
     # for i, col in enumerate(coded_df.columns):
     #     if i >= 7:
@@ -66,6 +91,28 @@ def generate_training_and_testing_data(many_together):
     # create two new dataframes from the lists
     train_df = pd.concat(training_list)
     test_df = pd.concat(testing_list)
+
+    # oversample minority classes
+    if oversample:
+        Y_train = train_df.iloc[:, 7:].to_numpy()
+
+        class_dist = [x/Y_train.shape[0] for x in Y_train.sum(axis=0)]
+
+        print(f'class distribution before oversampling = {class_dist}')
+
+        sample_weights = get_sample_weights(Y_train)
+        sample_weights = np.rint(sample_weights)
+
+        train_df = train_df.reindex(train_df.index.repeat(sample_weights))
+
+        Y_train_os = train_df.iloc[:, 7:].to_numpy()
+
+        class_dist_os = [x/Y_train_os.shape[0] for x in Y_train_os.sum(axis=0)]
+
+        print(f'class distribution after oversampling = {class_dist_os}')
+
+        train_df.to_csv('text/reorder_exit_oversampled.csv', index=False,
+            header=True)
 
     # create matrices from embedding array columns
     train_embedding_matrix = np.array(train_df['sentence embedding'].tolist())
@@ -175,8 +222,12 @@ def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names, fonts
         for keyword, count in zip(labels.flatten(), cm.flatten())])
         ).reshape(2, 2)
 
-    heatmap = sns.heatmap(cm, annot=annot, fmt='', cbar=False,
+    cmap = sns.color_palette("ch:start=.2,rot=-.3", as_cmap=True)
+
+    heatmap = sns.heatmap(cm, cmap=cmap, annot=annot, fmt='', cbar=False,
         xticklabels=class_names, yticklabels=class_names, ax=axes)
+    sns.color_palette("ch:start=.2,rot=-.3", as_cmap=True)
+
     heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0,
         ha='right', fontsize=fontsize)
     heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45,
@@ -186,10 +237,10 @@ def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names, fonts
     axes.set_title(theme)
 
 
-def classify(sentence_embedding_matrix, clf, clf_name, many_together):
+def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together):
     (X_train, X_test, Y_train, Y_test,
     test_cleaned_sentences, themes_list) = generate_training_and_testing_data(
-        many_together)
+        oversample, many_together)
 
     # scale data to [0-1] to avoid negative data passed to MultinomialNB
     # if isinstance(clf, MultinomialNB):
@@ -223,11 +274,7 @@ def classify(sentence_embedding_matrix, clf, clf_name, many_together):
         scores.append(score)
     # print(classification_report(test_pred, Y_test, target_names=target_names))
 
-    print(f'sentence_embedding_matrix.shape = {sentence_embedding_matrix.shape}')
-
     prediction_output = clf.predict(sentence_embedding_matrix)
-
-    print(f'prediction_output.shape = {prediction_output.shape}')
 
     prediction_output = prediction_output.astype(int)
 
@@ -263,14 +310,16 @@ def classify(sentence_embedding_matrix, clf, clf_name, many_together):
     # plot_heatmaps(clf_name, Y_test, clf.predict(X_test), sentences_dict,
     #     themes_list)
 
-    ##### evaluate f-measure per class ######
+    ##### evaluate accuracy and f-measure per class ######
 
+    accuracies = []
     f_measures = []
 
     for col in range(test_pred.shape[1]):
         tp = 0
         fp = 0
         fn = 0
+        tn = 0
 
         for row in range(test_pred.shape[0]):
             if test_pred[row][col] == 1 and Y_test[row][col] == 1:
@@ -279,6 +328,8 @@ def classify(sentence_embedding_matrix, clf, clf_name, many_together):
                 fp += 1
             elif test_pred[row][col] == 0 and Y_test[row][col] == 1:
                 fn += 1
+            elif test_pred[row][col] == 0 and Y_test[row][col] == 0:
+                tn += 1
 
         if (tp + fp) > 0:
             precision = tp / (tp + fp)
@@ -295,12 +346,11 @@ def classify(sentence_embedding_matrix, clf, clf_name, many_together):
         else:
             f_measure = 0
 
+        accuracies.append((tp + tn)/(tp + tn + fp + fn))
         f_measures.append(f_measure)
 
-    # print(f'sentences_dict = {sentences_dict}')
-
     return (scores, true_positives, true_negatives, false_positives,
-        false_negatives, f_measures)
+        false_negatives, accuracies, f_measures)
 
 
 # move to app.py?
@@ -317,12 +367,14 @@ from preprocess import (
 
 model = Sentence2Vec()
 
+
 def get_text(file_path):
     doc = docx.Document(file_path)
     full_text = []
     for paragraph in doc.paragraphs:
         full_text.append(paragraph.text)
     return '\n'.join(full_text)
+
 
 docx_file_path = 'text/reorder_exit.docx'
 predict_file_path = 'text/reorder_exit_predict.csv'
@@ -360,7 +412,7 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
 # sklearn classifiers:
 # clf = KNeighborsClassifier(n_neighbors=5)
-clf = MultinomialNB()
+# clf = MultinomialNB()
 # clf = GaussianNB()
 # clf = tree.DecisionTreeClassifier()
 # clf = RandomForestClassifier(max_depth=2, random_state=0)
@@ -399,7 +451,7 @@ clf = MultinomialNB()
 # classify(sentence_embedding_matrix, clf, False)
 
 
-#
+# --------------------WHEN MANY TOGETHER
 # coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
 #     lambda x: np.fromstring(
 #         x.replace('\n','')
@@ -540,8 +592,8 @@ clf = MultinomialNB()
 
 
 
-clf = MLkNN(k=1, s=0.5)
-_, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'MLkNN(k=1)', False)
+# clf = MLkNN(k=1, s=0.5)
+# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'MLkNN(k=1)', True, False)
 
 # clf = MLkNN(k=3, s=0.5)
 # _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'MLkNN(k=3)', False)
@@ -566,11 +618,78 @@ _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'MLkNN(k=1)
 
 # clf = ClassifierChain(classifier=GradientBoostingClassifier(n_estimators=2,
 #         learning_rate=0.4, max_depth=1))
-# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain Gradient Boosting',
-#     False)
+# _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain Gradient Boosting oversample',
+#     True, False)
 
 # clf = ClassifierChain(classifier=AdaBoostClassifier(n_estimators=2,
 #     learning_rate=0.4))
-# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain AdaBoost', False)
+# _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain AdaBoost oversample', True, False)
 
-print(f_measures)
+# clf = ClassifierChain(classifier=XGBClassifier())
+# _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
+#     clf, 'ClassifierChain XGBoost oversample', True, False)
+
+#
+# print(f'accuracy = {accuracies}')
+# print(f'f_measures = {f_measures}')
+
+clf = ClassifierChain(classifier=XGBClassifier(scale_pos_weight=50))
+_, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
+    clf, 'title', True, False)
+
+print(f'accuracy = {accuracies}')
+print(f'f_measures = {f_measures}')
+
+# iter = 20
+#
+# themes = ['practices', 'social', 'study vs product', 'system perception',
+#     'system use', 'value_jugements']
+#
+# accuracies_dict = {theme: [] for theme in themes}
+# f_measures_dict = {theme: [] for theme in themes}
+#
+# clf = ClassifierChain(classifier=XGBClassifier(scale_pos_weight=50))
+# for i in range(iter):
+#     _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
+#         clf, 'title', True, True)
+#
+#     for j, theme in enumerate(themes):
+#         accuracies_dict[theme].append(accuracies[j])
+#         f_measures_dict[theme].append(f_measures[j])
+#
+#     print(f'{i+1}/{iter} done')
+#
+# for theme in accuracies_dict:
+#     accuracies_dict[theme] = sum(accuracies_dict[theme])/iter
+#     f_measures_dict[theme] = sum(f_measures_dict[theme])/iter
+#
+# print(f'accuracies = {[accuracies_dict[theme] for theme in themes]}')
+# print(f'f_measures = {[f_measures_dict[theme] for theme in themes]}')
+
+
+
+
+
+# clf = ClassifierChain(classifier=XGBClassifier())
+#
+# parameters = {
+#     'classifier__n_estimators': [2],
+#     'classifier__colsample_bytree': [0.6, 0.7, 0.8],
+#     'classifier__max_depth': [20, 30, 40, 50],
+#     'classifier__reg_alpha': [1.3, 1.4, 1.5],
+#     'classifier__reg_lambda': [1.3, 1.4, 1.5],
+#     'classifier__subsample': [0.9]
+# }
+#
+# grid_search_cv = GridSearchCV(clf, parameters, scoring=['accuracy', 'f1'],
+#     refit='f1')
+#
+# X_train, _, Y_train, _, _, _ = generate_training_and_testing_data(
+#     oversample=False,
+#     many_together=False)
+#
+# grid_search_cv.fit(X_train, Y_train)
+#
+# print(f'best scores: {grid_search_cv.best_score_}')
+# print(f'best params: {grid_search_cv.best_params_}')
+# # print(f'results: {grid_search_cv.cv_results_}')
