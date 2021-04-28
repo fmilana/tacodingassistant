@@ -1,21 +1,7 @@
 import sys, os
 import zipfile
 import csv
-import pandas as pd
-from nltk import sent_tokenize
 from bs4 import BeautifulSoup
-from preprocess import (
-    clean_sentence,
-    remove_interview_format,
-    remove_interviewer,
-    remove_stop_words)
-from lib.sentence2vec import Sentence2Vec
-
-
-model = Sentence2Vec()
-
-cat_df = pd.read_csv('text/reorder_categories.csv')
-
 
 def transverse(start, end, text):
     if start == end:
@@ -26,14 +12,20 @@ def transverse(start, end, text):
             return text
 
         if node.find('w:tab'):
-            text += '\t'
+            text += "\t"
         node = node.find('w:t')
         if node:
             text += node.text
 
     # if we get here it means we did not reach the end
+
     # ..so go up one level
     paragraph_node = start.parent
+    # TODO: check that it is a paragraph
+    # print('------- paragraph_node ------------')
+    # print(paragraph_node.prettify())
+    # print('-----------------------------------')
+    # print()
 
     # go to the next paragraph
     paragraph_siblings = paragraph_node.next_siblings
@@ -46,19 +38,16 @@ def transverse(start, end, text):
     # this is a paragraph
     next_paragraph_rows = next_paragraph.children
     first_row = next(next_paragraph_rows)
-    return transverse(first_row, end, text + '\n')
+    return transverse(first_row, end, text + "\n")
 
 
 def process(in_filename, out_filename):
     print('processing', in_filename)
     with zipfile.ZipFile(in_filename, 'r') as archive:
-        # write header
-        header = ['file name', 'comment id', 'original sentence',
-            'cleaned sentence', 'sentence embedding', 'codes', 'themes']
-        themes_list = cat_df.category.unique()
-        header.extend(themes_list)
-        writer = csv.writer(open(out_filename, 'w', newline=''))
-        writer.writerow(header)
+        #for name in archive.namelist():
+        #    print name
+        writer = csv.writer(open(out_filename, 'w'), lineterminator = '\n')
+        writer.writerow(['file_name', 'comment_id', 'text', 'code'])
 
         doc_xml = archive.read('word/document.xml')
         #doc_soup = BeautifulSoup(doc_xml, 'xml')
@@ -69,60 +58,36 @@ def process(in_filename, out_filename):
 
         #print 'comments:'#, comments_soup.find_all('w:comment')
         for comment in comments_soup.find_all('w:comment'):
-            codes = comment.find_all('w:t')
-            codes = ''.join([x.text for x in codes])
-            codes = codes.strip().rstrip().lower()
+            #print '+++'
+            all_codes = comment.find_all('w:t')
+            all_codes = ''.join([x.text for x in all_codes])
+            all_codes = all_codes.split(';')
+            all_codes = [x.strip().rstrip().lower() for x in all_codes]
             comment_id = comment['w:id']
 
-            range_start = doc_soup.find('w:commentrangestart',
-                attrs={'w:id': comment_id})
-            range_end = doc_soup.find('w:commentrangeend',
-                attrs={'w:id': comment_id})
+            range_start = doc_soup.find('w:commentrangestart', attrs={"w:id": comment_id})
+            range_end = doc_soup.find('w:commentrangeend', attrs={"w:id": comment_id})
 
+            #print(comment.prettify())
+
+            #print("+++")
             text = transverse(range_start, range_end, '')
             text = text.replace('\n', ' ')
+            text = text.replace('’', "'")
 
-            text = remove_interviewer(text)
+            # print(in_filename)
+            # print(repr(text))
+            # print(all_codes)
+            # print(u"\n")
 
-            sentence_to_cleaned_dict = {}
-            # split text into sentences
-            for sentence in sent_tokenize(text):
-                cleaned_sentence = clean_sentence(
-                    remove_stop_words(remove_interview_format(sentence)))
-                sentence_to_cleaned_dict[sentence] = [cleaned_sentence,
-                    model.get_vector(cleaned_sentence)]
+            #row = [in_filename, text] + all_codes
+            #writer.writerow(row)
 
-            if ';' in codes:
-                themes = []
-                for code in codes.split('; '):
-                    theme_df = cat_df.loc[cat_df['code'] == code, 'category']
-                    if theme_df.shape[0] > 0:
-                        theme = theme_df.item()
-                    # else:
-                    #     theme = 'none'
-                    if theme not in themes:
-                        themes.append(theme)
-                themes = sorted(themes, key=str.casefold)
-                themes = '; '.join(themes)
-            else:
-                theme_df = cat_df.loc[cat_df['code'] == codes, 'category']
-                if theme_df.shape[0] > 0:
-                    themes = theme_df.item()
-                # else:
-                #     themes = 'none'
-
-            if len(themes) > 0:
-                for sentence, tuple in sentence_to_cleaned_dict.items():
-                    themes_binary = []
-                    for theme in themes_list:
-                        if theme in themes:
-                            themes_binary.append(1)
-                        else:
-                            themes_binary.append(0)
-                    row = [in_filename, comment_id, sentence, tuple[0],
-                        tuple[1], codes, themes]
-                    row.extend(themes_binary)
-                    writer.writerow(row)
+            for code in all_codes:
+                if len(code.strip()) == 0:
+                    continue
+                row = [in_filename, comment_id, text, code]
+                writer.writerow(row)
 
         os.remove('tmp.xml')
 
@@ -134,7 +99,7 @@ if os.path.isdir(src) and os.path.isdir(dst):
     files = [f for f in os.listdir(src) if f.endswith('.docx')]
     for f in files:
         src_file = os.path.join(src, f)
-        dst_file = os.path.join(dst, f.replace('.docx', '_train.csv'))
+        dst_file = os.path.join(dst, f.replace('.docx', '.csv'))
         process(src_file, dst_file)
 else:
     # src and dst are files

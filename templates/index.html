@@ -4,15 +4,16 @@
     <meta charset='utf-8'>
     <title>Thematic Analysis Coding Assistant</title>
     <script src='https://d3js.org/d3.v6.min.js'></script>
-    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
     <link rel="stylesheet" type="text/css" href="../static/style.css"/>
   </head>
   <body>
     <div id='navbar'>
-      <input class='file' type='file' id='file-selector' accept='.txt'>
+      <input class='file' type='file' id='file-selector' accept='.docx'>
       <button type='button' id='code-button'>Code</button>
     </div>
-    <div id='text-box'></div>
+    <div id='text-box'>
+      <img id='loading-gif' src='../static/loading.gif'>
+    </div>
     <script src='../static/index.js'></script>
   </body>
 </html>

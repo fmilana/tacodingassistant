@@ -1,110 +1,152 @@
+var textParagraph = d3.select('#text-paragraph');
+var text = '';
 var codeButton = d3.select('#code-button');
 codeButton.attr('disabled', true);
-codeButton.on('click', code);
+codeButton.on('click', function() {
+  textParagraph
+    .style('display', 'none');
+
+  d3.select('#loading-gif')
+    .style('display', 'block');
+
+  codeText();
+});
+
+var fileName = '';
+
 
 var fileSelector = d3.select('#file-selector');
 fileSelector.on('change', function() {
-  readFile();
+  d3.select('#text-paragraph')
+    .remove();
+  d3.select('#loading-gif')
+    .style('display', 'block');
+
+  fileName = event.target.files[0].name;
+
+  loadFile();
 });
 
-function readFile() {
+
+var loadFile = function() {
   var file = event.target.files[0];
-  var fileReader = new FileReader();
-  fileReader.readAsText(file);
-  fileReader.onload = function() {
-    addFileText(fileReader.result);
-    codeButton.attr('disabled', null);
-  }
+
+  console.log('file:', file);
+
+  var formData = new FormData();
+  formData.append('doc', file);
+
+  fetch('/load_docx', {method: 'POST', body: formData})
+    .then(function(response) {
+      return response.json().then(function(jsonObj) {
+        text = jsonObj[jsonObj.length - 1].whole_text;
+
+        var sentences = [];
+
+        for (i = 0; i < jsonObj.length - 1; i++) {
+          sentences[i] = jsonObj[i].text;
+        }
+
+        text = text.replaceAll("’", "'");
+
+        text = highlightSentences(text, sentences, false);
+
+        console.log(text);
+
+        addFileText(text);
+      });
+    });
+
+  codeButton.attr('disabled', null);
 }
 
-function addFileText(text) {
-  textParagraph = d3.select('#text-paragraph');
+
+var addFileText = function(text) {
   if (!textParagraph.empty()) {
     textParagraph.remove();
   }
+  d3.select('#loading-gif')
+    .style('display', 'none');
+
   d3.select('#text-box')
-    .select('p')
+    .selectAll('p')
     .data([text])
     .enter()
     .append('p')
     .attr('id', 'text-paragraph')
-    .text(data => data);
+    .html(data => data);
 }
 
-function code() {
-  $.ajax({
-    type: 'POST',
-    url: '/code',
-    data: {'text': d3.select('#text-paragraph').text()},
-    dataType: 'text',
-    beforeSend: function() {
-      codeButton.attr('disabled', true);
-      // loading gif
-    },
-    success: function(response) {
-      var output_dict = $.parseJSON(response);
-      highlightText(output_dict);
-      codeButton.attr('disabled', null);
-    }
-  });
-}
 
-function highlightText(dict) {
-  var text = d3.select('#text-paragraph').text();
-  for (var sentence in dict) {
-    var color;
-    // console.log(dict[sentence][0]);
-    switch(dict[sentence][0]) {
-      case 0:
-        color = '#e6194B';
-        // console.log(sentence + ' ---- red');
-        break;
-      case 1:
-        color = '#3cb44b';
-        // console.log(sentence + ' ---- green');
-        break;
-      case 2:
-        color = '#ffe119';
-        // console.log(sentence + ' ---- yellow');
-        break;
-      case 3:
-        color = '#4363d8';
-        // console.log(sentence + ' ---- blue');
-        break;
-      case 4:
-        color = '#f58231';
-        // console.log(sentence + ' ---- orange');
-        break;
-      case 5:
-        color = '#42d4f4';
-        // console.log(sentence + ' ---- cyan');
-        break;
-      case 6:
-        color = '#f032e6';
-        // console.log(sentence + ' ---- pink');
-        break;
-      case 7:
-        color = '#9A6324';
-        // console.log(sentence + ' ---- brown');
-        break;
-      }
+var highlightSentences = function(text, sentences, predicted) {
+  var mapObj = {}
 
-    //// todo: ignore sentences in IV
-
-    // var regExp = new RegExp('<span.*?<\/span>|' + sentence, 'i');
-    // var replaceWith = '<span style="background-color: ' + color + ';">' + sentence + '</span>';
-    //
-    // if (text.includes(sentence)) {
-    //   console.log('sentence IS IN TEXT!');
-    // } else {
-    //   console.log('sentence IS NOT IN TEXT');
-    // }
-    //
-    // text = text.replace(regExp, function(m, group1) {
-    //   if (group1 == '') return m;
-    //   else return replaceWith;
-    // });
+  var color = '';
+  if (predicted) {
+    color = '#6cd3ff';
+  } else {
+    color = '#b3b3b3';
   }
-  // console.log(text);
-  d3.select('#text-paragraph').text(text);
+
+  for (i = 0; i < sentences.length; i++) {
+    var sentence = sentences[i];
+    mapObj[sentence] = '<span style="background-color: ' + color +'">' + sentence + '</span>';
+  }
+
+  var re = '';
+
+  if (!predicted) {
+    re = new RegExp(Object.keys(mapObj).join('|'), 'gi');
+  } else {
+    re = new RegExp(Object.keys(mapObj).join('') + '(?![^<]*>|[^<>]*<\/)');
+  }
+  text = text.replace(re, function(matched) {
+    return mapObj[matched];
+  });
+
+  return text;
+}
+
+
+var codeText = function() {
+  // var formData = new FormData();
+  // formData.append('fileName', fileName);
+
+  fetch('/code_docx', {
+    method: 'POST',
+    body: JSON.stringify({'fileName': fileName}),
+    headers:{
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }})
+    .then(function(response) {
+      console.log('got here!');
+      return response.json().then(function(jsonObj) {
+        var sentences = [];
+
+        for (i = 0; i < jsonObj.length; i++) {
+          //
+          //
+          // hard-coded, change
+          //
+          //
+          if (jsonObj[i]['practices'] == 1 || jsonObj[i]['social'] == 1 || jsonObj[i]['study vs product'] == 1 || jsonObj[i]['system perception'] == 1 || jsonObj[i]['system use'] == 1 || jsonObj[i]['value judgements'] == 1) {
+            sentences.push(jsonObj[i]['original sentence']);
+          }
+        }
+
+        text = text.replaceAll("’", "'");
+
+        console.log('number of sentences coded by ai:', sentences.length);
+
+        text = highlightSentences(text, sentences, true);
+
+        addFileText(text);
+
+        textParagraph
+          .style('display', 'block');
+        d3.select('#loading-gif')
+          .style('display', 'none');
+      });
+    });
 }

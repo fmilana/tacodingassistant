@@ -7,9 +7,20 @@
 }
 
 #text-paragraph {
+  display: block;
   white-space: pre-wrap;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 20px;
   padding: 30px;
   margin-top: 40px;
+  /* margin: 40px 20% 20% 0; */
+  margin-left: 250px;
+  margin-right: 250px;
+}
+
+#loading-gif {
+  display: none;
+  margin-top: 100px;
+  margin-left: auto;
+  margin-right: auto;
 }

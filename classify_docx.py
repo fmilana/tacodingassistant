@@ -1,3 +1,4 @@
+import sys
 import csv
 import pandas as pd
 import numpy as np
@@ -30,14 +31,23 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, multilabel_confusion_matrix
 from xgboost import XGBClassifier
 
+from export_docx_themes_with_embeddings import Export
 
-train_file_path = 'text/reorder_exit_train.csv'
-predict_file_path = 'text/reorder_exit_predict.csv'
+
+doc_path = sys.argv[1]
+
+export = Export(doc_path)
+export.process()
+
+
+train_file_path = doc_path.replace('.docx', '_train.csv')
+predict_file_path = doc_path.replace('.docx', '_predict.csv')
 categories_file_path = 'text/reorder_categories.csv'
 
 coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 cat_df = pd.read_csv(categories_file_path)
 
+print('inside classify_docx.py')
 
 def get_sample_weights(Y_train):
     sample_weights = []
@@ -365,7 +375,7 @@ from preprocess import (
     remove_stop_words)
 
 
-model = Sentence2Vec()
+model = export.model
 
 
 def get_text(file_path):
@@ -376,10 +386,7 @@ def get_text(file_path):
     return '\n'.join(full_text)
 
 
-docx_file_path = 'text/reorder_exit.docx'
-predict_file_path = 'text/reorder_exit_predict.csv'
-
-text = get_text(docx_file_path)
+text = get_text(doc_path)
 text = remove_interviewer(text)
 
 file = open(predict_file_path, 'w', newline='')
@@ -401,7 +408,7 @@ for sentence in uncoded_original_sentences:
         remove_interview_format(sentence)))
     sentence_embedding = model.get_vector(cleaned_sentence)
 
-    writer.writerow([docx_file_path, sentence, cleaned_sentence,
+    writer.writerow([doc_path, sentence, cleaned_sentence,
         sentence_embedding])
 
     sentence_embedding_list.append(sentence_embedding)
@@ -625,20 +632,20 @@ sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 #     learning_rate=0.4))
 # _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain AdaBoost oversample', True, False)
 
-# clf = ClassifierChain(classifier=XGBClassifier())
-# _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
-#     clf, 'ClassifierChain XGBoost oversample', True, False)
-
-#
-# print(f'accuracy = {accuracies}')
-# print(f'f_measures = {f_measures}')
-
-clf = ClassifierChain(classifier=XGBClassifier(scale_pos_weight=50))
+clf = ClassifierChain(classifier=XGBClassifier())
 _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
-    clf, 'title', True, False)
+    clf, 'ClassifierChain XGBoost oversample', True, False)
+#
+# clf = ClassifierChain(classifier=XGBClassifier(scale_pos_weight=50))
+# _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
+#     clf, 'title', True, False)
 
 print(f'accuracy = {accuracies}')
 print(f'f_measures = {f_measures}')
+
+
+
+
 
 # iter = 20
 #
