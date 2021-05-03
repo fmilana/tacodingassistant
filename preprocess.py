@@ -3,26 +3,24 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 
 
-def remove_interviewer(text):
-    text = re.sub(r'(?i)(p1|iv[0-9]*)[ \t].*', '', text)
-    text = re.sub(r'[ ]{2,}', ' ', text).strip()
-    return text
+# def remove_interviewer(text):
+#     text = re.sub(r'(?i)(p1|iv[0-9]*|a[0-9]+)[ \t].*', '', text)
+#     # text = re.sub(r'[ ]{2,}', ' ', text).strip()
+#     return text
 
 
-def remove_interview_format(text):
-    text = text.lower()
+def remove_interview_format(text, lower=True):
+    if lower:
+        text = text.lower()
     # remove interview format
-    regexp = (r'p[0-9]+\w*|speaker key|r*user\s*\d+( - study \d+)*|'
-              '(iv[0-9]*|ie|um|a[0-9]+)\t|'
-              '(interviewer|interviewee|person [0-9]|participant)|'
-              '\d{2}:\d{2}:\d{2}|\[(.*?)\]|\[|\]')
-    text = re.sub(regexp, '', text)
+    regexp = r'(?i)(^p[0-9]+exit.*$|speaker key|^iv.*$|p[\d]+[a-z]*|a\d|\d\d:\d\d:\d\d|participant|interviewer|interviewee|person \d|^p\d_.*$|\bie\b|\bum\b)[:]*'
+    text = re.sub(regexp, '', text, flags=re.MULTILINE)
     # replace '...' at the end of a line with '.'
     text = re.sub(r'\.\.\.[\r\n]', '.', text)
     # replace multiple spaces or newlines with one space
-    text = re.sub(r' +|[\r\n\t]+', ' ', text)
+    # text = re.sub(r' +|[\r\n\t]+', ' ', text)
     # replace multiple spaces with one and strip string
-    text = re.sub(r'[ ]{2,}', ' ', text).strip()
+    # text = re.sub(r'[ ]{2,}', ' ', text).strip()
     return text
 
 
@@ -35,7 +33,7 @@ def remove_stop_words(text):
         if word not in stop_words and word not in extra_stop_words]
     text = ' '.join(word_tokens)
     return text
-    
+
 
 def clean_sentence(sentence):
     sentence = re.sub(r'[^A-Za-z ]+', '', sentence)

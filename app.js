@@ -27,56 +27,77 @@ app.get('/index.html', function(req, res) {
    res.sendFile( __dirname + '/templates/index.html');
 });
 
-app.post('/load_docx', upload.single('doc'), function(req, res, next) {
-  console.log('file:', req.file);
-  console.log('originalname: ', req.file.originalname);
+app.get('/get_html', function(req, res) {
+  console.log('received get request');
+  extractText('text/reorder_exit.docx').then((text) => {
+    // without python script --------------------------------
+    console.log('extracting from train csv...');
+    csvtojson().fromFile('text/reorder_exit_train.csv')
+      .then((trainObj) => {
+        console.log('extracting from predict csv...');
+        csvtojson().fromFile('text/reorder_exit_predict.csv')
+          .then((predictObj) => {
+            var jsonObj = [];
+            // to-do: better way
+            text = text.replace('/"/g', "'");
+            text = text.replace('/’/g', "'");
+            jsonObj.push({'wholeText': text});
 
-  var docPath = 'uploads/' + req.file.originalname;
-  var csvPath = docPath.replace('.docx', '_comments.csv');
-
-  // mammoth.extractRawText({path: docPath})
-  //   .then(function(result) {
-  //     var text = result.value;
-  //     text = text.replace(/’/g, "'");
-  //
-  //     var spawn = childProcess.spawn;
-  //     var pythonProcess = spawn('python', ['export_docx_comments.py', docPath, csvPath]);
-  //
-  //     pythonProcess.on('exit', function() {
-  //       csvtojson().fromFile(csvPath)
-  //         .then((jsonObj) => {
-  //           jsonObj.push({'whole_text': text});
-  //           res.json(jsonObj);
-  //         });
-  //     });
-  //   });
-
-  extractText(docPath).then((text) => {
-    var spawn = childProcess.spawn;
-    var pythonProcess = spawn('python', ['export_docx_comments.py', docPath, csvPath]);
-
-    pythonProcess.on('exit', function() {
-      csvtojson().fromFile(csvPath)
-        .then((jsonObj) => {
-          jsonObj.push({'whole_text': text});
-          res.json(jsonObj);
-        });
-    });
-  });
-});
-
-app.post('/code_docx', function(req, res, next) {
-  docPath = 'uploads/' + req.body.fileName;
-  predPath = docPath.replace('.docx', '_predict.csv')
-
-  var spawn = childProcess.spawn;
-  var pythonProcess = spawn('python', ['classify_docx.py', docPath]);
-
-  pythonProcess.on('exit', function() {
-    csvtojson().fromFile(predPath)
-      .then((jsonObj) => {
-        res.json(jsonObj);
+            for (i = 0; i < trainObj.length; i++) {
+              var trainSentence = trainObj[i]['original sentence'];
+              jsonObj.push({'trainSentence': trainSentence});
+            }
+            console.log('pushed all train sentences!');
+            for (i = 0; i < predictObj.length; i++) {
+              if (predictObj[i]['practices'] == 1 || predictObj[i]['social'] == 1 || predictObj[i]['study vs product'] == 1 || predictObj[i]['system perception'] == 1 || predictObj[i]['system use'] == 1 || predictObj[i]['value judgements'] == 1) {
+                var predictSentence = predictObj[i]['original sentence'];
+                // console.log('pushing predictSentence:', predictSentence);
+                jsonObj.push({'predictSentence': predictSentence});
+              }
+            }
+            console.log('pushed all predict sentences!');
+            console.log('returning object to client');
+            res.json(jsonObj);
+          });
       });
+
+
+    // with python script -------------------------------------
+    // console.log('running classify_docx.py...');
+    // var spawn = childProcess.spawn;
+    // var pythonProcess = spawn('python', ['classify_docx.py', 'text/reorder_exit.docx']);
+    //
+    // pythonProcess.on('exit', function() {
+    //   console.log('extracting from train csv...');
+    //   csvtojson().fromFile('text/reorder_exit_train.csv')
+    //     .then((trainObj) => {
+    //       console.log('extracting from predict csv...');
+    //       csvtojson().fromFile('text/reorder_exit_predict.csv')
+    //         .then((predictObj) => {
+    //           var jsonObj = [];
+    //           // to-do: better way
+    //           text = text.replace('/"/g', "'");
+    //           text = text.replace('/’/g', "'");
+    //           jsonObj.push({'wholeText': text});
+    //
+    //           for (i = 0; i < trainObj.length; i++) {
+    //             var trainSentence = trainObj[i]['original sentence'];
+    //             jsonObj.push({'trainSentence': trainSentence});
+    //           }
+    //           console.log('pushed all train sentences!');
+    //           for (i = 0; i < predictObj.length; i++) {
+    //             if (predictObj[i]['practices'] == 1 || predictObj[i]['social'] == 1 || predictObj[i]['study vs product'] == 1 || predictObj[i]['system perception'] == 1 || predictObj[i]['system use'] == 1 || predictObj[i]['value judgements'] == 1) {
+    //               var predictSentence = predictObj[i]['original sentence'];
+    //               // console.log('pushing predictSentence:', predictSentence);
+    //               jsonObj.push({'predictSentence': predictSentence});
+    //             }
+    //           }
+    //           console.log('pushed all predict sentences!');
+    //           console.log('returning object to client');
+    //           res.json(jsonObj);
+    //         });
+    //     });
+    // });
   });
 });
 

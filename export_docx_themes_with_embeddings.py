@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from preprocess import (
     clean_sentence,
     remove_interview_format,
-    remove_interviewer,
+    # remove_interviewer,
     remove_stop_words)
 from lib.sentence2vec import Sentence2Vec
 
@@ -88,10 +88,10 @@ class Export():
                     attrs={'w:id': comment_id})
 
                 text = self.transverse(range_start, range_end, '')
-                text = text.replace('’', "'")
-                # text = text.replace('\n', ' ')
+                text = text.replace('"', "'")
+                text = text.replace("’", "'")
 
-                text = remove_interviewer(text)
+                # text = remove_interviewer(text)
 
                 sentence_to_cleaned_dict = {}
                 # split text into sentences

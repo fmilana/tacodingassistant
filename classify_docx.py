@@ -371,7 +371,7 @@ from lib.sentence2vec import Sentence2Vec
 from preprocess import (
     clean_sentence,
     remove_interview_format,
-    remove_interviewer,
+    # remove_interviewer,
     remove_stop_words)
 
 
@@ -387,7 +387,7 @@ def get_text(file_path):
 
 
 text = get_text(doc_path)
-text = remove_interviewer(text)
+text = text.replace("’", "'")
 
 file = open(predict_file_path, 'w', newline='')
 writer = csv.writer(file, delimiter=',')
@@ -396,10 +396,15 @@ writer.writerow(['file name', 'original sentence', 'cleaned_sentence',
 
 coded_original_sentences = coded_df['original sentence'].tolist()
 
+text = remove_interview_format(text, lower=False)
+
 all_original_sentences = sent_tokenize(text)
 
 uncoded_original_sentences = [sentence for sentence in all_original_sentences
     if sentence not in coded_original_sentences]
+
+for i in range(20):
+    print(f'uncoded_original_sentences[{i}] = {uncoded_original_sentences[i]}')
 
 sentence_embedding_list = []
 

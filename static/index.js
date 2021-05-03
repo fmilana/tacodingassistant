@@ -1,152 +1,99 @@
 var textParagraph = d3.select('#text-paragraph');
 var text = '';
-var codeButton = d3.select('#code-button');
-codeButton.attr('disabled', true);
-codeButton.on('click', function() {
-  textParagraph
-    .style('display', 'none');
-
-  d3.select('#loading-gif')
-    .style('display', 'block');
-
-  codeText();
-});
-
 var fileName = '';
 
 
-var fileSelector = d3.select('#file-selector');
-fileSelector.on('change', function() {
-  d3.select('#text-paragraph')
-    .remove();
+var get_html = function() {
   d3.select('#loading-gif')
     .style('display', 'block');
 
-  fileName = event.target.files[0].name;
+  fetch('/get_html')
+    .then(function(res) {
+      console.log('request back to client!');
+      return res.json().then(function(jsonObj) {
+        var text = ''
+        var trainSentences = [];
+        var predictSentences = [];
 
-  loadFile();
-});
-
-
-var loadFile = function() {
-  var file = event.target.files[0];
-
-  console.log('file:', file);
-
-  var formData = new FormData();
-  formData.append('doc', file);
-
-  fetch('/load_docx', {method: 'POST', body: formData})
-    .then(function(response) {
-      return response.json().then(function(jsonObj) {
-        text = jsonObj[jsonObj.length - 1].whole_text;
-
-        var sentences = [];
-
-        for (i = 0; i < jsonObj.length - 1; i++) {
-          sentences[i] = jsonObj[i].text;
+        for (i = 0; i < jsonObj.length; i++) {
+          if (jsonObj[i].hasOwnProperty('trainSentence')) {
+            trainSentences.push(jsonObj[i].trainSentence);
+          } else if (jsonObj[i].hasOwnProperty('predictSentence')) {
+            predictSentences.push(jsonObj[i].predictSentence);
+          } else if (jsonObj[i].hasOwnProperty('wholeText')) {
+            text = jsonObj[i].wholeText;
+          }
         }
+        console.log('read all train, predict sentences + whole text');
 
-        text = text.replaceAll("’", "'");
+        text = highlightSentences(text, trainSentences, predictSentences);
 
-        text = highlightSentences(text, sentences, false);
+        d3.select('#loading-gif')
+            .style('display', 'none');
 
-        console.log(text);
+        console.log('updating html...');
 
-        addFileText(text);
+        d3.select('#text-box')
+          .selectAll('p')
+          .data([text])
+          .enter()
+          .append('p')
+          .attr('id', 'text-paragraph')
+          .html(data => data);
+
+        console.log('updated html!');
       });
     });
-
-  codeButton.attr('disabled', null);
 }
 
-
-var addFileText = function(text) {
-  if (!textParagraph.empty()) {
-    textParagraph.remove();
-  }
-  d3.select('#loading-gif')
-    .style('display', 'none');
-
-  d3.select('#text-box')
-    .selectAll('p')
-    .data([text])
-    .enter()
-    .append('p')
-    .attr('id', 'text-paragraph')
-    .html(data => data);
-}
+get_html();
 
 
-var highlightSentences = function(text, sentences, predicted) {
-  var mapObj = {}
+var highlightSentences = function(text, trainSentences, predictSentences) {
+  var mapObj = {};
 
-  var color = '';
-  if (predicted) {
-    color = '#6cd3ff';
-  } else {
-    color = '#b3b3b3';
+  for (i = 0; i < trainSentences.length; i++) {
+    var trainSentence = trainSentences[i];
+    //better way?
+    if (trainSentence.length > 6) {
+      mapObj[trainSentence] = '<span style="background-color: #dbdbdb">' + trainSentence + '</span>';
+    }
   }
 
-  for (i = 0; i < sentences.length; i++) {
-    var sentence = sentences[i];
-    mapObj[sentence] = '<span style="background-color: ' + color +'">' + sentence + '</span>';
+  for (i = 0; i < predictSentences.length; i++) {
+    var predictSentence = predictSentences[i];
+      // better way?
+      if (predictSentence.length > 6) {
+        mapObj[predictSentence] = '<span style="background-color: #a8e5ff">' + predictSentence + '</span>';
+      }
   }
 
-  var re = '';
+  // 2 methods: https://stackoverflow.com/questions/15604140/replace-multiple-strings-with-multiple-other-strings
 
-  if (!predicted) {
-    re = new RegExp(Object.keys(mapObj).join('|'), 'gi');
-  } else {
-    re = new RegExp(Object.keys(mapObj).join('') + '(?![^<]*>|[^<>]*<\/)');
-  }
+  // Regexp method -------------------------------------------------
+  var escapedMapObjKeys = Object.keys(mapObj).map(key => key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'));
+  var re = new RegExp(escapedMapObjKeys.join('|'), 'gim');
+
+  var j = 0;
   text = text.replace(re, function(matched) {
     return mapObj[matched];
   });
 
-  return text;
-}
+  return text
 
+  // split-join method -------------------------------------------
+  // var entries = Object.entries(mapObj);
+  //
+  // var highlightedText = entries.reduce(
+  //   // replace all the occurrences of the keys in the text into an index placholder using split-join
+  //   (_text, [key], i) => _text.split(key).join(`{${i}}`),
+  //   // manipulate all exisitng index placeholder-like formats, in order to prevent confusion
+  //   text.replace(/\{(?=\d+\})/g, '{-')
+  // )
+  // // replace all index placeholders to the desired replacement values
+  // .replace(/\{(\d+)\}/g, (_, i) => entries[i][1])
+  // // undo the manipulation of index placeholder -like formats
+  // .replace(/\{-(?=\d+\})/g, '{')
 
-var codeText = function() {
-  // var formData = new FormData();
-  // formData.append('fileName', fileName);
-
-  fetch('/code_docx', {
-    method: 'POST',
-    body: JSON.stringify({'fileName': fileName}),
-    headers:{
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    }})
-    .then(function(response) {
-      console.log('got here!');
-      return response.json().then(function(jsonObj) {
-        var sentences = [];
-
-        for (i = 0; i < jsonObj.length; i++) {
-          //
-          //
-          // hard-coded, change
-          //
-          //
-          if (jsonObj[i]['practices'] == 1 || jsonObj[i]['social'] == 1 || jsonObj[i]['study vs product'] == 1 || jsonObj[i]['system perception'] == 1 || jsonObj[i]['system use'] == 1 || jsonObj[i]['value judgements'] == 1) {
-            sentences.push(jsonObj[i]['original sentence']);
-          }
-        }
-
-        text = text.replaceAll("’", "'");
-
-        console.log('number of sentences coded by ai:', sentences.length);
-
-        text = highlightSentences(text, sentences, true);
-
-        addFileText(text);
-
-        textParagraph
-          .style('display', 'block');
-        d3.select('#loading-gif')
-          .style('display', 'none');
-      });
-    });
+  return highlightedText;
 }
