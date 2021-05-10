@@ -20,7 +20,7 @@ for theme in themes_list:
 more_stop_words = ['like', 'yes', 'actually', 'something', 'going', 'could',
     'would', 'oh', 'things', 'think', 'know', 'really', 'well', 'kind',
     'always', 'mean', 'maybe', 'get', 'guess', 'bit', 'much', 'go', 'one',
-    'thing', 'probably']
+    'thing', 'probably', 'iv']
 
 for theme in themes_list:
     for index, row in predict_df.loc[predict_df[theme] == 1].iterrows():

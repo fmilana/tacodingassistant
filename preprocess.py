@@ -9,19 +9,20 @@ from nltk.corpus import stopwords
 #     return text
 
 
-def remove_interview_format(text, lower=True):
-    if lower:
-        text = text.lower()
-    # remove interview format
-    regexp = r'(?i)(^p[0-9]+exit.*$|speaker key|^iv.*$|p[\d]+[a-z]*|a\d|\d\d:\d\d:\d\d|participant|interviewer|interviewee|person \d|^p\d_.*$|\bie\b|\bum\b)[:]*'
-    text = re.sub(regexp, '', text, flags=re.MULTILINE)
-    # replace '...' at the end of a line with '.'
-    text = re.sub(r'\.\.\.[\r\n]', '.', text)
-    # replace multiple spaces or newlines with one space
-    # text = re.sub(r' +|[\r\n\t]+', ' ', text)
-    # replace multiple spaces with one and strip string
-    # text = re.sub(r'[ ]{2,}', ' ', text).strip()
-    return text
+# def remove_interview_format(text, lower=True):
+#     if lower:
+#         text = text.lower()
+#     # remove interview format
+#     # remove interviewer: ^iv.*$
+#     regexp = r'(?i)(^p[0-9]+exit.*$|\biv\d+S*|\bp\d+\S*|a\d|\d\d:\d\d:\d\d|participant|interviewer|interviewee|person \d|^p\d_.*$|\bie\b|\bum\b)[:]*'
+#     text = re.sub(regexp, '', text, flags=re.MULTILINE)
+#     # replace '...' at the end of a line with '.'
+#     text = re.sub(r'\.\.\.[\r\n]', '.', text)
+#     # replace multiple spaces or newlines with one space
+#     # text = re.sub(r' +|[\r\n\t]+', ' ', text)
+#     # replace multiple spaces with one and strip string
+#     # text = re.sub(r'[ ]{2,}', ' ', text).strip()
+#     return text
 
 
 def remove_stop_words(text):
@@ -36,8 +37,10 @@ def remove_stop_words(text):
 
 
 def clean_sentence(sentence):
+    regexp = r'(?i)(^p[0-9]+exit.*$|\biv\d+S*|\bp\d+\S*|a\d|\d\d:\d\d:\d\d|participant|interviewer|interviewee|person \d|^p\d_.*$|\bie\b|\bum\b)[:]*'
+    sentence = re.sub(regexp, '', sentence, flags=re.MULTILINE)
     sentence = re.sub(r'[^A-Za-z ]+', '', sentence)
-    sentence = re.sub(r'[ ]{2,}', ' ', sentence).strip()
+    # sentence = re.sub(r'[ ]{2,}', ' ', sentence).strip()
     return sentence
 
 

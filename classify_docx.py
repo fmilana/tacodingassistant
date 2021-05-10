@@ -1,5 +1,6 @@
 import sys
 import csv
+import re
 import pandas as pd
 import numpy as np
 import scipy
@@ -370,7 +371,7 @@ from nltk import sent_tokenize
 from lib.sentence2vec import Sentence2Vec
 from preprocess import (
     clean_sentence,
-    remove_interview_format,
+    # remove_interview_format,
     # remove_interviewer,
     remove_stop_words)
 
@@ -391,29 +392,51 @@ text = text.replace("’", "'")
 
 file = open(predict_file_path, 'w', newline='')
 writer = csv.writer(file, delimiter=',')
-writer.writerow(['file name', 'original sentence', 'cleaned_sentence',
+writer.writerow(['position', 'original sentence', 'cleaned_sentence',
     'sentence embedding'])
 
 coded_original_sentences = coded_df['original sentence'].tolist()
 
-text = remove_interview_format(text, lower=False)
+# text = remove_interview_format(text, lower=False)
 
 all_original_sentences = sent_tokenize(text)
 
-uncoded_original_sentences = [sentence for sentence in all_original_sentences
-    if sentence not in coded_original_sentences]
+uncoded_original_sentence_position_dict = {}
 
-for i in range(20):
-    print(f'uncoded_original_sentences[{i}] = {uncoded_original_sentences[i]}')
+# i = 0
+
+position = 0
+for sentence in all_original_sentences:
+    if sentence not in coded_original_sentences:
+        if sentence in uncoded_original_sentence_position_dict:
+            uncoded_original_sentence_position_dict[sentence].append(position)
+        else:
+            uncoded_original_sentence_position_dict[sentence] = [position]
+    position += len(re.sub('\n', '', sentence)) + 1
+
+    # if i < 10:
+    #     print(f'{i} sentence: {sentence[0:50]}')
+    #     print(f'{i} len(sentence): {len(re.sub('\n', ' ', sentence))}')
+    #     i += 1
 
 sentence_embedding_list = []
 
-for sentence in uncoded_original_sentences:
-    cleaned_sentence = clean_sentence(remove_stop_words(
-        remove_interview_format(sentence)))
+# i = 0
+
+for sentence in uncoded_original_sentence_position_dict.keys():
+    # if i < 20:
+    #     print(f'sentence: {sentence[0:20]}')
+    #     print(f'position: {uncoded_original_sentence_position_dict[sentence]}')
+    #     i += 1
+
+    position = uncoded_original_sentence_position_dict[sentence]
+
+    # cleaned_sentence = clean_sentence(remove_stop_words(
+    #     remove_interview_format(sentence)))
+    cleaned_sentence = remove_stop_words(clean_sentence(sentence))
     sentence_embedding = model.get_vector(cleaned_sentence)
 
-    writer.writerow([doc_path, sentence, cleaned_sentence,
+    writer.writerow([', '.join(str(i) for i in position), sentence, cleaned_sentence,
         sentence_embedding])
 
     sentence_embedding_list.append(sentence_embedding)

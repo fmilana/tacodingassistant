@@ -6,7 +6,7 @@ from nltk import sent_tokenize
 from bs4 import BeautifulSoup
 from preprocess import (
     clean_sentence,
-    remove_interview_format,
+    # remove_interview_format,
     # remove_interviewer,
     remove_stop_words)
 from lib.sentence2vec import Sentence2Vec
@@ -96,8 +96,9 @@ class Export():
                 sentence_to_cleaned_dict = {}
                 # split text into sentences
                 for sentence in sent_tokenize(text):
-                    cleaned_sentence = clean_sentence(
-                        remove_stop_words(remove_interview_format(sentence)))
+                    cleaned_sentence = remove_stop_words(
+                        # remove_stop_words(remove_interview_format(sentence)))
+                        clean_sentence(sentence))
                     sentence_to_cleaned_dict[sentence] = [cleaned_sentence,
                         self.model.get_vector(cleaned_sentence)]
 
