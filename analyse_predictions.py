@@ -20,15 +20,19 @@ for theme in themes_list:
 more_stop_words = ['like', 'yes', 'actually', 'something', 'going', 'could',
     'would', 'oh', 'things', 'think', 'know', 'really', 'well', 'kind',
     'always', 'mean', 'maybe', 'get', 'guess', 'bit', 'much', 'go', 'one',
-    'thing', 'probably', 'iv']
+    'thing', 'probably', 'iv', 'i', 'so', 'dont', 'but', 'and', 'how']
+
+minimum_proba = 0.95
 
 for theme in themes_list:
     for index, row in predict_df.loc[predict_df[theme] == 1].iterrows():
-        cleaned_sentence = row['cleaned_sentence']
-        if isinstance(cleaned_sentence, str):
-            for word in word_tokenize(cleaned_sentence):
-                if word not in more_stop_words:
-                    word_freq_dict[theme].append(word)
+        if row[theme + ' probability'] > minimum_proba:
+            cleaned_sentence = row['cleaned_sentence']
+            if isinstance(cleaned_sentence, str):
+                for word in word_tokenize(cleaned_sentence):
+                    word = word.lower()
+                    if word not in more_stop_words:
+                        word_freq_dict[theme].append(word)
 
 for theme in word_freq_dict:
     counter = Counter(word_freq_dict[theme])

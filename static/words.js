@@ -16,7 +16,6 @@ var get_data = function() {
   		var thead = table.append('thead');
   		var	tbody = table.append('tbody');
 
-  		// append the header row
   		thead.append('tr')
   		  .selectAll('th')
   		  .data(columns).enter()
@@ -25,13 +24,11 @@ var get_data = function() {
             return column;
           });
 
-  		// create a row for each object in the data
   		var rows = tbody.selectAll('tr')
   		  .data(data)
   		  .enter()
   		  .append('tr');
 
-  		// create a cell in each row for each column
   		var cells = rows.selectAll('td')
   		  .data(function (row) {
   		    return columns.map(function (column) {
@@ -47,5 +44,6 @@ var get_data = function() {
     });
   });
 }
+
 
 get_data();

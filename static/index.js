@@ -94,7 +94,7 @@ var highlightSentences = function(text, trainObjects, predictObjects) {
 
   // split-join method -------------------------------------------
 
-  ////////////// -------> to-do: use position somehow
+  ////////////// -------> to-do: use position 
 
   var entries = Object.entries(mapObj);
 

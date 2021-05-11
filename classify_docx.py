@@ -7,7 +7,13 @@ import scipy
 import math
 import matplotlib.pyplot as plt
 import seaborn as sns
-from nltk import word_tokenize
+import docx
+import pandas as pd
+from nltk import sent_tokenize, word_tokenize
+from lib.sentence2vec import Sentence2Vec
+from preprocess import (
+    clean_sentence,
+    remove_stop_words)
 from collections import Counter
 from matplotlib.colors import ListedColormap
 from matplotlib.cm import hsv
@@ -48,7 +54,6 @@ categories_file_path = 'text/reorder_categories.csv'
 coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 cat_df = pd.read_csv(categories_file_path)
 
-print('inside classify_docx.py')
 
 def get_sample_weights(Y_train):
     sample_weights = []
@@ -74,10 +79,6 @@ def get_sample_weights(Y_train):
 
 
 def generate_training_and_testing_data(oversample, many_together):
-    # themes_list = []
-    # for i, col in enumerate(coded_df.columns):
-    #     if i >= 7:
-    #         themes_list.append(col)
     themes_list = cat_df.category.unique()
     # convert embedding string to np array
     if not many_together:
@@ -253,37 +254,15 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together
     test_cleaned_sentences, themes_list) = generate_training_and_testing_data(
         oversample, many_together)
 
-    # scale data to [0-1] to avoid negative data passed to MultinomialNB
-    # if isinstance(clf, MultinomialNB):
-    #     scaler = MinMaxScaler()
-    #     X_train = scaler.fit_transform(X_train)
-    #     X_test = scaler.fit_transform(X_test)
-    # elif isinstance(clf, BRkNNaClassifier):
-    #     parameters = {'k': range(1, 5)}
-    #     clf = GridSearchCV(clf, parameters, scoring='f1_macro')
-    #     clf.fit(X_train, Y_train)
-    #     print (clf.best_params_, clf.best_score_)
-    #     return
-    # elif isinstance(clf, MLARAM):
-    #     parameters = {'vigilance': [0.8, 0.85, 0.9, 0.95, 0.99],
-    #         'threshold': [0.01, 0.02, 0.03, 0.04, 0.05, 0.1]}
-    #     clf = GridSearchCV(clf, parameters, scoring='f1_macro')
-    #     clf.fit(X_train, Y_train)
-    #     print(clf.best_params_, clf.best_score_)
-    #     return
-
     clf.fit(X_train, Y_train)
 
-    # test_score = clf.score(X_test, Y_test)
     scores = []
 
     test_pred = clf.predict(X_test).toarray()
     for col in range(test_pred.shape[1]):
         equals = np.equal(test_pred[:, col], Y_test[:, col])
         score = np.sum(equals)/equals.size
-        # print(f'{target_names[col]}: {np.sum(equals)}/{equals.size} = {score}')
         scores.append(score)
-    # print(classification_report(test_pred, Y_test, target_names=target_names))
 
     prediction_output = clf.predict(sentence_embedding_matrix)
 
@@ -296,7 +275,6 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together
 
     sentences_dict = {}
 
-    # for col in range(test_pred.shape[1]):
     for col, class_name in enumerate(themes_list):
         true_positives = []
         true_negatives = []
@@ -317,9 +295,6 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together
         sentences_dict[class_name + ' true_negatives'] = true_negatives
         sentences_dict[class_name + ' false_positives'] = false_positives
         sentences_dict[class_name + ' false_negatives'] = false_negatives
-
-    # plot_heatmaps(clf_name, Y_test, clf.predict(X_test), sentences_dict,
-    #     themes_list)
 
     ##### evaluate accuracy and f-measure per class ######
 
@@ -364,18 +339,6 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together
         false_negatives, accuracies, f_measures)
 
 
-# move to app.py?
-import docx
-import pandas as pd
-from nltk import sent_tokenize
-from lib.sentence2vec import Sentence2Vec
-from preprocess import (
-    clean_sentence,
-    # remove_interview_format,
-    # remove_interviewer,
-    remove_stop_words)
-
-
 model = export.model
 
 
@@ -397,13 +360,9 @@ writer.writerow(['position', 'original sentence', 'cleaned_sentence',
 
 coded_original_sentences = coded_df['original sentence'].tolist()
 
-# text = remove_interview_format(text, lower=False)
-
 all_original_sentences = sent_tokenize(text)
 
 uncoded_original_sentence_position_dict = {}
-
-# i = 0
 
 position = 0
 for sentence in all_original_sentences:
@@ -414,25 +373,11 @@ for sentence in all_original_sentences:
             uncoded_original_sentence_position_dict[sentence] = [position]
     position += len(re.sub('\n', '', sentence)) + 1
 
-    # if i < 10:
-    #     print(f'{i} sentence: {sentence[0:50]}')
-    #     print(f'{i} len(sentence): {len(re.sub('\n', ' ', sentence))}')
-    #     i += 1
-
 sentence_embedding_list = []
 
-# i = 0
-
 for sentence in uncoded_original_sentence_position_dict.keys():
-    # if i < 20:
-    #     print(f'sentence: {sentence[0:20]}')
-    #     print(f'position: {uncoded_original_sentence_position_dict[sentence]}')
-    #     i += 1
-
     position = uncoded_original_sentence_position_dict[sentence]
 
-    # cleaned_sentence = clean_sentence(remove_stop_words(
-    #     remove_interview_format(sentence)))
     cleaned_sentence = remove_stop_words(clean_sentence(sentence))
     sentence_embedding = model.get_vector(cleaned_sentence)
 
@@ -445,286 +390,10 @@ file.close()
 
 sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
-# sklearn classifiers:
-# clf = KNeighborsClassifier(n_neighbors=5)
-# clf = MultinomialNB()
-# clf = GaussianNB()
-# clf = tree.DecisionTreeClassifier()
-# clf = RandomForestClassifier(max_depth=2, random_state=0)
-# clf = MLPClassifier(alpha=1, max_iter=1000)
-# clf = AdaBoostClassifier()
-
-# scikit multilabel classifiers:
-# clf = MLkNN(k=3, s=0.5)
-# clf = BRkNNaClassifier(k=3)
-# clf = MLARAM(threshold=0.04, vigilance=0.99)
-# clf = BinaryRelevance(
-#     classifier=KNeighborsClassifier(n_neighbors=1)
-# )
-# clf = BinaryRelevance(
-#     classifier=tree.DecisionTreeClassifier()
-# )
-# clf = BinaryRelevance(
-#     classifier=RandomForestClassifier(max_depth=2, random_state=0)
-# )
-# clf = BinaryRelevance(
-#     classifier=MLPClassifier(alpha=1, max_iter=1000)
-# )
-# clf = ClassifierChain(
-#     classifier=KNeighborsClassifier(n_neighbors=1)
-# )
-# clf = ClassifierChain(
-#     classifier=tree.DecisionTreeClassifier()
-# )
-# clf = ClassifierChain(
-#     classifier=RandomForestClassifier(max_depth=2, random_state=0)
-# )
-# clf = ClassifierChain(
-#     classifier=MLPClassifier(alpha=1, max_iter=1000)
-# )
-
-# classify(sentence_embedding_matrix, clf, False)
-
-
-# --------------------WHEN MANY TOGETHER
-# coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
-#     lambda x: np.fromstring(
-#         x.replace('\n','')
-#         .replace('[','')
-#         .replace(']','')
-#         .replace('  ',' '), sep=' '))
-# #
-#
-# scores = []
-# for i in range(5):
-#     clf = MLkNN(k=1, s=0.5)
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# print(f'MLkNN(k=1) >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(5):
-#     clf = MLkNN(k=3, s=0.5)
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# print(f'MLkNN(k=3) >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(5):
-#     clf = BRkNNaClassifier(k=1)
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# print(f'BRkNN(k=1) >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(5):
-#     clf = BRkNNaClassifier(k=3)
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# print(f'BRkNN(k=3) >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(5):
-#     clf = MLARAM(threshold=0.04, vigilance=0.99)
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# print(f'MLARAM >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(5):
-#     clf = BinaryRelevance(classifier=tree.DecisionTreeClassifier())
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# print(f'BinaryRelevance Decision Tree >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(5):
-#     clf = BinaryRelevance(classifier=RandomForestClassifier(max_depth=2, random_state=0))
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# print(f'BinaryRelevance Random Forest >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(5):
-#     clf = BinaryRelevance(classifier=MLPClassifier(alpha=1, max_iter=1000))
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# print(f'BinaryRelevance MLP >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(5):
-#     clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=1))
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# print(f'ClassifierChain KNN(k=1) >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(5):
-#     clf = ClassifierChain(classifier=tree.DecisionTreeClassifier())
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# print(f'ClassifierChain Decision Tree >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(5):
-#     clf = ClassifierChain(classifier=RandomForestClassifier(max_depth=2, random_state=0))
-#     scores.append(classify(sentence_embedding_matrix, clf, True))
-# # print(f'ClassifierChain Random Forest >>>>>> {sum(scores)/len(scores)}')
-#
-# scores = []
-# for i in range(20):
-#     clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
-#     scores.append(classify(sentence_embedding_matrix, clf,
-#         'ClassifierChain MLP', True))
-# print(f'ClassifierChain MLP >>>>>> {sum(scores)/len(scores)}')
-
-# scores = []
-# for i in range(20):
-#     clf = ClassifierChain(classifier=AdaBoostClassifier(
-#         n_estimators=2, learning_rate=0.4))
-#     scores.append(classify(sentence_embedding_matrix, clf,
-#         'ClassifierChain AdaBoost', True))
-# print(f'ClassifierChain AdaBoost >>>>>>> {sum(scores)/len(scores)}')
-
-# class_names = ['practices', 'social', 'study vs product',
-#     'system perception', 'system use', 'value judgements']
-# practices_score = []
-# social_score = []
-# study_vs_product_score = []
-# system_perception_score = []
-# system_use_score = []
-# value_judgements_score = []
-# iter = 20
-# for i in range(iter):
-#     clf = ClassifierChain(classifier=GradientBoostingClassifier(n_estimators=2,
-#         learning_rate=0.4, max_depth=1))
-#     scores = classify(sentence_embedding_matrix, clf,
-#         'CCkNN(k=3)', True)
-#     practices_score.append(scores[0])
-#     social_score.append(scores[1])
-#     study_vs_product_score.append(scores[2])
-#     system_perception_score.append(scores[3])
-#     system_use_score.append(scores[4])
-#     value_judgements_score.append(scores[5])
-#     print(f'{i+1}/{iter}')
-# print(f'practices: {sum(practices_score)/len(practices_score)}')
-# print(f'social: {sum(social_score)/len(social_score)}')
-# print(f'study vs product: {sum(study_vs_product_score)/len(study_vs_product_score)}')
-# print(f'system perception: {sum(system_perception_score)/len(system_perception_score)}')
-# print(f'system use: {sum(system_use_score)/len(system_use_score)}')
-# print(f'value judgements: {sum(value_judgements_score)/len(value_judgements_score)}')
-
-
-
-
-# clf = ClassifierChain(classifier=AdaBoostClassifier())
-#
-# parameters = {
-#     'classifier__n_estimators': [2, 10, 25, 50],
-#     'classifier__learning_rate': [0.3, 0.4, 0.5, 0.6, 0.7]
-# }
-#
-# grid_search_cv = GridSearchCV(clf, parameters)
-#
-# # for param in grid_search_cv.get_params().keys():
-# #     print(param)
-#
-# X_train, _, Y_train, _, _, _ = generate_training_and_testing_data(False)
-#
-# grid_search_cv.fit(X_train, Y_train)
-# print(grid_search_cv.best_score_)
-# print(grid_search_cv.best_params_)
-
-
-
-# clf = MLkNN(k=1, s=0.5)
-# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'MLkNN(k=1)', True, False)
-
-# clf = MLkNN(k=3, s=0.5)
-# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'MLkNN(k=3)', False)
-
-# clf = MLARAM(threshold=0.04, vigilance=0.99)
-# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'MLARAM', False)
-
-# clf = ClassifierChain(classifier=tree.DecisionTreeClassifier())
-# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain Decision Tree', False)
-
-# clf = ClassifierChain(classifier=MLPClassifier(alpha=1, max_iter=1000))
-# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain MLP', False)
-
-# clf = ClassifierChain(classifier=RandomForestClassifier(max_depth=2, random_state=0))
-# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain Random Forest', False)
-
-# clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=1))
-# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=1)', False)
-
-# clf = ClassifierChain(classifier=KNeighborsClassifier(n_neighbors=3))
-# _, _, _, _, _, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain kNN(k=3)', False)
-
-# clf = ClassifierChain(classifier=GradientBoostingClassifier(n_estimators=2,
-#         learning_rate=0.4, max_depth=1))
-# _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain Gradient Boosting oversample',
-#     True, False)
-
-# clf = ClassifierChain(classifier=AdaBoostClassifier(n_estimators=2,
-#     learning_rate=0.4))
-# _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix, clf, 'ClassifierChain AdaBoost oversample', True, False)
 
 clf = ClassifierChain(classifier=XGBClassifier())
 _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
     clf, 'ClassifierChain XGBoost oversample', True, False)
-#
-# clf = ClassifierChain(classifier=XGBClassifier(scale_pos_weight=50))
-# _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
-#     clf, 'title', True, False)
 
 print(f'accuracy = {accuracies}')
 print(f'f_measures = {f_measures}')
-
-
-
-
-
-# iter = 20
-#
-# themes = ['practices', 'social', 'study vs product', 'system perception',
-#     'system use', 'value_jugements']
-#
-# accuracies_dict = {theme: [] for theme in themes}
-# f_measures_dict = {theme: [] for theme in themes}
-#
-# clf = ClassifierChain(classifier=XGBClassifier(scale_pos_weight=50))
-# for i in range(iter):
-#     _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
-#         clf, 'title', True, True)
-#
-#     for j, theme in enumerate(themes):
-#         accuracies_dict[theme].append(accuracies[j])
-#         f_measures_dict[theme].append(f_measures[j])
-#
-#     print(f'{i+1}/{iter} done')
-#
-# for theme in accuracies_dict:
-#     accuracies_dict[theme] = sum(accuracies_dict[theme])/iter
-#     f_measures_dict[theme] = sum(f_measures_dict[theme])/iter
-#
-# print(f'accuracies = {[accuracies_dict[theme] for theme in themes]}')
-# print(f'f_measures = {[f_measures_dict[theme] for theme in themes]}')
-
-
-
-
-
-# clf = ClassifierChain(classifier=XGBClassifier())
-#
-# parameters = {
-#     'classifier__n_estimators': [2],
-#     'classifier__colsample_bytree': [0.6, 0.7, 0.8],
-#     'classifier__max_depth': [20, 30, 40, 50],
-#     'classifier__reg_alpha': [1.3, 1.4, 1.5],
-#     'classifier__reg_lambda': [1.3, 1.4, 1.5],
-#     'classifier__subsample': [0.9]
-# }
-#
-# grid_search_cv = GridSearchCV(clf, parameters, scoring=['accuracy', 'f1'],
-#     refit='f1')
-#
-# X_train, _, Y_train, _, _, _ = generate_training_and_testing_data(
-#     oversample=False,
-#     many_together=False)
-#
-# grid_search_cv.fit(X_train, Y_train)
-#
-# print(f'best scores: {grid_search_cv.best_score_}')
-# print(f'best params: {grid_search_cv.best_params_}')
-# # print(f'results: {grid_search_cv.cv_results_}')
