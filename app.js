@@ -1,6 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var extractText = require('doxtract');
+const { extractText } = require('doxtract');
 var csvtojson = require('csvtojson');
 
 var app = express();
