@@ -1,15 +1,17 @@
 # Thematic Analysis Coding Assistant
 
-Using k-means clustering on word2vec embeddings to generate coding suggestions.
+Using XGBoost to classify word2vec embeddings and generate coding suggestions.
 
-1) Run the local server (wait ~1 minute for the pre-trained model to load):
+1) Classify the .docx:
 ```
-flask run
+python classify_docx.py text/reorder_exit.docx
 ```
-2) Launch the Qt application:
+2) Generate the word frequency .csv:
 ```
-python qt.py
+python analyse_predictions.py
 ```
-3) Load a .txt file and press the "Code" button.
-
-KMeans classification dumped in "clusters.txt".
+3) Run the local server:
+```
+node app.js
+```
+4) Visit http://localhost:3000/index.html for text classification and http://localhost:3000/words.html for word frequencies for each theme.
