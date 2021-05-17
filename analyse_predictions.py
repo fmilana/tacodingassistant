@@ -18,18 +18,26 @@ for theme in themes_list:
     predict_df[theme] = predict_df[theme].astype(int)
 
 more_stop_words = ['like', 'yes', 'actually', 'something', 'going', 'could',
-    'would', 'oh', 'things', 'think', 'know', 'really', 'well', 'kind',
+    'would', 'oh', 'ah', 'things', 'think', 'know', 'really', 'well', 'kind',
     'always', 'mean', 'maybe', 'get', 'guess', 'bit', 'much', 'go', 'one',
-    'thing', 'probably', 'iv', 'i', 'so', 'dont', 'but', 'and', 'how']
+    'thing', 'probably', 'iv', 'i', 'so', 'dont', 'but', 'and', 'how', 'why',
+    'wouldnt', 'wasnt', 'didnt', 'thats', 'thatll', 'im', 'you', 'no', 'isnt',
+    'what', 'do', 'did', 'got', 'ill', 'id', 'or', 'do', 'is', 'ive', 'youd',
+    'cant', 'wont', 'youve', 'dooesnt', 'is', 'it', 'its', 'the', 'thenokay']
 
 minimum_proba = 0.95
+theme_counts = []
 
 for theme in themes_list:
-    for index, row in predict_df.loc[predict_df[theme] == 1].iterrows():
+    theme_df = predict_df.loc[predict_df[theme] == 1]
+    theme_counts.append(len(theme_df.index))
+
+    for index, row in theme_df.iterrows():
         if row[theme + ' probability'] > minimum_proba:
-            cleaned_sentence = row['cleaned_sentence']
+            cleaned_sentence = row['cleaned sentence']
             if isinstance(cleaned_sentence, str):
-                for word in word_tokenize(cleaned_sentence):
+                words = set(word_tokenize(cleaned_sentence))
+                for word in words:
                     word = word.lower()
                     if word not in more_stop_words:
                         word_freq_dict[theme].append(word)
@@ -41,6 +49,7 @@ for theme in word_freq_dict:
 with open(analyse_file_path, 'w', newline='') as file:
     writer = csv.writer(file, delimiter=',')
     writer.writerow(themes_list)
+    writer.writerow(theme_counts)
 
     biggest_list_length = 0
     for theme in word_freq_dict:

@@ -3,6 +3,16 @@ var bodyParser = require('body-parser');
 const { extractText } = require('doxtract');
 var csvtojson = require('csvtojson');
 
+var minimumProba = 0.95;
+var themesNames = [
+  'practices',
+  'social',
+  'study vs product',
+  'system perception',
+  'system use',
+  'value judgements'
+];
+
 var app = express();
 
 app.use(bodyParser.json());
@@ -40,25 +50,14 @@ app.get('/get_html', function(req, res) {
               });
             }
 
-            var minimumProba = 0.95;
-
-            var themeNames = [
-              'practices',
-              'social',
-              'study vs product',
-              'system perception',
-              'system use',
-              'value judgements'
-            ];
-
             for (i = 0; i < predictObj.length; i++) {
               var obj = predictObj[i];
               var position = obj['position'];
               var predictSentence = obj['original sentence'];
               var themes = '';
 
-              for (j = 0; j < themeNames.length; j++) {
-                var themeName = themeNames[j];
+              for (j = 0; j < themesNames.length; j++) {
+                var themeName = themesNames[j];
                 if (obj[themeName] == 1 && obj[themeName.concat(' probability')] > minimumProba) {
                   if (themes.length > 0) {
                     themes = themes.concat(', ');
@@ -87,8 +86,42 @@ app.get('/get_html', function(req, res) {
 
 app.get('/get_data', function(req, res) {
   csvtojson().fromFile('text/reorder_exit_analyse.csv')
-    .then((dataObj) => {
-      res.json(dataObj);
+    .then((analyseObj) => {
+      csvtojson().fromFile('text/reorder_exit_predict.csv')
+        .then((predictObj) => {
+
+          Object.keys(analyseObj).forEach(function(analyseKey) {
+            var analyseRow = analyseObj[analyseKey];
+
+            for (i = 0; i < themesNames.length; i++) {
+              var theme = themesNames[i];
+              var text = analyseRow[theme];
+
+              if (text.length > 0) {
+                var word = text.replace(/ \(\d+\)/, '').toLowerCase();
+                var regex = new RegExp('\\b' + word + '\\b', 'i');
+                var sentences = [];
+
+                Object.keys(predictObj).forEach(function(predictKey) {
+                  var predictRow = predictObj[predictKey];
+                  var cleanedSentence = predictRow['cleaned sentence'].toLowerCase();
+                  var predictProba = predictRow[theme.concat(' probability')];
+
+                  if (regex.test(cleanedSentence) && predictProba > minimumProba) {
+                    var originalSentence = predictRow['original sentence'];
+                    sentences.push(originalSentence);
+                  }
+                });
+
+                analyseRow[theme] = [text];
+                analyseRow[theme].push(sentences);
+
+              }
+            }
+          });
+
+          res.json(analyseObj);
+        });
     });
 });
 

@@ -355,7 +355,7 @@ text = text.replace("’", "'")
 
 file = open(predict_file_path, 'w', newline='')
 writer = csv.writer(file, delimiter=',')
-writer.writerow(['position', 'original sentence', 'cleaned_sentence',
+writer.writerow(['position', 'original sentence', 'cleaned sentence',
     'sentence embedding'])
 
 coded_original_sentences = coded_df['original sentence'].tolist()
