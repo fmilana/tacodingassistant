@@ -1,153 +1,163 @@
-var getData = function() {
-  var sentenceStopWordsRegex = /\b(iv|p|a)\d+\w*|\biv\b|\d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/gi;
+var sentenceStopWordsRegex = /\b(iv|p|a)\d+\w*|\biv\b|\d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/gi;
+var themes = [
+  'practices',
+  'social',
+  'study vs product',
+  'system perception',
+  'system use',
+  'value judgements',
+];
 
-  d3.select('#loading-gif')
-    .style('display', 'block');
 
-  fetch('/get_data')
-  .then(function(res) {
-    return res.json().then(function(data) {
-      var themes = [
-        'practices',
-        'social',
-        'study vs product',
-        'system perception',
-        'system use',
-        'value judgements',
-      ];
-      var counts = [];
 
-      // get counts from first entry
-      for (i = 0; i < themes.length; i++) {
-        var theme = themes[i];
-        var count = parseInt(data[0][theme][0]);
-        counts.push(count);
-      }
+var generateTables = function(callback) {
+  var tableNames = [
+    'train_keywords',
+    'predict_keywords'
+  ];
 
-      // remove counts entry
-      delete data[0];
-      data.splice(0, 1);
+  var urls = [];
 
-      d3.select('#loading-gif')
-          .style('display', 'none');
+  tableNames.forEach(function(tableName) {
+    urls.push('/get_' + tableName + '_data');
+  });
 
-  		var table = d3.select('body')
-        .append('table')
-        .classed('center', true);
-  		var thead = table.append('thead');
-  		var	tbody = table.append('tbody');
+  Promise.all(
+    urls.map(url =>
+      fetch(url)
+        .then(function(res) {
 
-  		thead.append('tr')
-  		  .selectAll('th')
-  		  .data(themes)
-        .enter()
-  		  .append('th')
-		    .text(function(theme, i) {
-          return theme + ' (' + counts[i].toString() + ')';
-        })
-        .style('width', function() {
-          return (100/themes.length).toString();
-        });
+          console.log('inside fetch then with url:', url);
 
-        //jQuery to add shadow to th on scroll
-        $(window).scroll(function() {
-          var scroll = $(window).scrollTop();
-          if (scroll > 0) {
-            $('th').addClass('active');
-          }
-          else {
-            $('th').removeClass("active");
-          }
-        });
+          return res.json().then(function(data) {
+            var counts = [];
 
-  		var rows = tbody.selectAll('tr')
-  		  .data(data)
-  		  .enter()
-  		  .append('tr');
-
-  		var cells = rows.selectAll('td')
-  		  .data(function(row) {
-  		    return themes.map(function(column) {
-  		      return {column: column, value: row[column]};
-  		    });
-  		  })
-  		  .enter()
-  		  .append('td')
-        .style('width', function() {
-          return (100/themes.length).toString();
-        })
-        .append('span')
-        .classed('td-text', true)
-		    .text(function(d) {
-          //to-do: why are there empty d.value?
-          if (d.value.length == 2) {
-            return d.value[0];
-          }
-        })
-        .attr('data-sentences', function(d) {
-          //to-do: why are there empty d.value?
-          if (d.value.length == 2) {
-            var sentences = d.value[1];
-
-            var dataString = '{"sentences": [';
-
-            for (i = 0; i < sentences.length; i++) {
-              // JSON cleaning
-              var sentence = sentences[i]
-                .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
-                .replace(/"/g, '\"')
-                .replace(/\t/g, '    ')
-                .replace(/\n/g, ' ')
-                .trim();
-              dataString += ('"' + sentence + '"');
-
-              if (i == (sentences.length - 1)) {
-                dataString += ']}';
-              } else {
-                dataString += ', ';
-              }
+            // get counts from first entry
+            for (i = 0; i < themes.length; i++) {
+              var theme = themes[i];
+              var count = parseInt(data[0][theme][0]);
+              counts.push(count);
             }
-            return dataString;
-          }
-        });
 
-        d3.selectAll('td') // append tooltip to each td
-          .each(function(d) {
-            var tooltip = d3.select(this)
-              .append('div')
-              .classed('td-tooltip', true)
-              .style('position', 'absolute')
-              .style('visibility', 'hidden')
+            // remove counts entry
+            delete data[0];
+            data.splice(0, 1);
 
-            tooltip
-              .append('div')
-              .classed('close-icon-wrapper', true)
-              .append('img')
-              .attr('src', '../static/close.svg')
-              .classed('close-icon', true)
-              .on('click', function() {
-                tooltip
-                  .style('visibility', 'hidden');
-                d3.select(this.parentNode.parentNode.parentNode)
-                  .select('.td-text')
-                  .classed('td-clicked', false);
+        		var table = d3.select('body')
+              .append('table')
+              .attr('class', function() {
+                if (url == '/get_train_keywords_data') {
+                  return 'train-keywords';
+                } else if (url == '/get_predict_keywords_data') {
+                  return 'predict-keywords';
+                }
+              })
+              .classed('center', true)
+              .classed('invisible', true);
+        		var thead = table.append('thead');
+        		var	tbody = table.append('tbody');
+
+        		thead.append('tr')
+        		  .selectAll('th')
+        		  .data(themes)
+              .enter()
+        		  .append('th')
+      		    .text(function(theme, i) {
+                return theme + ' (' + counts[i].toString() + ')';
+              })
+              .style('width', function() {
+                return (100/themes.length).toString();
               });
 
-            tooltip
-              .append('div')
-              .classed('td-tooltip-sentences', true)
-          });
+        		var rows = tbody.selectAll('tr')
+        		  .data(data)
+        		  .enter()
+        		  .append('tr');
 
-      generateClickEvents();
-    });
+        		var cells = rows.selectAll('td')
+        		  .data(function(row) {
+        		    return themes.map(function(column) {
+        		      return {column: column, value: row[column]};
+        		    });
+        		  })
+        		  .enter()
+        		  .append('td')
+              .style('width', function() {
+                return (100/themes.length).toString();
+              })
+              .append('span')
+              .classed('td-text', true)
+      		    .text(function(d) {
+                //to-do: why are there empty d.value?
+                if (d.value.length == 2) {
+                  return d.value[0];
+                }
+              })
+              .attr('data-sentences', function(d) {
+                //to-do: why are there empty d.value?
+                if (d.value.length == 2) {
+                  var sentences = d.value[1];
+
+                  var dataString = '{"sentences": [';
+
+                  for (i = 0; i < sentences.length; i++) {
+                    // JSON cleaning
+                    var sentence = sentences[i]
+                      .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                      .replace(/"/g, '\"')
+                      .replace(/\t/g, '    ')
+                      .replace(/\n/g, ' ')
+                      .trim();
+                    dataString += ('"' + sentence + '"');
+
+                    if (i == (sentences.length - 1)) {
+                      dataString += ']}';
+                    } else {
+                      dataString += ', ';
+                    }
+                  }
+                  return dataString;
+                }
+              });
+
+              d3.selectAll('td') // append tooltip to each td
+                .each(function(d) {
+                  var tooltip = d3.select(this)
+                    .append('div')
+                    .classed('td-tooltip', true)
+                    .style('position', 'absolute')
+                    .style('visibility', 'hidden')
+
+                  tooltip
+                    .append('div')
+                    .classed('close-icon-wrapper', true)
+                    .append('img')
+                    .attr('src', '../static/close.svg')
+                    .classed('close-icon', true)
+                    .on('click', function() {
+                      tooltip
+                        .style('visibility', 'hidden');
+                      d3.select(this.parentNode.parentNode.parentNode)
+                        .select('.td-text')
+                        .classed('td-clicked', false);
+                    });
+
+                  tooltip
+                    .append('div')
+                    .classed('td-tooltip-sentences', true)
+                });
+          });
+        })
+    )
+  ).then((value) => {
+    console.log('value:', value);
+    generateClickEvents();
   });
 }
 
 
-getData();
-
-
 var generateClickEvents = function() {
+  console.log('inside generateClickEvents');
   d3.selectAll('.td-text')
     .each(function(d) {
       var word = d3.select(this).text();
@@ -167,13 +177,14 @@ var generateClickEvents = function() {
           var tooltip = d3.select(this.parentNode)
             .select('.td-tooltip')
 
+          var tabRect = d3.select('.tab').node().getBoundingClientRect();
           var tooltipRect = tooltip.node().getBoundingClientRect();
           var tableRect = d3.select('table').node().getBoundingClientRect();
           var tdRect = this.parentNode.getBoundingClientRect();
 
           tooltip
             .style('top', function() {
-              return (tdRect.y + tdRect.height + window.scrollY).toString() + 'px';
+              return (tdRect.y + tdRect.height + window.scrollY - tabRect.height).toString() + 'px';
             })
             .style('left', function() {
               if (tdRect.x + tooltipRect.width < tableRect.width) {
@@ -202,4 +213,70 @@ var generateClickEvents = function() {
             });
       });
     });
+
+  console.log('calling updateView...');
+  updateView();
 }
+
+
+var generateTabEvents = function() {
+  var tabButtons = d3.selectAll('.tablinks');
+
+  tabButtons
+    .each(function(d) {
+      var tabButton = d3.select(this);
+
+      tabButton
+        .on('click', function() {
+          tabButtons
+            .each(function() {
+              d3.select(this)
+                .classed('active', false);
+
+              d3.selectAll('table')
+                .each(function(d) {
+
+                });
+            });
+
+          tabButton
+            .classed('active', true);
+
+            d3.selectAll('table')
+              .each(function(d) {
+
+              });
+        });
+    });
+}
+
+
+var updateView = function() {
+  console.log('update!');
+
+  d3.select('#loading-gif')
+    .style('display', 'none');
+
+  d3.select('.tab')
+    .style('display', 'block');
+
+  d3.select('.train-keywords')
+    .classed('invisible', false);
+
+  var tabRect = d3.select('.tab').node().getBoundingClientRect();
+
+  //jQuery to add shadow to th on scroll
+  $(window).scroll(function() {
+    var scroll = $(window).scrollTop();
+    if (scroll > tabRect.height) {
+      $('th').addClass('active');
+    }
+    else {
+      $('th').removeClass("active");
+    }
+  });
+
+  generateTabEvents();
+}
+
+generateTables();

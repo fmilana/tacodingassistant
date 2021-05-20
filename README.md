@@ -14,9 +14,9 @@ npm i body-parser csvtojson doxtract express
 ```
 python classify_docx.py text/reorder_exit.docx
 ```
-4) Generate the word frequency .csv:
+4) Generate the word frequency .csv's:
 ```
-python analyse_predictions.py
+python analyse_train_and_predict.py
 ```
 5) Run the local server:
 ```

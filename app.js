@@ -84,8 +84,47 @@ app.get('/get_html', function(req, res) {
   });
 });
 
-app.get('/get_data', function(req, res) {
-  csvtojson().fromFile('text/reorder_exit_analyse.csv')
+app.get('/get_train_keywords_data', function(req, res) {
+  csvtojson().fromFile('text/reorder_exit_train_analyse.csv')
+    .then((analyseObj) => {
+      csvtojson().fromFile('text/reorder_exit_train.csv')
+        .then((trainObj) => {
+
+          Object.keys(analyseObj).forEach(function(analyseKey) {
+            var analyseRow = analyseObj[analyseKey];
+
+            for (i = 0; i < themesNames.length; i++) {
+              var theme = themesNames[i];
+              var text = analyseRow[theme];
+
+              if (text.length > 0) {
+                var word = text.replace(/ \(\d+\)/, '').toLowerCase();
+                var regex = new RegExp('\\b' + word + '\\b', 'i');
+                var sentences = [];
+
+                Object.keys(trainObj).forEach(function(trainKey) {
+                  var trainRow = trainObj[trainKey];
+                  var cleanedSentence = trainRow['cleaned sentence'].toLowerCase();
+
+                  if (regex.test(cleanedSentence)) {
+                    var originalSentence = trainRow['original sentence'];
+                    sentences.push(originalSentence);
+                  }
+              });
+
+              analyseRow[theme] = [text];
+              analyseRow[theme].push(sentences);
+              }
+            }
+          });
+
+          res.json(trainObj);
+        });
+    });
+});
+
+app.get('/get_predict_keywords_data', function(req, res) {
+  csvtojson().fromFile('text/reorder_exit_predict_analyse.csv')
     .then((analyseObj) => {
       csvtojson().fromFile('text/reorder_exit_predict.csv')
         .then((predictObj) => {
@@ -115,7 +154,6 @@ app.get('/get_data', function(req, res) {
 
                 analyseRow[theme] = [text];
                 analyseRow[theme].push(sentences);
-
               }
             }
           });
@@ -124,7 +162,6 @@ app.get('/get_data', function(req, res) {
         });
     });
 });
-
 
 
 var server = app.listen(3000, function() {
