@@ -26,6 +26,10 @@ body {
   overflow-x: hidden;
 }
 
+body.words {
+  margin: 0;
+}
+
 
 
 [data-tooltip] {
@@ -126,17 +130,22 @@ td {
   padding: 10px 20px;
 }
 
-.td-text {
+.td-with-sentences {
   cursor: pointer;
 }
 
-.td-clicked {
-  color: #0081eb;
+.td-with-sentences:hover {
+  text-decoration: underline;
+}
+
+table.train .td-clicked {
   font-weight: bold;
   text-decoration: underline;
 }
 
-.td-text:hover {
+table.predict .td-clicked {
+  color: #0081eb;
+  font-weight: bold;
   text-decoration: underline;
 }
 
@@ -171,11 +180,20 @@ td {
   background-color: white;
 }
 
-tr, td {
+table.predict tr, table.predict td {
   background-color: #ebfaff;
 }
 
-tr:nth-child(even) td:nth-child(odd),
-tr:nth-child(odd) td:nth-child(even) {
+table.train tr, table.train td {
+  background-color: #f2f2f2;
+}
+
+table.train tr:nth-child(even) td:nth-child(odd),
+table.train tr:nth-child(odd) td:nth-child(even) {
+  background-color: #fcfcfc;
+}
+
+table.predict tr:nth-child(even) td:nth-child(odd),
+table.predict tr:nth-child(odd) td:nth-child(even) {
   background-color: #fafdff;
 }

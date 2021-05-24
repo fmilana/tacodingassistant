@@ -1,7 +1,9 @@
 *.pyc
 *.tsv
 *.model
-reorder_exit_analyse.csv
+reorder_exit_
+reorder_exit_train_analyse.csv
+reorder_exit_predict_analyse.csv
 reorder_exit_frequencies.csv
 reorder_exit_predict.csv
 reorder_exit_train.csv

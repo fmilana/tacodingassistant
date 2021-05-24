@@ -15,7 +15,7 @@ var getHtml = function() {
         var trainObjects = [];
         var predictObjects = [];
 
-        for (i = 0; i < jsonObj.length; i++) {
+        for (var i = 0; i < jsonObj.length; i++) {
           if (jsonObj[i].hasOwnProperty('trainSentence')) {
             trainObjects.push(jsonObj[i]);
           } else if (jsonObj[i].hasOwnProperty('predictSentence')) {
@@ -56,7 +56,7 @@ var getHtml = function() {
 var highlightSentences = function(text, trainObjects, predictObjects) {
   var mapObj = {};
 
-  for (i = 0; i < trainObjects.length; i++) {
+  for (var i = 0; i < trainObjects.length; i++) {
     var obj = trainObjects[i];
     // var position = obj.position;
     var trainSentence = obj.trainSentence;
@@ -67,7 +67,7 @@ var highlightSentences = function(text, trainObjects, predictObjects) {
     }
   }
 
-  for (i = 0; i < predictObjects.length; i++) {
+  for (var i = 0; i < predictObjects.length; i++) {
     var obj = predictObjects[i];
     var position = obj.position
     var predictSentence = obj.predictSentence;
@@ -94,7 +94,7 @@ var highlightSentences = function(text, trainObjects, predictObjects) {
 
   // split-join method -------------------------------------------
 
-  ////////////// -------> to-do: use position 
+  ////////////// -------> to-do: use position
 
   var entries = Object.entries(mapObj);
 
@@ -207,7 +207,7 @@ var generateComments = function() {
 
       var newThemes = themes.split(', ');
 
-      for (i = 0; i < newThemes.length; i++) {
+      for (var i = 0; i < newThemes.length; i++) {
         if (!existingThemes.includes(newThemes[i])) {
           existingThemes.push(newThemes[i]);
         }

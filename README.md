@@ -22,4 +22,8 @@ python analyse_predictions.py
 ```
 node app.js
 ```
-6) Visit http://localhost:3000/index.html for text classification and http://localhost:3000/words.html for word frequencies for each theme.
+6) Visit:
+* http://localhost:3000/index.html for text classification
+* http://localhost:3000/predict_keywords.html for predicted word frequencies
+* http://localhost:3000/train_keywords.html for trained word frequencies
+* http://localhost:3000/train_codes.html for trained codes

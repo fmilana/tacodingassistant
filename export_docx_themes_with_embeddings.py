@@ -2,6 +2,7 @@ import sys, os
 import zipfile
 import csv
 import pandas as pd
+import numpy as np
 from nltk import sent_tokenize
 from bs4 import BeautifulSoup
 from preprocess import (
@@ -11,11 +12,12 @@ from preprocess import (
     remove_stop_words)
 from lib.sentence2vec import Sentence2Vec
 
+
 class Export():
     model = Sentence2Vec()
 
     doc_path = ''
-    cat_df = pd.read_csv('text/reorder_categories.csv')
+    cat_df = pd.read_csv('text/reorder_exit_themes.csv')
 
 
     def __init__(self, doc_path):
@@ -60,7 +62,7 @@ class Export():
             # write header
             header = ['file name', 'comment id', 'original sentence',
                 'cleaned sentence', 'sentence embedding', 'codes', 'themes']
-            themes_list = self.cat_df.category.unique()
+            themes_list = list(self.cat_df)
             header.extend(themes_list)
 
             out_filename = self.doc_path.replace('.docx', '_train.csv')
@@ -74,6 +76,8 @@ class Export():
             open('tmp.xml', 'w').write(doc_soup.prettify())
             comments_xml = archive.read('word/comments.xml')
             comments_soup = BeautifulSoup(comments_xml, 'xml')
+
+            missing_codes = []
 
             #print 'comments:'#, comments_soup.find_all('w:comment')
             for comment in comments_soup.find_all('w:comment'):
@@ -91,8 +95,6 @@ class Export():
                 text = text.replace('"', "'")
                 text = text.replace("’", "'")
 
-                # text = remove_interviewer(text)
-
                 sentence_to_cleaned_dict = {}
                 # split text into sentences
                 for sentence in sent_tokenize(text):
@@ -102,24 +104,25 @@ class Export():
                     sentence_to_cleaned_dict[sentence] = [cleaned_sentence,
                         self.model.get_vector(cleaned_sentence)]
 
+                themes = []
+
                 if ';' in codes:
-                    themes = []
                     for code in codes.split('; '):
-                        theme_df = self.cat_df.loc[self.cat_df['code'] == code, 'category']
-                        if theme_df.shape[0] > 0:
-                            theme = theme_df.item()
-                        # else:
-                        #     theme = 'none'
-                        if theme not in themes:
-                            themes.append(theme)
+                        find_code = (self.cat_df.values == code).any(axis=0)
+                        try:
+                            theme = self.cat_df.columns[np.where(find_code==True)[0]].item()
+                            if theme not in themes:
+                                themes.append(theme)
+                        except ValueError as e:
+                            missing_codes.append(code)
                     themes = sorted(themes, key=str.casefold)
                     themes = '; '.join(themes)
                 else:
-                    theme_df = self.cat_df.loc[self.cat_df['code'] == codes, 'category']
-                    if theme_df.shape[0] > 0:
-                        themes = theme_df.item()
-                    # else:
-                    #     themes = 'none'
+                    find_code = (self.cat_df.values == codes).any(axis=0)
+                    try:
+                        themes = self.cat_df.columns[np.where(find_code==True)[0]].item()
+                    except ValueError as e:
+                        missing_codes.append(codes)
 
                 if len(themes) > 0:
                     for sentence, tuple in sentence_to_cleaned_dict.items():
@@ -133,5 +136,8 @@ class Export():
                             tuple[1], codes, themes]
                         row.extend(themes_binary)
                         writer.writerow(row)
+
+            print(f'{len(missing_codes)} missing codes from themes table:')
+            print(set(missing_codes))
 
             os.remove('tmp.xml')

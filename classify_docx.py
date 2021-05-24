@@ -49,7 +49,7 @@ export.process()
 
 train_file_path = doc_path.replace('.docx', '_train.csv')
 predict_file_path = doc_path.replace('.docx', '_predict.csv')
-categories_file_path = 'text/reorder_categories.csv'
+categories_file_path = 'text/reorder_exit_themes.csv'
 
 coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 cat_df = pd.read_csv(categories_file_path)
@@ -79,7 +79,7 @@ def get_sample_weights(Y_train):
 
 
 def generate_training_and_testing_data(oversample, many_together):
-    themes_list = cat_df.category.unique()
+    themes_list = list(cat_df)
     # convert embedding string to np array
     if not many_together:
         coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
@@ -142,7 +142,7 @@ def generate_training_and_testing_data(oversample, many_together):
 def add_classification_to_csv(clf, prediction_output, prediction_proba):
     predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
 
-    themes_list = cat_df.category.unique()
+    themes_list = list(cat_df)
 
     if isinstance(prediction_output, scipy.sparse.spmatrix):
         out_df = pd.DataFrame.sparse.from_spmatrix(data=prediction_output,
