@@ -1,26 +1,21 @@
-var textParagraph = d3.select('#text-paragraph');
-var text = '';
-var fileName = '';
+/* global d3 fetch */
 
-
-var getHtml = function() {
+const getHtml = function () {
   d3.select('#loading-gif')
     .style('display', 'block');
 
   fetch('/get_html')
-    .then(function(res) {
-      console.log('request back to client!');
-      return res.json().then(function(jsonObj) {
-        var text = ''
-        var trainObjects = [];
-        var predictObjects = [];
+    .then((res) => res.json().then((jsonObj) => {
+        let text = '';
+        const trainObjects = [];
+        const predictObjects = [];
 
-        for (var i = 0; i < jsonObj.length; i++) {
-          if (jsonObj[i].hasOwnProperty('trainSentence')) {
+        for (let i = 0; i < jsonObj.length; i++) {
+          if (Object.prototype.hasOwnProperty.call(jsonObj[i], 'trainSentence')) {
             trainObjects.push(jsonObj[i]);
-          } else if (jsonObj[i].hasOwnProperty('predictSentence')) {
+          } else if (Object.prototype.hasOwnProperty.call(jsonObj[i], 'predictSentence')) {
             predictObjects.push(jsonObj[i]);
-          } else if (jsonObj[i].hasOwnProperty('wholeText')) {
+          } else if (Object.prototype.hasOwnProperty.call(jsonObj[i], 'wholeText')) {
             text = jsonObj[i].wholeText;
           }
         }
@@ -48,57 +43,52 @@ var getHtml = function() {
         console.log('generating comments...');
 
         generateComments();
-      });
-    });
-}
+      }));
+};
 
 
-var highlightSentences = function(text, trainObjects, predictObjects) {
-  var mapObj = {};
+const highlightSentences = function (text, trainObjects, predictObjects) {
+  const mapObj = {};
 
-  for (var i = 0; i < trainObjects.length; i++) {
-    var obj = trainObjects[i];
-    // var position = obj.position;
-    var trainSentence = obj.trainSentence;
-    var themes = obj.themes;
+  for (let i = 0; i < trainObjects.length; i++) {
+    const obj = trainObjects[i];
+    const trainSentence = obj.trainSentence;
+    const themes = obj.themes;
     //better way?
     if (trainSentence.length > 6) {
-      mapObj[trainSentence] = '<span data-tooltip="' + themes + '" style="background-color: #dbdbdb">' + trainSentence + '</span>';
+      mapObj[trainSentence] = `<span data-tooltip="${themes}"` +
+      `style="background-color: #dbdbdb">${trainSentence}</span>`;
     }
   }
 
-  for (var i = 0; i < predictObjects.length; i++) {
-    var obj = predictObjects[i];
-    var position = obj.position
-    var predictSentence = obj.predictSentence;
-
-    var themes = obj.themes;
+  for (let i = 0; i < predictObjects.length; i++) {
+    const obj = predictObjects[i];
+    // const position = obj.position
+    const predictSentence = obj.predictSentence;
+    const themes = obj.themes;
     // better way?
     if (predictSentence.length > 6) {
-      mapObj[predictSentence] = '<span data-tooltip="' + themes + '" style="background-color: #a8e5ff">' + predictSentence + '</span>';
+      mapObj[predictSentence] = `<span data-tooltip="${themes}"` +
+      `style="background-color: #a8e5ff">${predictSentence}</span>`;
     }
   }
 
-  // 2 methods: https://stackoverflow.com/questions/15604140/replace-multiple-strings-with-multiple-other-strings
-
-  // Regexp method (bugged: 366 undefined's) ------------------------------
-  // var escapedMapObjKeys = Object.keys(mapObj).map(key => key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'));
-  // var re = new RegExp(escapedMapObjKeys.join('|'), 'gim');
+  // // 2 methods: https://stackoverflow.com/questions/15604140/replace-multiple-strings-with-multiple-other-strings
   //
-  // var j = 0;
-  // text = text.replace(re, function(matched) {
-  //   return mapObj[matched];
-  // });
+  // // Regexp method (bugged: 366 undefined's) ------------------------------
+  // const escapedMapObjKeys = Object.keys(mapObj)
+  //   .map(key => key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'));
+  // const re = new RegExp(escapedMapObjKeys.join('|'), 'gim');
   //
-  // return text
+  // return text.replace(re, (matched) => mapObj[matched]);
 
   // split-join method -------------------------------------------
 
   ////////////// -------> to-do: use position
 
-  var entries = Object.entries(mapObj);
+  const entries = Object.entries(mapObj);
 
-  var highlightedText = entries.reduce(
+  const highlightedText = entries.reduce(
     // replace all the occurrences of the keys in the text into an index placholder using split-join
     (_text, [key], i) => _text.split(key).join(`{${i}}`),
     // manipulate all exisitng index placeholder-like formats, in order to prevent confusion
@@ -107,93 +97,89 @@ var highlightSentences = function(text, trainObjects, predictObjects) {
   // replace all index placeholders to the desired replacement values
   .replace(/\{(\d+)\}/g, (_, i) => entries[i][1])
   // undo the manipulation of index placeholder -like formats
-  .replace(/\{-(?=\d+\})/g, '{')
+  .replace(/\{-(?=\d+\})/g, '{');
 
   return highlightedText;
-}
+};
 
 
-var generateComments = function() {
-
-  commentsObj = []
+const generateComments = function () {
+  const commentsObj = [];
 
   d3.selectAll('span')
-    .each(function() {
-      obj = {
-        'themes': d3.select(this).attr('data-tooltip'),
-        'y': this.getBoundingClientRect().y,
-        'color': d3.select(this).style('background-color')
+    .each(function () {
+      const obj = {
+        themes: d3.select(this).attr('data-tooltip'),
+        y: this.getBoundingClientRect().y,
+        color: d3.select(this).style('background-color')
       };
       commentsObj.push(obj);
     });
 
-  var lastThemes = '';
-  var lastY = 0;
-  var lastCanvas;
+  let lastThemes = '';
+  let lastY = 0;
+  let lastCanvas;
 
-  var lastColor;
+  let lastColor;
 
-  var stacked = 0;
+  let stacked = 0;
 
-  var i = 0;
+  Object.keys(commentsObj).forEach((key) => {
+    const obj = commentsObj[key];
 
-  Object.keys(commentsObj).forEach(function(key) {
-    var obj = commentsObj[key];
+    let y = obj.y.toString();
+    const color = obj.color;
+    const themes = obj.themes;
 
-    var y = obj.y.toString();
-    var color = obj.color;
-    var themes = obj.themes;
-
-    var skipText = (themes == lastThemes) && ((lastY == (y - 28) || (lastY == (y - 33))));
-    var concatCanvas = (y == lastY);
+    const skipText = (themes === lastThemes) && ((lastY === (y - 28) || (lastY === (y - 33))));
+    const concatCanvas = (y === lastY);
 
     if (!concatCanvas) {
-      var canvas = d3.select('#comments-box')
+      const canvas = d3.select('#comments-box')
         .append('svg')
         .style('position', 'absolute')
-        .style('top', function() {
+        .style('top', () => {
           if (skipText) {
             y = parseFloat(y) - 5;
             return y.toString().concat('px');
-          } else {
-            return y.concat('px');
           }
+          return y.concat('px');
         })
         .attr('width', '400')
-        .append('g')
+        .append('g');
 
-      var rect = canvas.append('rect')
-        .attr('height', function() {
+      // rect
+      canvas.append('rect')
+        .attr('height', () => {
           if (skipText) {
             return '30';
-          } else {
-            return '25';
           }
+          return '25';
         })
         .attr('width', '6')
         .attr('x', '0')
-        .style('fill', color)
+        .style('fill', color);
 
       lastColor = color;
 
-      if (!skipText && (y != lastY)) {
-        var text = canvas.append('text')
-          .attr('x', '20')
-          .attr('y', '17')
-          .text(themes);
-      } else {
-        var text = canvas.append('text')
-          .attr('x', '20')
-          .attr('y', '17')
-          .text('');
-      }
+      // text
+      canvas.append('text')
+        .attr('x', '20')
+        .attr('y', '17')
+        .text(() => {
+          if (!skipText && (y !== lastY)) {
+            return themes;
+          }
+          return '';
+        });
+
 
       lastCanvas = canvas;
       stacked = 1;
     } else {
-      var existingThemes = lastCanvas.select('text').text().split(', ');
+      const existingThemes = lastCanvas.select('text').text().split(', ');
 
-      if (color != lastColor) {
+      if (color !== lastColor) {
         lastCanvas.append('rect')
           .attr('height', '25')
           .attr('width', '6')
@@ -205,26 +191,25 @@ var generateComments = function() {
         stacked += 1;
       }
 
-      var newThemes = themes.split(', ');
+      const newThemes = themes.split(', ');
 
-      for (var i = 0; i < newThemes.length; i++) {
+      for (let i = 0; i < newThemes.length; i++) {
         if (!existingThemes.includes(newThemes[i])) {
           existingThemes.push(newThemes[i]);
         }
       }
 
-      var concatThemes = existingThemes.join(', ');
+      const concatThemes = existingThemes.join(', ');
 
       lastCanvas.select('text')
-        .attr('x', 10 + 10 * stacked)
+        .attr('x', 10 + (10 * stacked))
         .text(concatThemes);
     }
 
     lastThemes = themes;
     lastY = y;
   });
-}
-
+};
 
 
 getHtml();

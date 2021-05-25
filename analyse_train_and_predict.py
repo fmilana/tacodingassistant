@@ -41,7 +41,7 @@ for theme in themes_list:
     predict_theme_counts.append(predict_theme_df.shape[0])
 
     for index, row in train_theme_df.iterrows():
-        cleaned_sentence = row['cleaned sentence']
+        cleaned_sentence = row['cleaned_sentence']
         if isinstance(cleaned_sentence, str):
             words = set(word_tokenize(cleaned_sentence))
             for word in words:
@@ -51,7 +51,7 @@ for theme in themes_list:
 
     for index, row in predict_theme_df.iterrows():
         if row[theme + ' probability'] > minimum_proba:
-            cleaned_sentence = row['cleaned sentence']
+            cleaned_sentence = row['cleaned_sentence']
             if isinstance(cleaned_sentence, str):
                 words = set(word_tokenize(cleaned_sentence))
                 for word in words:

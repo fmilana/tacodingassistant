@@ -82,7 +82,7 @@ def generate_training_and_testing_data(oversample, many_together):
     themes_list = list(cat_df)
     # convert embedding string to np array
     if not many_together:
-        coded_df['sentence embedding'] = coded_df['sentence embedding'].apply(
+        coded_df['sentence_embedding'] = coded_df['sentence_embedding'].apply(
             lambda x: np.fromstring(
                 x.replace('\n','')
                 .replace('[','')
@@ -127,9 +127,9 @@ def generate_training_and_testing_data(oversample, many_together):
             header=True)
 
     # create matrices from embedding array columns
-    train_embedding_matrix = np.array(train_df['sentence embedding'].tolist())
-    test_embedding_matrix = np.array(test_df['sentence embedding'].tolist())
-    test_cleaned_sentences = test_df['cleaned sentence'].tolist()
+    train_embedding_matrix = np.array(train_df['sentence_embedding'].tolist())
+    test_embedding_matrix = np.array(test_df['sentence_embedding'].tolist())
+    test_cleaned_sentences = test_df['cleaned_sentence'].tolist()
     # create matrices from theme binary columns
     train_themes_binary_matrix = train_df.iloc[:, 7:].to_numpy()
     test_themes_binary_matrix = test_df.iloc[:, 7:].to_numpy()
@@ -355,10 +355,10 @@ text = text.replace("’", "'")
 
 file = open(predict_file_path, 'w', newline='')
 writer = csv.writer(file, delimiter=',')
-writer.writerow(['position', 'original sentence', 'cleaned sentence',
-    'sentence embedding'])
+writer.writerow(['position', 'original_sentence', 'cleaned_sentence',
+    'sentence_embedding'])
 
-coded_original_sentences = coded_df['original sentence'].tolist()
+coded_original_sentences = coded_df['original_sentence'].tolist()
 
 all_original_sentences = sent_tokenize(text)
 

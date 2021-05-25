@@ -60,8 +60,8 @@ class Export():
         print('processing', self.doc_path)
         with zipfile.ZipFile(self.doc_path, 'r') as archive:
             # write header
-            header = ['file name', 'comment id', 'original sentence',
-                'cleaned sentence', 'sentence embedding', 'codes', 'themes']
+            header = ['file name', 'comment_id', 'original_sentence',
+                'cleaned_sentence', 'sentence_embedding', 'codes', 'themes']
             themes_list = list(self.cat_df)
             header.extend(themes_list)
 
@@ -71,7 +71,6 @@ class Export():
             writer.writerow(header)
 
             doc_xml = archive.read('word/document.xml')
-            #doc_soup = BeautifulSoup(doc_xml, 'xml')
             doc_soup = BeautifulSoup(doc_xml, 'lxml')
             open('tmp.xml', 'w').write(doc_soup.prettify())
             comments_xml = archive.read('word/comments.xml')
@@ -137,7 +136,7 @@ class Export():
                         row.extend(themes_binary)
                         writer.writerow(row)
 
-            print(f'{len(missing_codes)} missing codes from themes table:')
+            print(f'{len(set(missing_codes))} missing codes ({len(missing_codes)} sentences) in themes table:')
             print(set(missing_codes))
 
             os.remove('tmp.xml')

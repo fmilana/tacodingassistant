@@ -1,10 +1,10 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
 const { extractText } = require('doxtract');
-var csvtojson = require('csvtojson');
+const csvtojson = require('csvtojson');
 
-var minimumProba = 0.95;
-var themesNames = [
+const minimumProba = 0.95;
+const themesNames = [
   'practices',
   'social',
   'study vs product',
@@ -13,76 +13,75 @@ var themesNames = [
   'value judgements'
 ];
 
-var app = express();
+const app = express();
 
 app.use(bodyParser.json());
 
 app.use('/static', express.static('static'));
 
-app.get('/index.html', function(req, res) {
-   res.sendFile(__dirname + '/templates/index.html');
+app.get('/index.html', (req, res) => {
+   res.sendFile(`${__dirname}/templates/index.html`);
 });
 
-app.get('/predict_keywords.html', function(req, res) {
-  res.sendFile(__dirname + '/templates/predict_keywords.html');
+app.get('/predict_keywords.html', (req, res) => {
+  res.sendFile(`${__dirname}/templates/predict_keywords.html`);
 });
 
-app.get('/train_keywords.html', function(req, res) {
-  res.sendFile(__dirname + '/templates/train_keywords.html');
+app.get('/train_keywords.html', (req, res) => {
+  res.sendFile(`${__dirname}/templates/train_keywords.html`);
 });
 
-app.get('/train_codes.html', function(req, res) {
-  res.sendFile(__dirname + '/templates/train_codes.html');
+app.get('/train_codes.html', (req, res) => {
+  res.sendFile(`${__dirname}/templates/train_codes.html`);
 });
 
-app.get('/get_html', function(req, res) {
-  extractText('text/reorder_exit.docx').then((text) => {
+app.get('/get_html', (req, res) => {
+  extractText('text/reorder_exit.docx').then((docText) => {
     csvtojson().fromFile('text/reorder_exit_train.csv')
       .then((trainObj) => {
         csvtojson().fromFile('text/reorder_exit_predict.csv')
           .then((predictObj) => {
-            var jsonObj = [];
-            text = text.replace('/"/g', "'");
-            text = text.replace('/’/g', "'");
-            jsonObj.push({'wholeText': text});
+            const jsonObj = [];
+            const text = docText.replace('/"|’/g', "'");
+            jsonObj.push({ wholeText: text });
 
-            for (i = 0; i < trainObj.length; i++) {
-              var obj = trainObj[i];
+            for (let i = 0; i < trainObj.length; i++) {
+              const obj = trainObj[i];
               // var position = obj['position'];
-              var trainSentence = obj['original sentence'];
-              var themes = obj['themes'];
+              const trainSentence = obj.original_sentence;
+              const themes = obj.themes;
               jsonObj.push({
                 // 'position': position,
-                'trainSentence': trainSentence,
-                'themes': themes.replace(/;/g, ',')
+                trainSentence,
+                themes: themes.replace(/;/g, ',')
               });
             }
 
-            for (i = 0; i < predictObj.length; i++) {
-              var obj = predictObj[i];
-              var position = obj['position'];
-              var predictSentence = obj['original sentence'];
-              var themes = '';
+            for (let i = 0; i < predictObj.length; i++) {
+              const obj = predictObj[i];
+              const position = obj.position;
+              let predictSentence = obj.original_sentence;
+              let themes = '';
 
-              for (j = 0; j < themesNames.length; j++) {
-                var themeName = themesNames[j];
-                if (obj[themeName] == 1 && obj[themeName.concat(' probability')] > minimumProba) {
+              for (let j = 0; j < themesNames.length; j++) {
+                const theme = themesNames[j];
+                if (obj[theme] === '1' && obj[theme.concat(' probability')] > minimumProba) {
                   if (themes.length > 0) {
                     themes = themes.concat(', ');
                   }
-                  themes = themes.concat(themeName);
+                  themes = themes.concat(theme);
                 }
               }
 
               // only push sentence if tagged
               if (themes.length > 0) {
-                regExp = /iv[0-9]+|p[0-9]+|p[0-9]+_[0-9]+|/i
-                predictSentence = predictSentence.replace(regExp, '').trim()
+                const regExp = /iv[0-9]+|p[0-9]+|p[0-9]+_[0-9]+|/i;
+                predictSentence = predictSentence.replace(regExp, '').trim();
 
                 jsonObj.push({
-                  'position': position,
-                  'predictSentence': predictSentence,
-                  'themes': themes.replace(/;/, ',')
+                  position,
+                  predictSentence,
+                  themes: themes.replace(/;/, ',')
                 });
               }
             }
@@ -92,31 +91,30 @@ app.get('/get_html', function(req, res) {
   });
 });
 
-app.get('/get_predict_keywords_data', function(req, res) {
+app.get('/get_predict_keywords_data', (req, res) => {
   csvtojson().fromFile('text/reorder_exit_predict_analyse.csv')
     .then((analyseObj) => {
       csvtojson().fromFile('text/reorder_exit_predict.csv')
         .then((predictObj) => {
+          Object.keys(analyseObj).forEach((analyseKey) => {
+            const analyseRow = analyseObj[analyseKey];
 
-          Object.keys(analyseObj).forEach(function(analyseKey) {
-            var analyseRow = analyseObj[analyseKey];
-
-            for (i = 0; i < themesNames.length; i++) {
-              var theme = themesNames[i];
-              var text = analyseRow[theme];
+            for (let i = 0; i < themesNames.length; i++) {
+              const theme = themesNames[i];
+              const text = analyseRow[theme];
 
               if (text.length > 0) {
-                var word = text.replace(/ \(\d+\)/, '').toLowerCase();
-                var regex = new RegExp('\\b' + word + '\\b', 'i');
-                var sentences = [];
+                const word = text.replace(/ \(\d+\)/, '').toLowerCase();
+                const regex = new RegExp(`\\b${word}\\b`, 'i');
+                const sentences = [];
 
-                Object.keys(predictObj).forEach(function(predictKey) {
-                  var predictRow = predictObj[predictKey];
-                  var cleanedSentence = predictRow['cleaned sentence'].toLowerCase();
-                  var predictProba = predictRow[theme.concat(' probability')];
+                Object.keys(predictObj).forEach((predictKey) => {
+                  const predictRow = predictObj[predictKey];
+                  const cleanedSentence = predictRow.cleaned_sentence.toLowerCase();
+                  const predictProba = predictRow[theme.concat(' probability')];
 
                   if (regex.test(cleanedSentence) && predictProba > minimumProba) {
-                    var originalSentence = predictRow['original sentence'];
+                    const originalSentence = predictRow.original_sentence;
                     sentences.push(originalSentence);
                   }
                 });
@@ -132,30 +130,29 @@ app.get('/get_predict_keywords_data', function(req, res) {
     });
 });
 
-app.get('/get_train_keywords_data', function(req, res) {
+app.get('/get_train_keywords_data', (req, res) => {
   csvtojson().fromFile('text/reorder_exit_train_analyse.csv')
     .then((analyseObj) => {
       csvtojson().fromFile('text/reorder_exit_train.csv')
         .then((trainObj) => {
+          Object.keys(analyseObj).forEach((analyseKey) => {
+            const analyseRow = analyseObj[analyseKey];
 
-          Object.keys(analyseObj).forEach(function(analyseKey) {
-            var analyseRow = analyseObj[analyseKey];
-
-            for (i = 0; i < themesNames.length; i++) {
-              var theme = themesNames[i];
-              var text = analyseRow[theme];
+            for (let i = 0; i < themesNames.length; i++) {
+              const theme = themesNames[i];
+              const text = analyseRow[theme];
 
               if (text.length > 0) {
-                var word = text.replace(/ \(\d+\)/, '').toLowerCase();
-                var regex = new RegExp('\\b' + word + '\\b', 'i');
-                var sentences = [];
+                const word = text.replace(/ \(\d+\)/, '').toLowerCase();
+                const regex = new RegExp(`\\b${word}\\b`, 'i');
+                const sentences = [];
 
-                Object.keys(trainObj).forEach(function(trainKey) {
-                  var trainRow = trainObj[trainKey];
-                  var cleanedSentence = trainRow['cleaned sentence'].toLowerCase();
+                Object.keys(trainObj).forEach((trainKey) => {
+                  const trainRow = trainObj[trainKey];
+                  const cleanedSentence = trainRow.cleaned_sentence.toLowerCase();
 
                   if (regex.test(cleanedSentence)) {
-                    var originalSentence = trainRow['original sentence'];
+                    const originalSentence = trainRow.original_sentence;
                     sentences.push(originalSentence);
                   }
                 });
@@ -171,36 +168,35 @@ app.get('/get_train_keywords_data', function(req, res) {
     });
 });
 
-app.get('/get_train_codes_data', function(req, res) {
+app.get('/get_train_codes_data', (req, res) => {
   csvtojson().fromFile('text/reorder_exit_themes.csv')
     .then((codesObj) => {
       csvtojson().fromFile('text/reorder_exit_train.csv')
         .then((trainObj) => {
+          const counts = [0, 0, 0, 0, 0, 0];
 
-          var counts = [0, 0, 0, 0, 0, 0];
-
-          Object.keys(trainObj).forEach(function(trainKey) {
-            var trainRow = trainObj[trainKey];
-            for (i = 0; i < themesNames.length; i++) {
-              counts[i] += parseInt(trainRow[themesNames[i]]);
+          Object.keys(trainObj).forEach((trainKey) => {
+            const trainRow = trainObj[trainKey];
+            for (let i = 0; i < themesNames.length; i++) {
+              counts[i] += parseInt(trainRow[themesNames[i]], 10);
             }
           });
 
-          Object.keys(codesObj).forEach(function(codesKey) {
-            var codesRow = codesObj[codesKey];
+          Object.keys(codesObj).forEach((codesKey) => {
+            const codesRow = codesObj[codesKey];
 
-            for (i = 0; i < themesNames.length; i++) {
-              var theme = themesNames[i];
-              var code = codesRow[theme];
+            for (let i = 0; i < themesNames.length; i++) {
+              const theme = themesNames[i];
+              const code = codesRow[theme];
 
               if (code.length > 0) {
-                var sentences = [];
+                const sentences = [];
 
-                Object.keys(trainObj).forEach(function(trainKey) {
-                  var trainRow = trainObj[trainKey];
+                Object.keys(trainObj).forEach((trainKey) => {
+                  const trainRow = trainObj[trainKey];
 
-                  if (trainRow['codes'].includes(code)) {
-                    sentences.push(trainRow['original sentence']);
+                  if (trainRow.codes.includes(code)) {
+                    sentences.push(trainRow.original_sentence);
                   }
                 });
 
@@ -210,7 +206,7 @@ app.get('/get_train_codes_data', function(req, res) {
             }
           });
 
-          codesObj.push({'counts': counts});
+          codesObj.push({ counts });
 
           res.json(codesObj);
         });
@@ -218,9 +214,9 @@ app.get('/get_train_codes_data', function(req, res) {
 });
 
 
-var server = app.listen(3000, function() {
-   var host = server.address().address;
-   var port = server.address().port;
+const server = app.listen(3000, () => {
+   const host = server.address().address;
+   const port = server.address().port;
 
    console.log('App listening at http://%s:%s', host, port);
 });
