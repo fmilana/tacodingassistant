@@ -7,34 +7,28 @@ const getData = function (page) {
   d3.select('#loading-gif')
     .style('display', 'block');
 
-  let url;
-
-  switch (page) {
-    case 'predict_keywords':
-      url = '/get_predict_keywords_data';
-      break;
-    case 'train_keywords':
-      url = '/get_train_keywords_data';
-      break;
-    case 'train_codes':
-      url = '/get_train_codes_data';
-      break;
-    default:
-      url = '/get_predict_keywords_data';
-  }
-
-  fetch(url)
+  fetch(`/get_${page}_data`)
     .then((res) => res.json().then((tableData) => {
         const data = tableData;
 
-        const themes = [
-          'practices',
-          'social',
-          'study vs product',
-          'system perception',
-          'system use',
-          'value judgements',
-        ];
+        console.log(data);
+
+        let themes = [];
+        let cmColNames = [];
+
+        if (page === 'train_keywords' || page === 'train_codes'
+        || page === 'predict_keywords') {
+          themes = [
+            'practices',
+            'social',
+            'study vs product',
+            'system perception',
+            'system use',
+            'value judgements'
+          ];
+        } else {
+          cmColNames = Object.keys(data[0]);
+        }
 
         let counts;
 
@@ -62,36 +56,52 @@ const getData = function (page) {
         d3.select('#loading-gif')
             .style('display', 'none');
 
+        d3.select('#table-title')
+          .style('display', 'block');
+
         const table = d3.select('body')
           .append('table')
           .attr('class', () => {
-            if (page === 'predict_keywords') {
-              return 'predict';
+            if (page === 'predict_keywords' || page.match(/.*_matrix$/)) {
+              return 'blue';
             } else if (page === 'train_keywords' || page === 'train_codes') {
-              return 'train';
+              return 'grey';
             }
           })
           .classed('center', true);
         const thead = table.append('thead');
         const	tbody = table.append('tbody');
 
-        thead.append('tr')
-          .selectAll('th')
-          .data(themes)
-          .enter()
-          .append('th')
-          .text((theme, i) => `${theme} (${counts[i].toString()})`)
-          .style('width', () => (100 / themes.length).toString());
+        if (page === 'train_keywords' || page === 'train_codes' || page === 'predict_keywords') {
+          thead.append('tr')
+            .selectAll('th')
+            .data(themes)
+            .enter()
+            .append('th')
+            .text((theme, i) => `${theme} (${counts[i].toString()})`)
+            .style('width', () => (100 / themes.length).toString());
+        } else {
+          thead.append('tr')
+            .selectAll('th')
+            .data(cmColNames)
+            .enter()
+            .append('th')
+            .text((text) => text)
+            .style('width', () => (100 / data[0].length).toString());
+        }
 
-          //jQuery to add shadow to th on scroll
-          $(window).scroll(() => {
-            const scroll = $(window).scrollTop();
-            if (scroll > 0) {
-              $('th').addClass('active');
-            } else {
-              $('th').removeClass('active');
-            }
-          });
+        const titleRect = d3.select('#table-title').node().getBoundingClientRect();
+
+        //jQuery to add shadow to th on scroll
+        $(window).scroll(() => {
+          const scroll = $(window).scrollTop();
+          // title margin = 26.75px
+          if (scroll > titleRect.height + 26.75) {
+            $('th').addClass('active');
+          } else {
+            $('th').removeClass('active');
+          }
+        });
 
         const rows = tbody.selectAll('tr')
           .data(data)
@@ -100,19 +110,31 @@ const getData = function (page) {
 
         // cells
         rows.selectAll('td')
-          .data((row) => themes.map((column) => ({ column, value: row[column] })))
+          .data((row) => {
+            if (page === 'train_keywords' || page === 'train_codes'
+            || page === 'predict_keywords') {
+              return themes.map((column) => ({ column, value: row[column] }));
+            }
+            return cmColNames.map((column) => ({ column, value: row[column] }));
+          })
           .enter()
           .append('td')
-          .style('width', () => (100 / themes.length).toString())
+          .style('width', () => {
+            if (page === 'train_keywords' || page === 'train_codes'
+            || page === 'predict_keywords') {
+              return (100 / themes.length).toString();
+            }
+            return (100 / cmColNames.length).toString();
+          })
           .append('span')
           .classed('td-text', true)
           .text((d) => {
+            // keywords/codes
             if (d.value.length === 2) {
-              if (page === 'train_keywords' || page === 'predict_keywords') {
-                return d.value[0];
-              } else if (page === 'train_codes') {
+              if (page === 'train_codes') {
                 return `${d.value[0]} (${d.value[1].length})`;
               }
+              return d.value[0];
             }
           })
           .classed('td-with-sentences', (d) => {
@@ -134,7 +156,6 @@ const getData = function (page) {
                   // JSON cleaning
                   const sentence = sentences[i]
                     .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
-                    .replace(/"/g, '"')
                     // to-do: encoding
                     .replace(/�/g, ' ')
                     .replace(/\t/g, '    ')
@@ -204,12 +225,14 @@ const generateClickEvents = function (page) {
           const tooltip = d3.select(this.parentNode)
             .select('.td-tooltip');
 
+          const titleRect = d3.select('#table-title').node().getBoundingClientRect();
           const tooltipRect = tooltip.node().getBoundingClientRect();
           const tableRect = d3.select('table').node().getBoundingClientRect();
           const tdRect = this.parentNode.getBoundingClientRect();
 
           tooltip
-            .style('top', () => `${(tdRect.y + tdRect.height + window.scrollY).toString()}px`)
+            .style('top', () => `${((tdRect.y - titleRect.height)
+              + window.scrollY + 13).toString()}px`)
             .style('left', () => {
               if (tdRect.x === 0) {
                 return '10px';
@@ -232,7 +255,7 @@ const generateClickEvents = function (page) {
                 if (page === 'train_keywords') {
                   const regex = new RegExp(`\\b${word}\\b`, 'gi');
                   text = text.replace(regex, `<span style="font-weight: bold">${word}</span>`);
-                } else if (page === 'predict_keywords') {
+                } else {
                   const regex = new RegExp(`\\b${word}\\b`, 'gi');
                   text = text.replace(regex, '<span style="color: #0081eb; font-weight: bold">' +
                     `${word}</span>`);

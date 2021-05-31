@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import docx
 import pandas as pd
+from datetime import datetime
 from nltk import sent_tokenize, word_tokenize
 from lib.sentence2vec import Sentence2Vec
 from preprocess import (
@@ -180,6 +181,63 @@ def plot_heatmaps(clf_name, Y_true, Y_predicted, sentences_dict, themes_list):
     plt.show()
 
 
+def write_cms_to_csv(sentences_dict, themes_list):
+    cm_col_names = [
+        'true_positives',
+        'false_positives',
+        'true_negatives',
+        'false_negatives'
+    ]
+
+    for theme in themes_list:
+        with open(f'text/cm/reorder_exit_{theme.replace(" ", "_")}_cm.csv',
+            'w', newline='') as file:
+
+            writer = csv.writer(file, delimiter=',')
+
+            lengths = []
+
+            for col_name in cm_col_names:
+                sentences = sentences_dict[f'{theme} {col_name}']
+                lengths.append(len(sentences))
+
+            writer.writerow(f'{col_name.replace("_", " ").title()} ({lengths[i]})'
+                for i, col_name in enumerate(cm_col_names))
+
+            all_sentences_lists = []
+
+            for col_name in cm_col_names:
+                sentences = sentences_dict[f'{theme} {col_name}']
+                original_sentences = []
+
+                for sentence in sentences:
+                    # to-do: better way than .any()
+                    # str() used because sometimes bool
+                    original_sentence = str(coded_df.loc[
+                        coded_df['cleaned_sentence'] == sentence]['original_sentence'].any())
+
+                    if len(original_sentence) > 0:
+                        # # remove interview artifacts (not stopwords)
+                        # original_sentence = clean_sentence(original_sentence,
+                        #     keep_alphanum=True)
+                        original_sentence.replace('…', '...')
+
+                        if len(original_sentence) > 0:
+                            original_sentences.append(original_sentence)
+
+                emptyToAdd = max(lengths) - len(original_sentences)
+
+                for i in range(emptyToAdd):
+                    original_sentences.append('')
+
+                all_sentences_lists.append(original_sentences)
+
+            zipped = zip(*[sentences for sentences in all_sentences_lists])
+
+            for row in zipped:
+                writer.writerow(row)
+
+
 def get_keyword_labels(sentences_dict, themes_list):
     word_freq_dict = {}
     all_cms = []
@@ -234,11 +292,11 @@ def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names, fonts
         for keyword, count in zip(labels.flatten(), cm.flatten())])
         ).reshape(2, 2)
 
-    cmap = sns.color_palette("ch:start=.2,rot=-.3", as_cmap=True)
+    cmap = sns.color_palette('ch:start=.2,rot=-.3', as_cmap=True)
 
     heatmap = sns.heatmap(cm, cmap=cmap, annot=annot, fmt='', cbar=False,
         xticklabels=class_names, yticklabels=class_names, ax=axes)
-    sns.color_palette("ch:start=.2,rot=-.3", as_cmap=True)
+    sns.color_palette('ch:start=.2,rot=-.3', as_cmap=True)
 
     heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0,
         ha='right', fontsize=fontsize)
@@ -250,15 +308,23 @@ def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names, fonts
 
 
 def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together):
+    start_function = datetime.now()
+
     (X_train, X_test, Y_train, Y_test,
     test_cleaned_sentences, themes_list) = generate_training_and_testing_data(
         oversample, many_together)
 
+    print(f'fitting clf...')
+    start_fit = datetime.now()
+
     clf.fit(X_train, Y_train)
+
+    print(f'done fitting clf in {datetime.now() - start_fit}')
 
     scores = []
 
     test_pred = clf.predict(X_test).toarray()
+
     for col in range(test_pred.shape[1]):
         equals = np.equal(test_pred[:, col], Y_test[:, col])
         score = np.sum(equals)/equals.size
@@ -295,6 +361,8 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together
         sentences_dict[class_name + ' true_negatives'] = true_negatives
         sentences_dict[class_name + ' false_positives'] = false_positives
         sentences_dict[class_name + ' false_negatives'] = false_negatives
+
+    write_cms_to_csv(sentences_dict, themes_list)
 
     ##### evaluate accuracy and f-measure per class ######
 
@@ -334,6 +402,8 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together
 
         accuracies.append((tp + tn)/(tp + tn + fp + fn))
         f_measures.append(f_measure)
+
+    print(f'classify function run in {datetime.now() - start_function}')
 
     return (scores, true_positives, true_negatives, false_positives,
         false_negatives, accuracies, f_measures)

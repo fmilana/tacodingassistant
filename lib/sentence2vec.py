@@ -6,6 +6,7 @@ from numpy import dot
 from numpy.linalg import norm
 from gensim.models import Word2Vec
 from nltk import word_tokenize
+from datetime import datetime
 
 
 class Sentence2Vec:
@@ -16,9 +17,10 @@ class Sentence2Vec:
 
 
     def __init__(self):
-        print('loading model...')
+        print('loading word embeddings...')
+        start = datetime.now()
         self.model = gensim.downloader.load(self.model_name)
-        print('done')
+        print(f'done loading in {datetime.now() - start}')
 
 
     def get_vector(self, sentence):

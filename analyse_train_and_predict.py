@@ -28,7 +28,8 @@ more_stop_words = ['like', 'yes', 'actually', 'something', 'going', 'could',
     'thing', 'probably', 'iv', 'i', 'so', 'dont', 'but', 'and', 'how', 'why',
     'wouldnt', 'wasnt', 'didnt', 'thats', 'thatll', 'im', 'you', 'no', 'isnt',
     'what', 'do', 'did', 'got', 'ill', 'id', 'or', 'do', 'is', 'ive', 'youd',
-    'cant', 'wont', 'youve', 'dooesnt', 'is', 'it', 'its', 'the', 'thenokay']
+    'cant', 'wont', 'youve', 'dooesnt', 'is', 'it', 'its', 'the', 'thenokay',
+    'theres']
 
 minimum_proba = 0.95
 train_theme_counts = []
@@ -106,3 +107,51 @@ with open(analyse_predict_file_path, 'w', newline='') as file:
             except IndexError:
                 row.append('')
         writer.writerow(row)
+
+# cm analysis
+
+for theme in themes_list:
+    theme = theme.replace(' ', '_')
+    cm_df = pd.read_csv(f'text/cm/reorder_exit_{theme}_cm.csv',
+        encoding='Windows-1252')
+
+    col_names = cm_df.columns.values
+
+    cm_word_freq_dict = {col_name: [] for col_name in col_names}
+
+    for index, row in cm_df.iterrows():
+        for col_name in col_names:
+            sentence = row[col_name]
+
+            if isinstance(sentence, str) and len(sentence) > 0:
+                cleaned_sentence = train_df[train_df['original_sentence'] == sentence]['cleaned_sentence'].any()
+                if isinstance(cleaned_sentence, str):
+                    words = set(word_tokenize(cleaned_sentence))
+                    for word in words:
+                        word = word.lower()
+                        if word not in more_stop_words:
+                            cm_word_freq_dict[col_name].append(word)
+
+    for col_name in cm_word_freq_dict:
+        counter = Counter(cm_word_freq_dict[col_name])
+        cm_word_freq_dict[col_name] = counter.most_common()
+
+    with open(f'text/cm/reorder_exit_{theme}_cm_analyse.csv',
+        'w', newline='') as file:
+        writer = csv.writer(file, delimiter=',')
+        writer.writerow(col_names)
+
+        biggest_list_length = 0
+        for col_name in cm_word_freq_dict:
+            if len(cm_word_freq_dict[col_name]) > biggest_list_length:
+                biggest_list_length = len(cm_word_freq_dict[col_name])
+
+        for i in range(biggest_list_length):
+            row = []
+            for col_name in cm_word_freq_dict:
+                try:
+                    row.append(f'{cm_word_freq_dict[col_name][i][0]} ' +
+                        f'({cm_word_freq_dict[col_name][i][1]})')
+                except IndexError:
+                    row.append('')
+            writer.writerow(row)

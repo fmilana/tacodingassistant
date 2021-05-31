@@ -3,12 +3,11 @@ import zipfile
 import csv
 import pandas as pd
 import numpy as np
+from datetime import datetime
 from nltk import sent_tokenize
 from bs4 import BeautifulSoup
 from preprocess import (
     clean_sentence,
-    # remove_interview_format,
-    # remove_interviewer,
     remove_stop_words)
 from lib.sentence2vec import Sentence2Vec
 
@@ -57,7 +56,8 @@ class Export():
 
 
     def process(self):
-        print('processing', self.doc_path)
+        print(f'extracting comments from {self.doc_path}...')
+        start = datetime.now()
         with zipfile.ZipFile(self.doc_path, 'r') as archive:
             # write header
             header = ['file name', 'comment_id', 'original_sentence',
@@ -135,6 +135,8 @@ class Export():
                             tuple[1], codes, themes]
                         row.extend(themes_binary)
                         writer.writerow(row)
+
+            print(f'done extracting in {datetime.now() - start}')
 
             print(f'{len(set(missing_codes))} missing codes ({len(missing_codes)} sentences) in themes table:')
             print(set(missing_codes))

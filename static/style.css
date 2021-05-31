@@ -30,8 +30,7 @@ body.words {
   margin: 0;
 }
 
-
-
+/* Index tooltip */
 [data-tooltip] {
   position: relative;
   z-index: 2;
@@ -93,9 +92,16 @@ body.words {
   opacity: 1;
 }
 
-
 body.words {
   margin-top: 0px;
+}
+
+#table-title {
+  display: none;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  font-size: 25px;
+  margin-bottom: 10px;
 }
 
 table {
@@ -138,12 +144,12 @@ td {
   text-decoration: underline;
 }
 
-table.train .td-clicked {
+table.grey .td-clicked {
   font-weight: bold;
   text-decoration: underline;
 }
 
-table.predict .td-clicked {
+table.blue .td-clicked {
   color: #0081eb;
   font-weight: bold;
   text-decoration: underline;
@@ -180,20 +186,20 @@ table.predict .td-clicked {
   background-color: white;
 }
 
-table.predict tr, table.predict td {
+table.blue tr, table.blue td {
   background-color: #ebfaff;
 }
 
-table.train tr, table.train td {
+table.grey tr, table.grey td {
   background-color: #f2f2f2;
 }
 
-table.train tr:nth-child(even) td:nth-child(odd),
-table.train tr:nth-child(odd) td:nth-child(even) {
+table.grey tr:nth-child(even) td:nth-child(odd),
+table.grey tr:nth-child(odd) td:nth-child(even) {
   background-color: #fcfcfc;
 }
 
-table.predict tr:nth-child(even) td:nth-child(odd),
-table.predict tr:nth-child(odd) td:nth-child(even) {
+table.blue tr:nth-child(even) td:nth-child(odd),
+table.blue tr:nth-child(odd) td:nth-child(even) {
   background-color: #fafdff;
 }

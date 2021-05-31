@@ -35,6 +35,15 @@ app.get('/train_codes.html', (req, res) => {
   res.sendFile(`${__dirname}/templates/train_codes.html`);
 });
 
+app.get(new RegExp(/^\/.*_matrix.html$/), (req, res) => {
+  const themeName = req.url.match(/^\/(.*?)_matrix.html$/)[1];
+  if (themesNames.map(name => name.replace(/ /g, '_')).includes(themeName)) {
+    res.sendFile(`${__dirname}/templates/${themeName}_matrix.html`);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
 app.get('/get_html', (req, res) => {
   extractText('text/reorder_exit.docx').then((docText) => {
     csvtojson().fromFile('text/reorder_exit_train.csv')
@@ -211,6 +220,45 @@ app.get('/get_train_codes_data', (req, res) => {
           res.json(codesObj);
         });
     });
+});
+
+app.get(new RegExp(/^\/get_.*_matrix_data$/), (req, res) => {
+  const themeName = req.url.match(/\/get_(.*?)_matrix_data$/)[1];
+  if (themesNames.map(name => name.replace(/ /g, '_')).includes(themeName)) {
+    csvtojson().fromFile(`text/cm/reorder_exit_${themeName}_cm.csv`)
+      .then((cmObj) => {
+        csvtojson().fromFile(`text/cm/reorder_exit_${themeName}_cm_analyse.csv`)
+          .then((analyseObj) => {
+            const colNames = Object.keys(cmObj[0]);
+
+            Object.keys(analyseObj).forEach((analyseKey) => {
+              const analyseRow = analyseObj[analyseKey];
+
+              for (let i = 0; i < colNames.length; i++) {
+                const colName = colNames[i];
+                const text = analyseRow[colName];
+                const word = text.replace(/ \(\d+\)$/, '');
+                const sentences = [];
+
+                Object.keys(cmObj).forEach((cmKey) => {
+                  const sentence = cmObj[cmKey][colName];
+                  const regExp = new RegExp(`\\b${word}\\b`, 'i');
+                  if (sentence.match(regExp)) {
+                    sentences.push(sentence);
+                  }
+                });
+
+                analyseRow[colName] = [text];
+                analyseRow[colName].push(sentences);
+              }
+            });
+
+            res.json(analyseObj);
+          });
+      });
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 
