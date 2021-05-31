@@ -308,6 +308,8 @@ def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names, fonts
 
 
 def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together):
+    print('running classify function...')
+
     start_function = datetime.now()
 
     (X_train, X_test, Y_train, Y_test,

@@ -243,7 +243,8 @@ app.get(new RegExp(/^\/get_.*_matrix_data$/), (req, res) => {
                 Object.keys(cmObj).forEach((cmKey) => {
                   const sentence = cmObj[cmKey][colName];
                   const regExp = new RegExp(`\\b${word}\\b`, 'i');
-                  if (sentence.match(regExp)) {
+
+                  if (typeof sentence !== 'undefined' && sentence.match(regExp)) {
                     sentences.push(sentence);
                   }
                 });

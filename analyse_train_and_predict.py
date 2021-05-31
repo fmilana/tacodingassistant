@@ -1,8 +1,12 @@
 import csv
 import pandas as pd
+from datetime import datetime
 from nltk import word_tokenize
 from collections import Counter
 
+
+start = datetime.now()
+print('analysing word frequencies...')
 
 train_file_path = 'text/reorder_exit_train.csv'
 predict_file_path = 'text/reorder_exit_predict.csv'
@@ -29,7 +33,7 @@ more_stop_words = ['like', 'yes', 'actually', 'something', 'going', 'could',
     'wouldnt', 'wasnt', 'didnt', 'thats', 'thatll', 'im', 'you', 'no', 'isnt',
     'what', 'do', 'did', 'got', 'ill', 'id', 'or', 'do', 'is', 'ive', 'youd',
     'cant', 'wont', 'youve', 'dooesnt', 'is', 'it', 'its', 'the', 'thenokay',
-    'theres']
+    'theres', 'ofyes', 'reasonsbecause', 'hadnt']
 
 minimum_proba = 0.95
 train_theme_counts = []
@@ -155,3 +159,5 @@ for theme in themes_list:
                 except IndexError:
                     row.append('')
             writer.writerow(row)
+
+print(f'done analysing in {datetime.now() - start}')
