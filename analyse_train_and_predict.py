@@ -33,7 +33,7 @@ more_stop_words = ['like', 'yes', 'actually', 'something', 'going', 'could',
     'wouldnt', 'wasnt', 'didnt', 'thats', 'thatll', 'im', 'you', 'no', 'isnt',
     'what', 'do', 'did', 'got', 'ill', 'id', 'or', 'do', 'is', 'ive', 'youd',
     'cant', 'wont', 'youve', 'dooesnt', 'is', 'it', 'its', 'the', 'thenokay',
-    'theres', 'ofyes', 'reasonsbecause', 'hadnt']
+    'theres', 'ofyes', 'reasonsbecause', 'hadnt', 'youre']
 
 minimum_proba = 0.95
 train_theme_counts = []

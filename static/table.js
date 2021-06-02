@@ -1,8 +1,7 @@
 /* global fetch d3 window $*/
 
 const getData = function (page) {
-  const sentenceStopWordsRegex = new RegExp('\b(iv|p|a)d+w*|\biv\b|' +
-    'd{2}:d{2}:d{2}|speaker key:|interviewer d*|participant w*', 'gi');
+  const sentenceStopWordsRegex = new RegExp(/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|\d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/, 'gi');
 
   d3.select('#loading-gif')
     .style('display', 'block');
@@ -255,6 +254,8 @@ const generateClickEvents = function (page) {
                 if (page === 'train_keywords') {
                   const regex = new RegExp(`\\b${word}\\b`, 'gi');
                   text = text.replace(regex, `<span style="font-weight: bold">${word}</span>`);
+                } else if (page === 'train_codes') {
+                  return text;
                 } else {
                   const regex = new RegExp(`\\b${word}\\b`, 'gi');
                   text = text.replace(regex, '<span style="color: #0081eb; font-weight: bold">' +

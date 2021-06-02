@@ -467,5 +467,5 @@ clf = ClassifierChain(classifier=XGBClassifier())
 _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
     clf, 'ClassifierChain XGBoost oversample', True, False)
 
-print(f'accuracy = {accuracies}')
-print(f'f_measures = {f_measures}')
+print(f'accuracy per class = {accuracies}')
+print(f'f_measure per class = {f_measures}')
