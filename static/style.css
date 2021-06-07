@@ -97,7 +97,6 @@ body.words {
 }
 
 #table-title {
-  display: none;
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
   font-size: 25px;
@@ -130,10 +129,11 @@ th {
 
 th.active {
   box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.4);
+  /* border-bottom: 3px solid blue; */
 }
 
 td {
-  padding: 10px 20px;
+  height: 39.2px;
 }
 
 .td-with-sentences {
@@ -176,14 +176,25 @@ table.blue .td-clicked {
 }
 
 .td-tooltip-sentences {
+  display: inline-block;
+  word-wrap: break-all;
+  white-space: normal;
   margin: auto;
   margin-bottom: 10px;
   width: 450px;
   max-height: 250px;
-  padding: 0 20px 10px 10px;
+  padding: 0 20px 10px 20px;
   overflow-y: auto;
   overflow-x: hidden;
   background-color: white;
+}
+
+.td-div {
+  position: absolute;
+  visibility: visible;
+  padding: 10px 20px;
+  background-color: transparent;
+  cursor: move;
 }
 
 table.blue tr, table.blue td {
