@@ -24,6 +24,7 @@ node app.js
 ```
 6) Visit:
 * http://localhost:3000/index.html for text classification
+* http://localhost:3000/keywords.html for predicted and trained word frequencies
 * http://localhost:3000/predict_keywords.html for predicted word frequencies
 * http://localhost:3000/train_keywords.html for trained word frequencies
 * http://localhost:3000/train_codes.html for trained codes

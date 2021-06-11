@@ -183,7 +183,7 @@ table.blue .td-clicked {
   margin-bottom: 10px;
   width: 450px;
   max-height: 250px;
-  padding: 0 20px 10px 20px;
+  padding: 0 10px 10px 20px;
   overflow-y: auto;
   overflow-x: hidden;
   background-color: white;

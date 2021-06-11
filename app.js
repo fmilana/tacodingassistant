@@ -23,6 +23,10 @@ app.get('/index.html', (req, res) => {
    res.sendFile(`${__dirname}/templates/index.html`);
 });
 
+app.get('/keywords.html', (req, res) => {
+  res.sendFile(`${__dirname}/templates/keywords.html`);
+});
+
 app.get('/predict_keywords.html', (req, res) => {
   res.sendFile(`${__dirname}/templates/predict_keywords.html`);
 });
@@ -100,163 +104,224 @@ app.get('/get_html', (req, res) => {
   });
 });
 
-app.get('/get_predict_keywords_data', (req, res) => {
-  csvtojson().fromFile('text/reorder_exit_predict_analyse.csv')
-    .then((analyseObj) => {
-      csvtojson().fromFile('text/reorder_exit_predict.csv')
-        .then((predictObj) => {
-          Object.keys(analyseObj).forEach((analyseKey) => {
-            const analyseRow = analyseObj[analyseKey];
-
-            for (let i = 0; i < themesNames.length; i++) {
-              const theme = themesNames[i];
-              const text = analyseRow[theme];
-
-              if (text.length > 0) {
-                const word = text.replace(/ \(\d+\)/, '').toLowerCase();
-                const regex = new RegExp(`\\b${word}\\b`, 'i');
-                const sentences = [];
-
-                Object.keys(predictObj).forEach((predictKey) => {
-                  const predictRow = predictObj[predictKey];
-                  const cleanedSentence = predictRow.cleaned_sentence.toLowerCase();
-                  const predictProba = predictRow[theme.concat(' probability')];
-
-                  if (regex.test(cleanedSentence) && predictProba > minimumProba) {
-                    const originalSentence = predictRow.original_sentence;
-                    sentences.push(originalSentence);
-                  }
-                });
-
-                analyseRow[theme] = [text];
-                analyseRow[theme].push(sentences);
-              }
-            }
-          });
-
-          res.json(analyseObj);
-        });
-    });
-});
-
-app.get('/get_train_keywords_data', (req, res) => {
-  csvtojson().fromFile('text/reorder_exit_train_analyse.csv')
-    .then((analyseObj) => {
+app.get('/get_keywords_data', (req, res) => {
+  csvtojson().fromFile('text/reorder_exit_analyse.csv')
+  .then((analyseObj) => {
+    csvtojson().fromFile('text/reorder_exit_predict.csv')
+    .then((predictObj) => {
       csvtojson().fromFile('text/reorder_exit_train.csv')
-        .then((trainObj) => {
-          Object.keys(analyseObj).forEach((analyseKey) => {
-            const analyseRow = analyseObj[analyseKey];
+      .then((trainObj) => {
+        // get sentences from both train and predict files
+        Object.keys(analyseObj).forEach((analyseKey) => {
+          const analyseRow = analyseObj[analyseKey];
 
-            for (let i = 0; i < themesNames.length; i++) {
-              const theme = themesNames[i];
-              const text = analyseRow[theme];
+          for (let i = 0; i < themesNames.length; i++) {
+            const theme = themesNames[i];
+            const text = analyseRow[theme];
 
-              if (text.length > 0) {
-                const word = text.replace(/ \(\d+\)/, '').toLowerCase();
-                const regex = new RegExp(`\\b${word}\\b`, 'i');
-                const sentences = [];
+            if (text.length > 0) {
+              const word = text.replace(/ \(\d+\)/, '').toLowerCase();
+              const regex = new RegExp(`\\b${word}\\b`, 'i');
+              const predictSentences = [];
+              const trainSentences = [];
 
-                Object.keys(trainObj).forEach((trainKey) => {
-                  const trainRow = trainObj[trainKey];
+              Object.keys(predictObj).forEach((predictKey) => {
+                const predictRow = predictObj[predictKey];
+                const cleanedSentence = predictRow.cleaned_sentence.toLowerCase();
+                const predictProba = predictRow[theme.concat(' probability')];
+
+                if (regex.test(cleanedSentence) && predictProba > minimumProba) {
+                  const originalSentence = predictRow.original_sentence;
+                  predictSentences.push(originalSentence);
+                }
+              });
+
+              Object.keys(trainObj).forEach((trainKey) => {
+                const trainRow = trainObj[trainKey];
+
+                if (trainRow[theme] === '1') {
                   const cleanedSentence = trainRow.cleaned_sentence.toLowerCase();
 
                   if (regex.test(cleanedSentence)) {
                     const originalSentence = trainRow.original_sentence;
-                    sentences.push(originalSentence);
+                    trainSentences.push(originalSentence);
                   }
-                });
+                }
+              });
 
-                analyseRow[theme] = [text];
-                analyseRow[theme].push(sentences);
-              }
+              analyseRow[theme] = [text];
+              analyseRow[theme].push(predictSentences);
+              analyseRow[theme].push(trainSentences);
             }
-          });
-
-          res.json(analyseObj);
+          }
         });
+
+        res.json(analyseObj);
+      });
     });
+  });
+});
+
+app.get('/get_train_keywords_data', (req, res) => {
+  csvtojson().fromFile('text/reorder_exit_train_analyse.csv')
+  .then((analyseObj) => {
+    csvtojson().fromFile('text/reorder_exit_train.csv')
+    .then((trainObj) => {
+      Object.keys(analyseObj).forEach((analyseKey) => {
+        const analyseRow = analyseObj[analyseKey];
+
+        for (let i = 0; i < themesNames.length; i++) {
+          const theme = themesNames[i];
+          const text = analyseRow[theme];
+
+          if (text.length > 0) {
+            const word = text.replace(/ \(\d+\)/, '').toLowerCase();
+            const regex = new RegExp(`\\b${word}\\b`, 'i');
+            const sentences = [];
+
+            Object.keys(trainObj).forEach((trainKey) => {
+              const trainRow = trainObj[trainKey];
+
+              if (trainRow[theme] === '1') {
+                const cleanedSentence = trainRow.cleaned_sentence.toLowerCase();
+
+                if (regex.test(cleanedSentence)) {
+                  const originalSentence = trainRow.original_sentence;
+                  sentences.push(originalSentence);
+                }
+              }
+            });
+
+            analyseRow[theme] = [text];
+            analyseRow[theme].push(sentences);
+          }
+        }
+      });
+
+      res.json(analyseObj);
+    });
+  });
+});
+
+app.get('/get_predict_keywords_data', (req, res) => {
+  csvtojson().fromFile('text/reorder_exit_predict_analyse.csv')
+  .then((analyseObj) => {
+    csvtojson().fromFile('text/reorder_exit_predict.csv')
+    .then((predictObj) => {
+      Object.keys(analyseObj).forEach((analyseKey) => {
+        const analyseRow = analyseObj[analyseKey];
+
+        for (let i = 0; i < themesNames.length; i++) {
+          const theme = themesNames[i];
+          const text = analyseRow[theme];
+
+          if (text.length > 0) {
+            const word = text.replace(/ \(\d+\)/, '').toLowerCase();
+            const regex = new RegExp(`\\b${word}\\b`, 'i');
+            const sentences = [];
+
+            Object.keys(predictObj).forEach((predictKey) => {
+              const predictRow = predictObj[predictKey];
+              const cleanedSentence = predictRow.cleaned_sentence.toLowerCase();
+              const predictProba = predictRow[theme.concat(' probability')];
+
+              if (regex.test(cleanedSentence) && predictProba > minimumProba) {
+                const originalSentence = predictRow.original_sentence;
+                sentences.push(originalSentence);
+              }
+            });
+
+            analyseRow[theme] = [text];
+            analyseRow[theme].push(sentences);
+          }
+        }
+      });
+
+      res.json(analyseObj);
+    });
+  });
 });
 
 app.get('/get_train_codes_data', (req, res) => {
   csvtojson().fromFile('text/reorder_exit_themes.csv')
-    .then((codesObj) => {
-      csvtojson().fromFile('text/reorder_exit_train.csv')
-        .then((trainObj) => {
-          const counts = [0, 0, 0, 0, 0, 0];
+  .then((codesObj) => {
+    csvtojson().fromFile('text/reorder_exit_train.csv')
+    .then((trainObj) => {
+      const counts = [0, 0, 0, 0, 0, 0];
 
-          Object.keys(trainObj).forEach((trainKey) => {
-            const trainRow = trainObj[trainKey];
-            for (let i = 0; i < themesNames.length; i++) {
-              counts[i] += parseInt(trainRow[themesNames[i]], 10);
-            }
-          });
+      Object.keys(trainObj).forEach((trainKey) => {
+        const trainRow = trainObj[trainKey];
+        for (let i = 0; i < themesNames.length; i++) {
+          counts[i] += parseInt(trainRow[themesNames[i]], 10);
+        }
+      });
 
-          Object.keys(codesObj).forEach((codesKey) => {
-            const codesRow = codesObj[codesKey];
+      Object.keys(codesObj).forEach((codesKey) => {
+        const codesRow = codesObj[codesKey];
 
-            for (let i = 0; i < themesNames.length; i++) {
-              const theme = themesNames[i];
-              const code = codesRow[theme];
+        for (let i = 0; i < themesNames.length; i++) {
+          const theme = themesNames[i];
+          const code = codesRow[theme];
 
-              if (code.length > 0) {
-                const sentences = [];
+          if (code.length > 0) {
+            const sentences = [];
 
-                Object.keys(trainObj).forEach((trainKey) => {
-                  const trainRow = trainObj[trainKey];
+            Object.keys(trainObj).forEach((trainKey) => {
+              const trainRow = trainObj[trainKey];
 
-                  if (trainRow.codes.includes(code)) {
-                    sentences.push(trainRow.original_sentence);
-                  }
-                });
-
-                codesRow[theme] = [code];
-                codesRow[theme].push(sentences);
+              if (trainRow.codes.includes(code)) {
+                sentences.push(trainRow.original_sentence);
               }
-            }
-          });
+            });
 
-          codesObj.push({ counts });
+            codesRow[theme] = [code];
+            codesRow[theme].push(sentences);
+          }
+        }
+      });
 
-          res.json(codesObj);
-        });
+      codesObj.push({ counts });
+
+      res.json(codesObj);
     });
+  });
 });
 
 app.get(new RegExp(/^\/get_.*_matrix_data$/), (req, res) => {
   const themeName = req.url.match(/\/get_(.*?)_matrix_data$/)[1];
   if (themesNames.map(name => name.replace(/ /g, '_')).includes(themeName)) {
     csvtojson().fromFile(`text/cm/reorder_exit_${themeName}_cm.csv`)
-      .then((cmObj) => {
-        csvtojson().fromFile(`text/cm/reorder_exit_${themeName}_cm_analyse.csv`)
-          .then((analyseObj) => {
-            const colNames = Object.keys(cmObj[0]);
+    .then((cmObj) => {
+      csvtojson().fromFile(`text/cm/reorder_exit_${themeName}_cm_analyse.csv`)
+      .then((analyseObj) => {
+        const colNames = Object.keys(cmObj[0]);
 
-            Object.keys(analyseObj).forEach((analyseKey) => {
-              const analyseRow = analyseObj[analyseKey];
+        Object.keys(analyseObj).forEach((analyseKey) => {
+          const analyseRow = analyseObj[analyseKey];
 
-              for (let i = 0; i < colNames.length; i++) {
-                const colName = colNames[i];
-                const text = analyseRow[colName];
-                const word = text.replace(/ \(\d+\)$/, '');
-                const sentences = [];
+          for (let i = 0; i < colNames.length; i++) {
+            const colName = colNames[i];
+            const text = analyseRow[colName];
+            const word = text.replace(/ \(\d+\)$/, '');
+            const sentences = [];
 
-                Object.keys(cmObj).forEach((cmKey) => {
-                  const sentence = cmObj[cmKey][colName];
-                  const regExp = new RegExp(`\\b${word}\\b`, 'i');
+            Object.keys(cmObj).forEach((cmKey) => {
+              const sentence = cmObj[cmKey][colName];
+              const regExp = new RegExp(`\\b${word}\\b`, 'i');
 
-                  if (typeof sentence !== 'undefined' && sentence.match(regExp)) {
-                    sentences.push(sentence);
-                  }
-                });
-
-                analyseRow[colName] = [text];
-                analyseRow[colName].push(sentences);
+              if (typeof sentence !== 'undefined' && regExp.test(sentence)) {
+                sentences.push(sentence);
               }
             });
 
-            res.json(analyseObj);
-          });
+            analyseRow[colName] = [text];
+            analyseRow[colName].push(sentences);
+          }
+        });
+
+        res.json(analyseObj);
       });
+    });
   } else {
     res.sendStatus(404);
   }

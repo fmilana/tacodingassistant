@@ -39,8 +39,7 @@ const getData = function (page) {
 
 
 const generateTable = function () {
-  if (pageName === 'train_keywords' || pageName === 'train_codes'
-  || pageName === 'predict_keywords') {
+  if (!/.*_matrix$/.test(pageName)) {
     themes = [
       'practices',
       'social',
@@ -54,7 +53,7 @@ const generateTable = function () {
   }
 
   if (firstLoading) {
-    if (pageName === 'predict_keywords' || pageName === 'train_keywords') {
+    if (/.*keywords$/.test(pageName)) {
       counts = [];
 
       // get counts from first entry
@@ -87,6 +86,9 @@ const generateTable = function () {
           const themeDataRow = [];
           themeDataRow.push(data[dataKey][themeName][0]);
           themeDataRow.push(data[dataKey][themeName][1]);
+          if (pageName === 'keywords') {
+            themeDataRow.push(data[dataKey][themeName][2]);
+          }
 
           themeData.push(themeDataRow);
         }
@@ -97,11 +99,44 @@ const generateTable = function () {
     console.log(themeDataDict);
     firstLoading = false;
   }
+  // else {
+  //   if (pageName === 'predict_keywords') {
+  //     counts = [];
+  //
+  //     for (let i = 0; i < themes.length; i++) {
+  //       const theme = themes[i];
+  //       const themeData = themeDataDict[i];
+  //
+  //       const sentences = new Set();
+  //
+  //       let socialCounter = 0;
+  //
+  //       for (let j = 0; j < themeData[theme].length; j++) {
+  //         const sentence = themeData[theme][j][1][0];
+  //
+  //         if (theme === 'social') {
+  //           console.log(`${socialCounter}: adding to ${theme}`);
+  //           socialCounter++;
+  //         }
+  //
+  //         sentences.add(sentence);
+  //       }
+  //
+  //       if (theme === 'social') {
+  //         console.log(`social has now count = ${sentences.size}`);
+  //         console.log(sentences);
+  //       }
+  //
+  //       counts.push(sentences.size);
+  //     }
+  //   }
+  // }
 
   const table = d3.select('body')
     .append('table')
     .attr('class', () => {
-      if (pageName === 'predict_keywords' || pageName.match(/.*_matrix$/)) {
+      if (pageName === 'predict_keywords' || pageName === 'keywords'
+      || /.*_matrix$/.test(pageName)) {
         return 'blue';
       } else if (pageName === 'train_keywords' || pageName === 'train_codes') {
         return 'grey';
@@ -112,8 +147,7 @@ const generateTable = function () {
   const thead = table.append('thead');
   const	tbody = table.append('tbody');
 
-  if (pageName === 'train_keywords' || pageName === 'train_codes'
-  || pageName === 'predict_keywords') {
+  if (!/.*_matrix$/.test(pageName)) {
     thead.append('tr')
       .selectAll('th')
       .data(themes)
@@ -139,8 +173,7 @@ const generateTable = function () {
   // cells
   rows.selectAll('td')
     .data((row) => {
-      if (pageName === 'train_keywords' || pageName === 'train_codes'
-      || pageName === 'predict_keywords') {
+      if (!/.*_matrix$/.test(pageName)) {
         return themes.map((theme) => ({ theme, value: row[theme] }));
       }
       return cmColNames.map((colName) => ({ colName, value: row[colName] }));
@@ -149,7 +182,7 @@ const generateTable = function () {
     .append('td')
     .style('position', 'relative')
     .attr('column', (d) => {
-      if (pageName.match(/.*_matrix$/)) {
+      if (/.*_matrix$/.test(pageName)) {
         return d.colName;
       }
       return d.theme;
@@ -159,14 +192,13 @@ const generateTable = function () {
     .style('top', '0px')
     .style('left', '0px')
     .style('width', () => {
-      if (pageName === 'train_keywords' || pageName === 'train_codes'
-      || pageName === 'predict_keywords') {
+      if (!/.*_matrix$/.test(pageName)) {
         return `${screen.width / themes.length}px`;
       }
       return `${screen.width / cmColNames.length}px`;
     })
     .attr('column', (d) => {
-      if (pageName.match(/.*_matrix$/)) {
+      if (/.*_matrix$/.test(pageName)) {
         return d.colName;
       }
       return d.theme;
@@ -175,7 +207,7 @@ const generateTable = function () {
     .classed('td-text', true)
     .text((d) => {
       // keywords/codes
-      if (d.value.length === 2) {
+      if (d.value.length > 1) {
         if (pageName === 'train_codes') {
           return `${d.value[0]} (${d.value[1].length})`;
         }
@@ -183,15 +215,15 @@ const generateTable = function () {
       }
     })
     .classed('td-with-sentences', (d) => {
-      if (d.value.length === 2) {
-        if (d.value[1].length > 0) {
+      if (d.value.length > 1) {
+        if (d.value[1].length > 0 || d.value[2].length > 0) {
           return true;
         }
         return false;
       }
     })
     .attr('column', (d) => {
-      if (pageName.match(/.*_matrix$/)) {
+      if (/.*_matrix$/.test(pageName)) {
         return d.colName;
       }
       return d.theme;
@@ -222,6 +254,59 @@ const generateTable = function () {
           }
           return dataString;
         }
+      } else if (d.value.length === 3) {
+        const predictSentences = d.value[1];
+        const trainSentences = d.value[2];
+
+        if (predictSentences.length > 0 || trainSentences.length > 0) {
+          let dataString = '{"predictSentences": [';
+
+          if (predictSentences.length > 0) {
+            for (let i = 0; i < predictSentences.length; i++) {
+              // JSON cleaning
+              const sentence = predictSentences[i]
+                .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                // to-do: encoding
+                .replace(/�/g, ' ')
+                .replace(/\t/g, '    ')
+                .replace(/\n/g, ' ')
+                .trim();
+              dataString += (`"${sentence}"`);
+
+              if (i === (predictSentences.length - 1)) {
+                dataString += '], "trainSentences": [';
+              } else {
+                dataString += ', ';
+              }
+            }
+          } else {
+            dataString += '], "trainSentences": [';
+          }
+
+          if (trainSentences.length > 0) {
+            for (let i = 0; i < trainSentences.length; i++) {
+              // JSON cleaning
+              const sentence = trainSentences[i]
+                .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                // to-do: encoding
+                .replace(/�/g, ' ')
+                .replace(/\t/g, '    ')
+                .replace(/\n/g, ' ')
+                .trim();
+              dataString += (`"${sentence}"`);
+
+              if (i === (trainSentences.length - 1)) {
+                dataString += ']}';
+              } else {
+                dataString += ', ';
+              }
+            }
+          } else {
+            dataString += ']}';
+          }
+
+          return dataString;
+        }
       }
     });
 
@@ -250,7 +335,7 @@ const generateTable = function () {
         tooltip
           .append('div')
           .classed('td-tooltip-inner', true)
-          .append('p')
+          .append('div')
           .classed('td-tooltip-sentences', true);
       });
 
@@ -270,7 +355,7 @@ const generateTable = function () {
 
   generateClickEvents();
 
-  if (pageName === 'predict_keywords') {
+  if (pageName === 'predict_keywords' || pageName === 'keywords') {
     generateDragAndDropEvents();
   }
 
@@ -329,11 +414,42 @@ const generateClickEvents = function () {
 
           const tooltipSentences = tooltip
             .select('.td-tooltip-sentences');
-          const sentences = JSON.parse(d3.select(this).attr('data-sentences')).sentences;
 
           tooltipSentences
             .html(() => {
               if (tooltipSentences.html().length === 0) {
+                if (pageName === 'keywords') {
+                  // both types of sentences (predict + train)
+                  const predictSentences =
+                    JSON.parse(d3.select(this).attr('data-sentences')).predictSentences;
+                  const trainSentences =
+                    JSON.parse(d3.select(this).attr('data-sentences')).trainSentences;
+
+                  let predictText = predictSentences.join('</br></br>');
+                  let trainText = trainSentences.join('</br></br>');
+
+                  const regex = new RegExp(`\\b${word}\\b`, 'gi');
+
+                  predictText = predictText.replace(regex, '<span style="color: #0081eb;' +
+                    ` font-weight: bold">${word}</span>`);
+                  trainText = trainText.replace(regex, '<span style="font-weight: bold">' +
+                    `${word}</span>`);
+
+                  let html;
+
+                  if (predictText.length > 0 && trainText.length > 0) {
+                    html = `<div style="background-color: #ebfaff">${predictText}</div></br>` +
+                      `<div style="background-color: #f2f2f2">${trainText}</div>`;
+                  } else if (predictText.length > 0) {
+                    html = `<div style="background-color: #ebfaff">${predictText}</div>`;
+                  } else {
+                    html = `<div style="background-color: #f2f2f2">${trainText}</div>`;
+                  }
+
+                  return html;
+                }
+                // only one type of sentences (predict/train)
+                const sentences = JSON.parse(d3.select(this).attr('data-sentences')).sentences;
                 let text = sentences.join('</br></br>');
 
                 if (pageName === 'train_keywords') {
@@ -423,15 +539,20 @@ const generateDragAndDropEvents = function () {
 const updateData = function (movingText, movingColumn, targetColumn) {
   console.log(`moving ${movingText} from ${movingColumn} to ${targetColumn}`);
 
-  if (!pageName.match(/.*_matrix$/)) {
+  if (!/.*_matrix$/.test(pageName)) {
     const movingColumnData = themeDataDict[themes.indexOf(movingColumn)][movingColumn];
+
+    // let movingSentences;
 
     for (let i = 0; i < movingColumnData.length; i++) {
       const movingColumnDataRow = movingColumnData[i];
 
+      console.log(movingColumnDataRow);
+
       if (movingColumnDataRow[0] === movingText) {
         const movingWord = movingText.match(/(\w+?)(?: \(\d+\))?$/)[1];
-        const movingCount = parseInt(movingText.match(/\((\d+?)\)/)[1], 10);
+        const movingCount = parseInt(movingText.match(/\((\d+?)\)$/)[1], 10);
+        // movingSentences = movingColumnDataRow[1];
 
         const targetColumnData = themeDataDict[themes.indexOf(targetColumn)][targetColumn];
 
@@ -446,6 +567,7 @@ const updateData = function (movingText, movingColumn, targetColumn) {
             targetColumnData[j][0] = `${movingWord} (${targetCount + movingCount})`;
             // add keyword sentences
             targetColumnData[j][1] = targetColumnData[j][1].concat(movingColumnDataRow[1]);
+            targetColumnData[j][2] = targetColumnData[j][2].concat(movingColumnDataRow[2]);
 
             keywordJoined = true;
           }
@@ -455,6 +577,7 @@ const updateData = function (movingText, movingColumn, targetColumn) {
           const themeDataRow = [];
           themeDataRow.push(movingColumnDataRow[0]);
           themeDataRow.push(movingColumnDataRow[1]);
+          themeDataRow.push(movingColumnDataRow[2]);
 
           targetColumnData.push(themeDataRow);
         }

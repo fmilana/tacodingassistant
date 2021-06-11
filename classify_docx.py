@@ -437,7 +437,7 @@ all_original_sentences = sent_tokenize(text)
 uncoded_original_sentence_position_dict = {}
 
 position = 0
-for sentence in all_original_sentences:
+for sentence in all_original_sentences:    
     if sentence not in coded_original_sentences:
         if sentence in uncoded_original_sentence_position_dict:
             uncoded_original_sentence_position_dict[sentence].append(position)

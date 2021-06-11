@@ -12,6 +12,7 @@ train_file_path = 'text/reorder_exit_train.csv'
 predict_file_path = 'text/reorder_exit_predict.csv'
 analyse_predict_file_path = 'text/reorder_exit_predict_analyse.csv'
 analyse_train_file_path = 'text/reorder_exit_train_analyse.csv'
+analyse_both_file_path = 'text/reorder_exit_analyse.csv'
 
 train_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
@@ -21,6 +22,7 @@ themes_list = [name for i, name in enumerate(predict_df.columns)
 
 predict_word_freq_dict = {theme: [] for theme in themes_list}
 train_word_freq_dict = {theme: [] for theme in themes_list}
+both_word_freq_dict = {theme: [] for theme in themes_list}
 
 for theme in themes_list:
     train_df[theme] = train_df[theme].astype(int)
@@ -33,11 +35,13 @@ more_stop_words = ['like', 'yes', 'actually', 'something', 'going', 'could',
     'wouldnt', 'wasnt', 'didnt', 'thats', 'thatll', 'im', 'you', 'no', 'isnt',
     'what', 'do', 'did', 'got', 'ill', 'id', 'or', 'do', 'is', 'ive', 'youd',
     'cant', 'wont', 'youve', 'dooesnt', 'is', 'it', 'its', 'the', 'thenokay',
-    'theres', 'ofyes', 'reasonsbecause', 'hadnt', 'youre', 'okay']
+    'theres', 'ofyes', 'reasonsbecause', 'hadnt', 'youre', 'okay', 'if',
+    'andyes', 'a']
 
 minimum_proba = 0.95
 train_theme_counts = []
 predict_theme_counts = []
+both_theme_counts = []
 
 for theme in themes_list:
     train_theme_df = train_df.loc[train_df[theme] == 1]
@@ -53,6 +57,7 @@ for theme in themes_list:
                 word = word.lower()
                 if word not in more_stop_words:
                     train_word_freq_dict[theme].append(word)
+                    both_word_freq_dict[theme].append(word)
 
     for index, row in predict_theme_df.iterrows():
         if row[theme + ' probability'] > minimum_proba:
@@ -63,54 +68,53 @@ for theme in themes_list:
                     word = word.lower()
                     if word not in more_stop_words:
                         predict_word_freq_dict[theme].append(word)
+                        both_word_freq_dict[theme].append(word)
 
-for theme in train_word_freq_dict:
-    counter = Counter(train_word_freq_dict[theme])
-    train_word_freq_dict[theme] = counter.most_common()
+both_theme_counts = [x + y for x, y in zip(predict_theme_counts,
+    train_theme_counts)]
 
-for theme in predict_word_freq_dict:
-    counter = Counter(predict_word_freq_dict[theme])
-    predict_word_freq_dict[theme] = counter.most_common()
+dict_list = [
+    train_word_freq_dict,
+    predict_word_freq_dict,
+    both_word_freq_dict
+]
 
-with open(analyse_train_file_path, 'w', newline='') as file:
-    writer = csv.writer(file, delimiter=',')
-    writer.writerow(themes_list)
-    writer.writerow(train_theme_counts)
+path_list = [
+    analyse_train_file_path,
+    analyse_predict_file_path,
+    analyse_both_file_path
+]
 
-    biggest_list_length = 0
-    for theme in train_word_freq_dict:
-        if len(train_word_freq_dict[theme]) > biggest_list_length:
-            biggest_list_length = len(train_word_freq_dict[theme])
+counts_list = [
+    train_theme_counts,
+    predict_theme_counts,
+    both_theme_counts
+]
 
-    for i in range(biggest_list_length):
-        row = []
-        for theme in train_word_freq_dict:
-            try:
-                row.append(f'{train_word_freq_dict[theme][i][0]} ' +
-                    f'({train_word_freq_dict[theme][i][1]})')
-            except IndexError:
-                row.append('')
-        writer.writerow(row)
+for i, dict in enumerate(dict_list):
+    for theme in dict:
+        counter = Counter(dict[theme])
+        dict[theme] = counter.most_common()
 
-with open(analyse_predict_file_path, 'w', newline='') as file:
-    writer = csv.writer(file, delimiter=',')
-    writer.writerow(themes_list)
-    writer.writerow(predict_theme_counts)
+    with open(path_list[i], 'w', newline='') as file:
+        writer = csv.writer(file, delimiter=',')
+        writer.writerow(themes_list)
+        writer.writerow(counts_list[i])
 
-    biggest_list_length = 0
-    for theme in predict_word_freq_dict:
-        if len(predict_word_freq_dict[theme]) > biggest_list_length:
-            biggest_list_length = len(predict_word_freq_dict[theme])
+        biggest_list_length = 0
+        for theme in dict:
+            if len(dict[theme]) > biggest_list_length:
+                biggest_list_length = len(dict[theme])
 
-    for i in range(biggest_list_length):
-        row = []
-        for theme in predict_word_freq_dict:
-            try:
-                row.append(f'{predict_word_freq_dict[theme][i][0]} ' +
-                    f'({predict_word_freq_dict[theme][i][1]})')
-            except IndexError:
-                row.append('')
-        writer.writerow(row)
+        for i in range(biggest_list_length):
+            row = []
+            for theme in dict:
+                try:
+                    row.append(f'{dict[theme][i][0]} ' +
+                        f'({dict[theme][i][1]})')
+                except IndexError:
+                    row.append('')
+            writer.writerow(row)
 
 # cm analysis
 
