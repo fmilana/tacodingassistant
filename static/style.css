@@ -96,6 +96,12 @@ body.words {
   margin-top: 0px;
 }
 
+#calibrate-button {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+}
+
 #table-title {
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;

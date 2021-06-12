@@ -18,6 +18,9 @@ let dragging = false;
 
 let maxZIndex = 1;
 
+let changedData = [];
+
+
 const getData = function (page) {
   pageName = page;
 
@@ -97,7 +100,6 @@ const generateTable = function () {
     }
 
     console.log(themeDataDict);
-    firstLoading = false;
   }
   // else {
   //   if (pageName === 'predict_keywords') {
@@ -310,6 +312,25 @@ const generateTable = function () {
       }
     });
 
+    if (!/.*_matrix$/.test(pageName)) {
+      // highlight cell that has been moved after reloading data
+      let colored = 0;
+
+      d3.selectAll('.td-text')
+        .each(function () {
+          const tdText = d3.select(this);
+
+          for (let i = 0; i < changedData.length && colored < changedData.length; i++) {
+            if (tdText.text() === changedData[i].movedText
+            && tdText.attr('column') === changedData[i].targetColumn) {
+              d3.select(this.parentNode.parentNode)
+                .style('background-color', '#9fe5fc');
+              colored++;
+            }
+          }
+        });
+    }
+
     d3.selectAll('td') // append tooltip to each td
       .each(function () {
         const tooltip = d3.select(this)
@@ -366,6 +387,13 @@ const generateTable = function () {
 
   d3.select('#table-title')
     .style('padding-left', `${scrollBarWidth}px`);
+
+  if (firstLoading) {
+    firstLoading = false;
+  } else {
+    d3.select('#calibrate-button')
+      .attr('disabled', null);
+  }
 };
 
 
@@ -506,8 +534,9 @@ const generateDragAndDropEvents = function () {
 
       const movingText = d3.select(this).text();
       const movingColumn = d3.select(this).attr('column');
-      const targetColumn = d3.select(document.elementFromPoint(d3.pointer(event)[0],
-        d3.pointer(event)[1])).attr('column');
+      const targetColumn =
+      d3.select(document.elementFromPoint(d3.pointer(event)[0] - window.pageXOffset,
+        d3.pointer(event)[1] - window.pageYOffset)).attr('column');
 
       if (targetColumn !== movingColumn) {
         d3.select('table').remove();
@@ -535,24 +564,23 @@ const generateDragAndDropEvents = function () {
       .on('end', dragEnded));
 };
 
-
 const updateData = function (movingText, movingColumn, targetColumn) {
   console.log(`moving ${movingText} from ${movingColumn} to ${targetColumn}`);
+
+  d3.select('#calibrate-button')
+    .attr('disabled', 'disabled');
+
+  let movedText = movingText;
 
   if (!/.*_matrix$/.test(pageName)) {
     const movingColumnData = themeDataDict[themes.indexOf(movingColumn)][movingColumn];
 
-    // let movingSentences;
-
     for (let i = 0; i < movingColumnData.length; i++) {
       const movingColumnDataRow = movingColumnData[i];
-
-      console.log(movingColumnDataRow);
 
       if (movingColumnDataRow[0] === movingText) {
         const movingWord = movingText.match(/(\w+?)(?: \(\d+\))?$/)[1];
         const movingCount = parseInt(movingText.match(/\((\d+?)\)$/)[1], 10);
-        // movingSentences = movingColumnDataRow[1];
 
         const targetColumnData = themeDataDict[themes.indexOf(targetColumn)][targetColumn];
 
@@ -564,7 +592,8 @@ const updateData = function (movingText, movingColumn, targetColumn) {
           if (targetWord === movingWord) {
             // update keyword count
             const targetCount = parseInt(targetColumnData[j][0].match(/\((\d+?)\)/)[1], 10);
-            targetColumnData[j][0] = `${movingWord} (${targetCount + movingCount})`;
+            movedText = `${movingWord} (${targetCount + movingCount})`;
+            targetColumnData[j][0] = movedText;
             // add keyword sentences
             targetColumnData[j][1] = targetColumnData[j][1].concat(movingColumnDataRow[1]);
             targetColumnData[j][2] = targetColumnData[j][2].concat(movingColumnDataRow[2]);
@@ -640,6 +669,8 @@ const updateData = function (movingText, movingColumn, targetColumn) {
     console.log(themeDataDict);
     console.log('---------data AFTER MOVING---------');
     console.log(data);
+
+    changedData.push({ targetColumn, movedText });
 
     generateTable();
   }
