@@ -18,7 +18,7 @@ let dragging = false;
 
 let maxZIndex = 1;
 
-let changedData = [];
+const changedData = [];
 
 
 const getData = function (page) {
@@ -389,6 +389,7 @@ const generateTable = function () {
     .style('padding-left', `${scrollBarWidth}px`);
 
   if (firstLoading) {
+    addCalibrateListener();
     firstLoading = false;
   } else {
     d3.select('#calibrate-button')
@@ -532,8 +533,10 @@ const generateDragAndDropEvents = function () {
         .style('left', '0px')
         .style('top', '0px');
 
-      const movingText = d3.select(this).text();
-      const movingColumn = d3.select(this).attr('column');
+      const tdDiv = d3.select(this);
+      const movingText = tdDiv.text();
+      const movingSentences = JSON.parse(tdDiv.select('span').attr('data-sentences'));
+      const movingColumn = tdDiv.attr('column');
       const targetColumn =
       d3.select(document.elementFromPoint(d3.pointer(event)[0] - window.pageXOffset,
         d3.pointer(event)[1] - window.pageYOffset)).attr('column');
@@ -549,7 +552,7 @@ const generateDragAndDropEvents = function () {
 
         // setTimeout to avoid freezing
         setTimeout(() => {
-          updateData(movingText, movingColumn, targetColumn);
+          updateData(movingText, movingSentences, movingColumn, targetColumn);
         }, 1);
       }
 
@@ -564,7 +567,7 @@ const generateDragAndDropEvents = function () {
       .on('end', dragEnded));
 };
 
-const updateData = function (movingText, movingColumn, targetColumn) {
+const updateData = function (movingText, movingSentences, movingColumn, targetColumn) {
   console.log(`moving ${movingText} from ${movingColumn} to ${targetColumn}`);
 
   d3.select('#calibrate-button')
@@ -670,11 +673,32 @@ const updateData = function (movingText, movingColumn, targetColumn) {
     console.log('---------data AFTER MOVING---------');
     console.log(data);
 
-    changedData.push({ targetColumn, movedText });
+    changedData.push({ movedText, movingSentences, movingColumn, targetColumn });
+
+    console.log('changedData vvvv');
+    console.log(changedData);
 
     generateTable();
   }
 };
 
+
+const addCalibrateListener = function () {
+  d3.select('#calibrate-button')
+    .on('click', () => {
+      fetch(`/calibrate_${pageName}`, {
+        method: 'POST',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer',
+        body: JSON.stringify(changedData)
+      });
+    });
+};
 
 export { getData };

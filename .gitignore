@@ -8,6 +8,7 @@ reorder_exit_predict_analyse.csv
 reorder_exit_frequencies.csv
 reorder_exit_predict.csv
 reorder_exit_train.csv
+reorder_exit_train_1.csv
 reorder_exit_oversampled.csv
 /logs
 classification.txt

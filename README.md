@@ -8,7 +8,7 @@ pip install -r requirements.txt
 ```
 2) Install Node.js packages:
 ```
-npm i body-parser csvtojson doxtract express
+npm i body-parser csvtojson doxtract express objects-to-csv
 ```
 3) Classify the .docx:
 ```

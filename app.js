@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { extractText } = require('doxtract');
 const csvtojson = require('csvtojson');
+const ObjectsToCsv = require('objects-to-csv');
 
 const minimumProba = 0.95;
 const themesNames = [
@@ -13,9 +14,11 @@ const themesNames = [
   'value judgements'
 ];
 
+const sentenceStopWordsRegex = new RegExp(/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|\d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/, 'gi');
+
 const app = express();
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
 
 app.use('/static', express.static('static'));
 
@@ -324,6 +327,83 @@ app.get(new RegExp(/^\/get_.*_matrix_data$/), (req, res) => {
     });
   } else {
     res.sendStatus(404);
+  }
+});
+
+app.post(new RegExp(/^\/calibrate_.*$/), (req, res) => {
+  const pageName = req.url.match(/\/calibrate_(.*?)$/)[1];
+  if (pageName === 'keywords') {
+    csvtojson().fromFile('text/reorder_exit_train.csv')
+    .then((trainObj) => {
+      csvtojson().fromFile('text/reorder_exit_predict.csv')
+      .then((predictObj) => {
+        for (let i = 0; i < req.body.length; i++) {
+          const changedDataRow = req.body[i];
+          const trainSentences = changedDataRow.movingSentences.trainSentences;
+          const predictSentences = changedDataRow.movingSentences.predictSentences;
+          const movingColumn = changedDataRow.movingColumn;
+          const targetColumn = changedDataRow.targetColumn;
+
+          Object.keys(trainObj).forEach((trainKey) => {
+            const trainRow = trainObj[trainKey];
+            const trainRowSentence =
+            trainRow.original_sentence
+              .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+              .replace(/�/g, ' ')
+              .replace(/\t/g, '    ')
+              .replace(/\n/g, ' ')
+              .trim();
+
+            if (trainSentences.includes(trainRowSentence)) {
+              trainRow.themes = trainRow.themes.replace(movingColumn, targetColumn);
+              trainRow[movingColumn] = '0';
+              trainRow[targetColumn] = '1';
+            }
+          });
+
+          for (let j = 0; j < predictSentences.length; j++) {
+            const predictSentence = predictSentences[j];
+
+            const matchingPredictKey = Object.keys(predictObj)
+            .find(predictKey =>
+              predictObj[predictKey]
+              .original_sentence
+              .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+              .replace(/�/g, ' ')
+              .replace(/\t/g, '    ')
+              .replace(/\n/g, ' ')
+              .trim() === predictSentence);
+
+            const cleanedSentence = predictObj[matchingPredictKey].cleaned_sentence;
+            const sentenceEmbedding = predictObj[matchingPredictKey].sentence_embedding;
+
+            const newRow = {
+              'file name': 'text/reorder_exit.docx',
+              comment_id: '',
+              original_sentence: predictSentence,
+              cleaned_sentence: cleanedSentence,
+              sentence_embedding: sentenceEmbedding,
+              codes: '',
+              themes: targetColumn,
+            };
+
+            for (let k = 0; k < themesNames.length; k++) {
+              const theme = themesNames[k];
+              if (theme === targetColumn) {
+                newRow[theme] = '1';
+              } else {
+                newRow[theme] = '0';
+              }
+            }
+            trainObj.push(newRow);
+          }
+        }
+
+        new ObjectsToCsv(trainObj).toDisk('text/reorder_exit_train_1.csv');
+
+        res.sendStatus(200);
+      });
+    });
   }
 });
 

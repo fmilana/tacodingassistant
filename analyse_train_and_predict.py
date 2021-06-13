@@ -110,8 +110,7 @@ for i, dict in enumerate(dict_list):
             row = []
             for theme in dict:
                 try:
-                    row.append(f'{dict[theme][i][0]} ' +
-                        f'({dict[theme][i][1]})')
+                    row.append(f'{dict[theme][i][0]} ({dict[theme][i][1]})')
                 except IndexError:
                     row.append('')
             writer.writerow(row)
