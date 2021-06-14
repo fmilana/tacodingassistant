@@ -13,10 +13,8 @@ from lib.sentence2vec import Sentence2Vec
 
 
 class Export():
-    model = Sentence2Vec()
-
     doc_path = ''
-    cat_df = pd.read_csv('text/reorder_exit_themes.csv')
+    model = None
 
 
     def __init__(self, doc_path):
@@ -56,13 +54,16 @@ class Export():
 
 
     def process(self):
+        self.model = Sentence2Vec()
         print(f'extracting comments from {self.doc_path}...')
         start = datetime.now()
+        cat_df = pd.read_csv('text/reorder_exit_themes.csv', encoding='utf-8-sig')
+
         with zipfile.ZipFile(self.doc_path, 'r') as archive:
             # write header
             header = ['file name', 'comment_id', 'original_sentence',
                 'cleaned_sentence', 'sentence_embedding', 'codes', 'themes']
-            themes_list = list(self.cat_df)
+            themes_list = list(cat_df)
             header.extend(themes_list)
 
             out_filename = self.doc_path.replace('.docx', '_train.csv')
@@ -107,9 +108,9 @@ class Export():
 
                 if ';' in codes:
                     for code in codes.split('; '):
-                        find_code = (self.cat_df.values == code).any(axis=0)
+                        find_code = (cat_df.values == code).any(axis=0)
                         try:
-                            theme = self.cat_df.columns[np.where(find_code==True)[0]].item()
+                            theme = cat_df.columns[np.where(find_code==True)[0]].item()
                             if theme not in themes:
                                 themes.append(theme)
                         except ValueError as e:
@@ -117,9 +118,9 @@ class Export():
                     themes = sorted(themes, key=str.casefold)
                     themes = '; '.join(themes)
                 else:
-                    find_code = (self.cat_df.values == codes).any(axis=0)
+                    find_code = (cat_df.values == codes).any(axis=0)
                     try:
-                        themes = self.cat_df.columns[np.where(find_code==True)[0]].item()
+                        themes = cat_df.columns[np.where(find_code==True)[0]].item()
                     except ValueError as e:
                         missing_codes.append(codes)
 

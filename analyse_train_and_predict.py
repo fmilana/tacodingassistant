@@ -18,7 +18,7 @@ train_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
 
 themes_list = [name for i, name in enumerate(predict_df.columns)
-    if i >= 4 and i <= 9]
+    if i >= 3 and i <= 8]
 
 predict_word_freq_dict = {theme: [] for theme in themes_list}
 train_word_freq_dict = {theme: [] for theme in themes_list}

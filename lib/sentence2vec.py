@@ -1,6 +1,8 @@
+import os
 import re
 import csv
 import numpy as np
+import pickle
 import gensim.downloader
 from numpy import dot
 from numpy.linalg import norm
@@ -12,15 +14,22 @@ from datetime import datetime
 class Sentence2Vec:
     # https://github.com/RaRe-Technologies/gensim-data
     model_name = 'glove-twitter-50'
+    model_file_path = 'embeddings/model.pickle'
 
     vector_sentence_dict = {}
 
-
     def __init__(self):
-        print('loading word embeddings...')
         start = datetime.now()
-        self.model = gensim.downloader.load(self.model_name)
-        print(f'done loading in {datetime.now() - start}')
+        if os.path.exists(self.model_file_path):
+            print('loading word embeddings from disk...')
+            with open(self.model_file_path, 'rb') as f:
+                self.model = pickle.load(f)
+        else:
+            print('downloading word embeddings...')
+            self.model = gensim.downloader.load(self.model_name)
+            with open('embeddings/model.pickle', 'wb') as f:
+                pickle.dump(self.model, f)
+        print(f'done in {datetime.now() - start}')
 
 
     def get_vector(self, sentence):

@@ -38,22 +38,24 @@ from skmultilearn.problem_transform import (
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, multilabel_confusion_matrix
 from xgboost import XGBClassifier
-
 from export_docx_themes_with_embeddings import Export
 
 
 doc_path = sys.argv[1]
 
-export = Export(doc_path)
-export.process()
+if len(sys.argv) == 3 and sys.argv[2].endswith('.csv'):
+    train_file_path = sys.argv[2]
+    predict_file_path = train_file_path.replace('train', 'predict')
+else:
+    train_file_path = doc_path.replace('.docx', '_train.csv')
+    predict_file_path = doc_path.replace('.docx', '_predict.csv')
 
+    export = Export(doc_path)
+    export.process()
 
-train_file_path = doc_path.replace('.docx', '_train.csv')
-predict_file_path = doc_path.replace('.docx', '_predict.csv')
-categories_file_path = 'text/reorder_exit_themes.csv'
-
-coded_df = pd.read_csv(train_file_path, encoding='Windows-1252')
-cat_df = pd.read_csv(categories_file_path)
+cat_df = pd.read_csv('text/reorder_exit_themes.csv', encoding='utf-8-sig')
+train_df = pd.read_csv(train_file_path, encoding='Windows-1252')
+predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
 
 
 def get_sample_weights(Y_train):
@@ -81,9 +83,11 @@ def get_sample_weights(Y_train):
 
 def generate_training_and_testing_data(oversample, many_together):
     themes_list = list(cat_df)
+    print(f'themes_list = ${themes_list}')
+    global train_df
     # convert embedding string to np array
     if not many_together:
-        coded_df['sentence_embedding'] = coded_df['sentence_embedding'].apply(
+        train_df['sentence_embedding'] = train_df['sentence_embedding'].apply(
             lambda x: np.fromstring(
                 x.replace('\n','')
                 .replace('[','')
@@ -91,7 +95,7 @@ def generate_training_and_testing_data(oversample, many_together):
                 .replace('  ',' '), sep=' '))
 
     # split into training and testing
-    by_themes = coded_df.groupby('themes')
+    by_themes = train_df.groupby('themes')
 
     training_list = []
     testing_list = []
@@ -141,8 +145,6 @@ def generate_training_and_testing_data(oversample, many_together):
 
 
 def add_classification_to_csv(clf, prediction_output, prediction_proba):
-    predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
-
     themes_list = list(cat_df)
 
     if isinstance(prediction_output, scipy.sparse.spmatrix):
@@ -161,7 +163,28 @@ def add_classification_to_csv(clf, prediction_output, prediction_proba):
 
     new_df = pd.concat([out_df, proba_df], axis=1)
 
+    predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
+
     predict_df = predict_df.merge(new_df, left_index=True, right_index=True)
+
+    if len(sys.argv) == 3 and sys.argv[2].endswith('.csv'):
+        global train_df
+        # add moved predictions so they still show up in table as predictions
+        moved_predict_df = train_df.loc[train_df['codes'].isna()]
+        moved_predict_df = moved_predict_df.drop([
+            'file name',
+            'codes',
+            'themes'], axis=1)
+        moved_predict_df = moved_predict_df.drop(['comment_id'], axis=1)
+
+        for theme in themes_list:
+            moved_predict_df[f'{theme} probability'] = moved_predict_df[theme]
+
+        predict_df = predict_df.append(moved_predict_df)
+
+        # remove moved predictions from train
+        train_df = train_df[train_df['codes'].notna()]
+
     predict_df.to_csv(predict_file_path, index=False)
 
 
@@ -213,8 +236,8 @@ def write_cms_to_csv(sentences_dict, themes_list):
                 for sentence in sentences:
                     # to-do: better way than .any()
                     # str() used because sometimes bool
-                    original_sentence = str(coded_df.loc[
-                        coded_df['cleaned_sentence'] == sentence]['original_sentence'].any())
+                    original_sentence = str(train_df.loc[
+                        train_df['cleaned_sentence'] == sentence]['original_sentence'].any())
 
                     if len(original_sentence) > 0:
                         # # remove interview artifacts (not stopwords)
@@ -287,7 +310,8 @@ def get_keyword_labels(sentences_dict, themes_list):
     return all_cms
 
 
-def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names, fontsize=14):
+def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names,
+    fontsize=14):
     annot = (np.asarray([f'{count}\n {keyword}'
         for keyword, count in zip(labels.flatten(), cm.flatten())])
         ).reshape(2, 2)
@@ -307,16 +331,16 @@ def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names, fonts
     axes.set_title(theme)
 
 
-def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together):
+def classify(sentence_embedding_matrix, clf, clf_name, oversample,
+    many_together):
     print('running classify function...')
-
     start_function = datetime.now()
 
     (X_train, X_test, Y_train, Y_test,
     test_cleaned_sentences, themes_list) = generate_training_and_testing_data(
         oversample, many_together)
 
-    print(f'fitting clf...')
+    print('fitting clf...')
     start_fit = datetime.now()
 
     clf.fit(X_train, Y_train)
@@ -411,9 +435,6 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample, many_together
         false_negatives, accuracies, f_measures)
 
 
-model = export.model
-
-
 def get_text(file_path):
     doc = docx.Document(file_path)
     full_text = []
@@ -422,48 +443,50 @@ def get_text(file_path):
     return '\n'.join(full_text)
 
 
-text = get_text(doc_path)
-text = text.replace("’", "'")
+if len(sys.argv) == 3 and sys.argv[2].endswith('.csv'):
+    model = Sentence2Vec()
+else:
+    model = export.model
 
-file = open(predict_file_path, 'w', newline='')
-writer = csv.writer(file, delimiter=',')
-writer.writerow(['position', 'original_sentence', 'cleaned_sentence',
-    'sentence_embedding'])
+text = get_text(doc_path).replace("’", "'")
 
-coded_original_sentences = coded_df['original_sentence'].tolist()
+print('writing sentences to predict csv...')
+start_writing = datetime.now()
 
-all_original_sentences = sent_tokenize(text)
+with open(predict_file_path, 'w', newline='') as predict_file:
+    writer = csv.writer(predict_file, delimiter=',')
+    writer.writerow(['original_sentence', 'cleaned_sentence',
+        'sentence_embedding'])
 
-uncoded_original_sentence_position_dict = {}
+    train_df = pd.read_csv(train_file_path, encoding='Windows-1252')
+    train_original_sentences = train_df['original_sentence'].tolist()
 
-position = 0
-for sentence in all_original_sentences:    
-    if sentence not in coded_original_sentences:
-        if sentence in uncoded_original_sentence_position_dict:
-            uncoded_original_sentence_position_dict[sentence].append(position)
-        else:
-            uncoded_original_sentence_position_dict[sentence] = [position]
-    position += len(re.sub('\n', '', sentence)) + 1
+    all_original_sentences = sent_tokenize(text)
 
-sentence_embedding_list = []
+    uncoded_original_sentences = []
 
-for sentence in uncoded_original_sentence_position_dict.keys():
-    position = uncoded_original_sentence_position_dict[sentence]
+    for sentence in all_original_sentences:
+        if sentence not in train_original_sentences:
+            uncoded_original_sentences.append(sentence)
 
-    cleaned_sentence = remove_stop_words(clean_sentence(sentence))
-    sentence_embedding = model.get_vector(cleaned_sentence)
+    sentence_embedding_list = []
 
-    writer.writerow([', '.join(str(i) for i in position), sentence, cleaned_sentence,
-        sentence_embedding])
+    for sentence in uncoded_original_sentences:
+        cleaned_sentence = remove_stop_words(clean_sentence(sentence))
+        sentence_embedding = model.get_vector(cleaned_sentence)
 
-    sentence_embedding_list.append(sentence_embedding)
+        writer.writerow([sentence, cleaned_sentence, sentence_embedding])
 
-file.close()
+        sentence_embedding_list.append(sentence_embedding)
+
+    predict_file.close()
 
 sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
+print(f'done writing in {datetime.now() - start_writing}')
 
 clf = ClassifierChain(classifier=XGBClassifier())
+
 _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
     clf, 'ClassifierChain XGBoost oversample', True, False)
 
