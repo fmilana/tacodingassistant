@@ -1,3 +1,4 @@
+import sys
 import csv
 import pandas as pd
 from datetime import datetime
@@ -8,11 +9,19 @@ from collections import Counter
 start = datetime.now()
 print('analysing word frequencies...')
 
-train_file_path = 'text/reorder_exit_train.csv'
-predict_file_path = 'text/reorder_exit_predict.csv'
-analyse_predict_file_path = 'text/reorder_exit_predict_analyse.csv'
-analyse_train_file_path = 'text/reorder_exit_train_analyse.csv'
-analyse_both_file_path = 'text/reorder_exit_analyse.csv'
+if len(sys.argv) == 2:
+    train_file_path = sys.argv[1]
+    predict_file_path = train_file_path.replace('train', 'predict')
+    analyse_predict_file_path = predict_file_path.replace('1.csv', 'analyse_1.csv')
+    analyse_train_file_path = train_file_path.replace('1.csv', 'analyse_1.csv')
+    analyse_both_file_path = train_file_path.replace('train_1.csv', 'analyse_1.csv')
+else:
+    train_file_path = 'text/reorder_exit_train.csv'
+    predict_file_path = 'text/reorder_exit_predict.csv'
+    analyse_predict_file_path = predict_file_path.replace('.csv', '_analyse.csv')
+    analyse_train_file_path = train_file_path.replace('.csv', '_analyse.csv')
+    analyse_both_file_path = train_file_path.replace('train.csv', 'analyse.csv')
+
 
 train_df = pd.read_csv(train_file_path, encoding='Windows-1252')
 predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')

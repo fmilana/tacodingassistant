@@ -3,8 +3,11 @@
 *.tsv
 *.model
 reorder_exit_analyse.csv
+reorder_exit_analyse_1.csv
 reorder_exit_train_analyse.csv
+reorder_exit_train_analyse_1.csv
 reorder_exit_predict_analyse.csv
+reorder_exit_predict_analyse_1.csv
 reorder_exit_frequencies.csv
 reorder_exit_predict.csv
 reorder_exit_train.csv

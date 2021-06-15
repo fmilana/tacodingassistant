@@ -389,10 +389,10 @@ const generateTable = function () {
     .style('padding-left', `${scrollBarWidth}px`);
 
   if (firstLoading) {
-    addCalibrateListener();
+    addReclassifyListener();
     firstLoading = false;
   } else {
-    d3.select('#calibrate-button')
+    d3.select('#re-classify-button')
       .attr('disabled', null);
   }
 };
@@ -570,7 +570,7 @@ const generateDragAndDropEvents = function () {
 const updateData = function (movingText, movingSentences, movingColumn, targetColumn) {
   console.log(`moving ${movingText} from ${movingColumn} to ${targetColumn}`);
 
-  d3.select('#calibrate-button')
+  d3.select('#re-classify-button')
     .attr('disabled', 'disabled');
 
   let movedText = movingText;
@@ -683,10 +683,21 @@ const updateData = function (movingText, movingSentences, movingColumn, targetCo
 };
 
 
-const addCalibrateListener = function () {
-  d3.select('#calibrate-button')
+const addReclassifyListener = function () {
+  d3.select('#re-classify-button')
     .on('click', () => {
-      fetch(`/calibrate_${pageName}`, {
+      d3.select('table').remove();
+
+      d3.select('#table-title')
+        .style('padding-left', '0px');
+
+      d3.select('#re-classify-button')
+        .attr('disabled', 'disabled');
+
+      d3.select('#loading-gif')
+          .style('display', 'block');
+
+      fetch(`/re-classify_${pageName}`, {
         method: 'POST',
         mode: 'cors',
         cache: 'no-cache',
@@ -697,7 +708,17 @@ const addCalibrateListener = function () {
         redirect: 'follow',
         referrerPolicy: 'no-referrer',
         body: JSON.stringify(changedData)
-      });
+      }).then((res) => res.json().then((tableData) => {
+        data = tableData;
+        console.log(data);
+
+        firstLoading = true;
+
+        generateTable();
+
+        d3.select('#loading-gif')
+          .style('display', 'none');
+      }));
     });
 };
 
