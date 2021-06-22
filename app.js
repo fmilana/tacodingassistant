@@ -333,9 +333,134 @@ app.get(new RegExp(/^\/get_.*_matrix_data$/), (req, res) => {
   }
 });
 
+// app.post(new RegExp(/^\/update_.*$/), (req, res) => {
+//   const pageName = req.url.match(/\/update_(.*?)$/)[1];
+//   if (pageName === 'keywords') {
+//     console.log(req.body);
+//     csvtojson().fromFile('text/reorder_exit_train.csv')
+//     .then((trainObj) => {
+//       csvtojson().fromFile('text/reorder_exit_predict.csv')
+//       .then((predictObj) => {
+//         const movingTrainSentences = req.body.movingSentences.trainSentences;
+//         const movingPredictSentences = req.body.movingSentences.predictSentences;
+//
+//         for (let i = 0; i < movingTrainSentences.length; i++) {
+//           const movingTrainSentence = movingTrainSentences[i];
+//
+//           const matchingTrainKey = Object.keys(trainObj)
+//             .find(key => trainObj[key].original_sentence
+//               .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+//               .replace(/�/g, ' ')
+//               .replace(/\t/g, '    ')
+//               .replace(/\n/g, ' ')
+//               .trim() === movingTrainSentence);
+//
+//           if (matchingTrainKey) {
+//             trainObj[matchingTrainKey][req.body.movingColumn] = '0';
+//             trainObj[matchingTrainKey][req.body.targetColumn] = '1';
+//           }
+//         }
+//
+//         for (let i = 0; i < movingPredictSentences.length; i++) {
+//           const movingPredictSentence = movingPredictSentences[i];
+//
+//           const matchingPredictKey = Object.keys(predictObj)
+//             .find(key => predictObj[key].original_sentence
+//               .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+//               .replace(/�/g, ' ')
+//               .replace(/\t/g, '    ')
+//               .replace(/\n/g, ' ')
+//               .trim() === movingPredictSentence);
+//
+//           if (matchingPredictKey) {
+//             predictObj[matchingPredictKey][req.body.movingColumn] = '0';
+//             predictObj[matchingPredictKey][req.body.targetColumn] = '1';
+//           }
+//         }
+//
+//         new ObjectsToCsv(trainObj).toDisk('text/reorder_exit_train_1.csv');
+//         new ObjectsToCsv(predictObj).toDisk('text/reorder_exit_predict_1.csv');
+//
+//         const analyseProcess = spawn('python',
+//           ['analyse_train_and_predict.py', 'text/reorder_exit_train_1.csv']);
+//
+//         analyseProcess.stdout.on('data', (data) => {
+//           console.log(data.toString());
+//         });
+//
+//         analyseProcess.stderr.on('data', (data) => {
+//           console.error(data.toString());
+//         });
+//
+//         analyseProcess.on('exit', () => {
+//           console.log('done analysing.');
+//           console.log('creating json object to send to client...');
+//           csvtojson().fromFile('text/reorder_exit_analyse_1.csv')
+//           .then((newAnalyseObj) => {
+//             csvtojson().fromFile('text/reorder_exit_predict_1.csv')
+//             .then((newPredictObj) => {
+//               csvtojson().fromFile('text/reorder_exit_train_1.csv')
+//               .then((newTrainObj) => {
+//                 // get sentences from both train and predict files
+//                 Object.keys(newAnalyseObj).forEach((newAnalyseKey) => {
+//                   const newAnalyseRow = newAnalyseObj[newAnalyseKey];
+//
+//                   for (let i = 0; i < themesNames.length; i++) {
+//                     const theme = themesNames[i];
+//                     const text = newAnalyseRow[theme];
+//
+//                     if (text.length > 0) {
+//                       const word = text.replace(/ \(\d+\)/, '').toLowerCase();
+//                       const regex = new RegExp(`\\b${word}\\b`, 'i');
+//                       const predictSentences = [];
+//                       const trainSentences = [];
+//
+//                       Object.keys(newPredictObj).forEach((newPredictKey) => {
+//                         const newPredictRow = newPredictObj[newPredictKey];
+//                         const cleanedSentence = newPredictRow.cleaned_sentence.toLowerCase();
+//                         const predictProba = newPredictRow[theme.concat(' probability')];
+//
+//                         if (regex.test(cleanedSentence) && predictProba > minimumProba) {
+//                           const originalSentence = newPredictRow.original_sentence;
+//                           predictSentences.push(originalSentence);
+//                         }
+//                       });
+//
+//                       Object.keys(newTrainObj).forEach((newTrainKey) => {
+//                         const newTrainRow = newTrainObj[newTrainKey];
+//
+//                         if (newTrainRow.codes !== '' && newTrainRow[theme] === '1') {
+//                           const cleanedSentence = newTrainRow.cleaned_sentence.toLowerCase();
+//
+//                           if (regex.test(cleanedSentence)) {
+//                             const originalSentence = newTrainRow.original_sentence;
+//                             trainSentences.push(originalSentence);
+//                           }
+//                         }
+//                       });
+//
+//                       newAnalyseRow[theme] = [text];
+//                       newAnalyseRow[theme].push(predictSentences);
+//                       newAnalyseRow[theme].push(trainSentences);
+//                     }
+//                   }
+//                 });
+//                 console.log('object created.');
+//                 console.log('loading table...');
+//                 res.json(newAnalyseObj);
+//               });
+//             });
+//           });
+//         });
+//       });
+//     });
+//   }
+// });
+
 app.post(new RegExp(/^\/re-classify_.*$/), (req, res) => {
   const pageName = req.url.match(/\/re-classify_(.*?)$/)[1];
   if (pageName === 'keywords') {
+    console.log(req.body);
     csvtojson().fromFile('text/reorder_exit_train.csv')
     .then((trainObj) => {
       csvtojson().fromFile('text/reorder_exit_predict.csv')

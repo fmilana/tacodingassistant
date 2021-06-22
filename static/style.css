@@ -150,13 +150,19 @@ td {
   text-decoration: underline;
 }
 
+table.blue .td-clicked {
+  color: #0081eb;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
 table.grey .td-clicked {
   font-weight: bold;
   text-decoration: underline;
 }
 
-table.blue .td-clicked {
-  color: #0081eb;
+table.green .td-clicked {
+  color: #00b862;
   font-weight: bold;
   text-decoration: underline;
 }
@@ -187,12 +193,17 @@ table.blue .td-clicked {
   white-space: normal;
   margin: auto;
   margin-bottom: 10px;
-  width: 450px;
+  width: 455px;
   max-height: 250px;
   padding: 0 10px 10px 20px;
   overflow-y: auto;
   overflow-x: hidden;
   background-color: white;
+}
+
+.sentence {
+  cursor: move;
+  transform: translate(0, 0);
 }
 
 .td-div {
@@ -211,12 +222,41 @@ table.grey tr, table.grey td {
   background-color: #f2f2f2;
 }
 
-table.grey tr:nth-child(even) td:nth-child(odd),
-table.grey tr:nth-child(odd) td:nth-child(even) {
-  background-color: #fcfcfc;
+table.green tr, table.green td {
+  background-color: #ebfff0;
 }
 
 table.blue tr:nth-child(even) td:nth-child(odd),
 table.blue tr:nth-child(odd) td:nth-child(even) {
   background-color: #fafdff;
+}
+
+table.grey tr:nth-child(even) td:nth-child(odd),
+table.grey tr:nth-child(odd) td:nth-child(even) {
+  background-color: #fcfcfc;
+}
+
+table.green tr:nth-child(even) td:nth-child(odd),
+table.green tr:nth-child(odd) td:nth-child(even) {
+  background-color: #fafffc;
+}
+
+#bin-div {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 400px;
+  height: 250px;
+  visibility: hidden;
+  background-color: white;
+  -moz-box-shadow: 0 0 20px #a3a3a3;
+  -webkit-box-shadow: 0 0 20px #a3a3a3;
+  box-shadow: 0 0 20px #a3a3a3;
+}
+
+#bin-title {
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  font-size: 25px;
+  margin-bottom: 10px;
 }
