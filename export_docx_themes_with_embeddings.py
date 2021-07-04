@@ -57,7 +57,8 @@ class Export():
         self.model = Sentence2Vec()
         print(f'extracting comments from {self.doc_path}...')
         start = datetime.now()
-        cat_df = pd.read_csv('text/reorder_exit_themes.csv', encoding='utf-8-sig')
+        cat_df = pd.read_csv('text/reorder_exit_themes.csv',
+            encoding='utf-8-sig')
 
         with zipfile.ZipFile(self.doc_path, 'r') as archive:
             # write header
@@ -68,7 +69,8 @@ class Export():
 
             out_filename = self.doc_path.replace('.docx', '_train.csv')
 
-            writer = csv.writer(open(out_filename, 'w', newline=''))
+            writer = csv.writer(open(out_filename, 'w', newline='',
+                encoding='utf-8'))
             writer.writerow(header)
 
             doc_xml = archive.read('word/document.xml')
@@ -132,8 +134,8 @@ class Export():
                                 themes_binary.append(1)
                             else:
                                 themes_binary.append(0)
-                        row = [self.doc_path, comment_id, sentence, tuple[0],
-                            tuple[1], codes, themes]
+                        row = [self.doc_path, comment_id, sentence,
+                            tuple[0], tuple[1], codes, themes]
                         row.extend(themes_binary)
                         writer.writerow(row)
 

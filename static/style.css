@@ -178,7 +178,7 @@ table.green .td-clicked {
 
 .close-icon-wrapper {
   text-align: right;
-  margin: 10px 10px 5px 0;
+  margin: 11px 13.5px 7px 0;
 }
 
 .close-icon {
@@ -243,15 +243,34 @@ table.green tr:nth-child(odd) td:nth-child(even) {
 
 #bin-div {
   position: fixed;
-  bottom: 0;
-  right: 0;
-  width: 400px;
-  height: 250px;
-  visibility: hidden;
+  bottom: 20px;
+  right: 20px;
+  width: 235px;
+  height: 100px;
+  padding: 0 10px 10px 10px;
   background-color: white;
   -moz-box-shadow: 0 0 20px #a3a3a3;
   -webkit-box-shadow: 0 0 20px #a3a3a3;
   box-shadow: 0 0 20px #a3a3a3;
+  visibility: hidden;
+}
+
+#bin-div h1 {
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+#bin-div p {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  text-align: center;
+}
+
+#bin-div.expanded {
+  width: 400px;
+  height: 250px;
 }
 
 #bin-title {

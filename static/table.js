@@ -2,7 +2,9 @@
 
 let pageName;
 
-const themeDataDict = [];
+let themeDataDict = [];
+let oldThemeDataDict = [];
+let oldThemeDataDictSaved = false;
 
 let themes = [];
 let cmColNames = [];
@@ -34,6 +36,8 @@ const stopWords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves',
 const sentenceStopWordsRegex = new RegExp(/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|\d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/, 'gi');
 
 let firstLoading = true;
+let reclassifyCount = 0;
+
 let counts;
 
 let data;
@@ -42,8 +46,9 @@ let dragging = false;
 
 let maxZIndex = 1;
 
-const changedData = [];
-
+let changedData = [];
+let reclassifyChangesDict = []; // only updated to latest classification
+                                // (for comparison/visualisation purpose)
 
 const getData = function (page) {
   pageName = page;
@@ -165,7 +170,7 @@ const generateTable = function () {
       // get counts from first entry
       for (let i = 0; i < themes.length; i++) {
         const theme = themes[i];
-        const count = parseInt(data[0][theme][0], 10);
+        const count = parseInt(data[0][theme], 10);
         counts.push(count);
       }
 
@@ -180,7 +185,13 @@ const generateTable = function () {
       data.splice(-1, 1);
     }
 
-    /// create dict ///
+    // reset reclassify changes
+    if (reclassifyChangesDict.length > 0) {
+      reclassifyChangesDict = [];
+    }
+
+    themeDataDict = [];
+
     for (let i = 0; i < themes.length; i++) {
       const themeName = themes[i];
       const themeData = [];
@@ -195,14 +206,60 @@ const generateTable = function () {
           if (pageName === 'keywords') {
             themeDataRow.push(data[dataKey][themeName][2]);
           }
-
           themeData.push(themeDataRow);
         }
       });
       themeDataDict.push({ [themeName]: themeData });
     }
 
+    // create classification dict if it does not exist yet (empty)
+    if (oldThemeDataDict.length > 0) {
+    // find reclassify differences (to highlight later)
+      console.log('CALCULATING DIFFERENCES......');
+      for (let i = 0; i < themeDataDict.length; i++) {
+        const themeDataRow = themeDataDict[i][themes[i]];
+
+        const themeWords = [];
+
+        for (let j = 0; j < themeDataRow.length; j++) {
+          const themeDataEntry = themeDataRow[j];
+
+          const reclassifiedWord = themeDataEntry[0].match(/(\w+?)(?: \(\d+\))?$/)[1];
+          const reclassifiedCount =
+            parseInt(themeDataEntry[0].match(/\((\d+?)\)/)[1], 10);
+
+          let matched = false;
+
+          for (let l = 0; l < oldThemeDataDict[i][themes[i]].length; l++) {
+            const oldWord =
+              oldThemeDataDict[i][themes[i]][l][0].match(/(\w+?)(?: \(\d+\))?$/)[1];
+            const oldCount =
+              parseInt(oldThemeDataDict[i][themes[i]][l][0].match(/\((\d+?)\)/)[1], 10);
+
+            if (oldWord === reclassifiedWord) {
+              matched = true;
+              if (Math.abs(reclassifiedCount - oldCount) > (0.5 * oldCount)) {
+                themeWords.push(reclassifiedWord);
+                break;
+              }
+            }
+          }
+          if (!matched) {
+            // if not matched, word is new
+            themeWords.push(reclassifiedWord);
+          }
+        }
+        reclassifyChangesDict.push({ [themes[i]]: themeWords });
+      }
+      console.log('DONE!');
+    }
+
+    console.log('oldThemeDataDict vvvvv');
+    console.log(oldThemeDataDict);
+    console.log('themeDataDict vvvvvvv');
     console.log(themeDataDict);
+    console.log('reclassifyChangesDict vvvvvvvvvv');
+    console.log(reclassifyChangesDict);
   }
   // else {
   //   if (pageName === 'predict_keywords') {
@@ -344,12 +401,13 @@ const generateTable = function () {
           for (let i = 0; i < sentences.length; i++) {
             // JSON cleaning
             const sentence = sentences[i]
-              .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
-              // to-do: encoding
-              .replace(/�/g, ' ')
-              .replace(/\t/g, '    ')
-              .replace(/\n/g, ' ')
-              .trim();
+              .replace(/\t/g, '\\\\t').replace(/\n/g, '\\\\n');
+              // .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+              // // to-do: encoding
+              // .replace(/�/g, ' ')
+              // .replace(/\t/g, '    ')
+              // .replace(/\n/g, ' ')
+              // .trim();
             dataString += (`"${sentence}"`);
 
             if (i === (sentences.length - 1)) {
@@ -371,12 +429,13 @@ const generateTable = function () {
             for (let i = 0; i < predictSentences.length; i++) {
               // JSON cleaning
               const sentence = predictSentences[i]
-                .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
-                // to-do: encoding
-                .replace(/�/g, ' ')
-                .replace(/\t/g, '    ')
-                .replace(/\n/g, ' ')
-                .trim();
+                .replace(/\t/g, '\\\\t').replace(/\n/g, '\\\\n');
+                // .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                // // to-do: encoding
+                // .replace(/�/g, ' ')
+                // .replace(/\t/g, '    ')
+                // .replace(/\n/g, ' ')
+                // .trim();
               dataString += (`"${sentence}"`);
 
               if (i === (predictSentences.length - 1)) {
@@ -393,12 +452,13 @@ const generateTable = function () {
             for (let i = 0; i < trainSentences.length; i++) {
               // JSON cleaning
               const sentence = trainSentences[i]
-                .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
-                // to-do: encoding
-                .replace(/�/g, ' ')
-                .replace(/\t/g, '    ')
-                .replace(/\n/g, ' ')
-                .trim();
+                .replace(/\t/g, '\\\\t').replace(/\n/g, '\\\\n');
+                // .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                // // to-do: encoding
+                // .replace(/�/g, ' ')
+                // .replace(/\t/g, '    ')
+                // .replace(/\n/g, ' ')
+                // .trim();
               dataString += (`"${sentence}"`);
 
               if (i === (trainSentences.length - 1)) {
@@ -417,16 +477,47 @@ const generateTable = function () {
     });
 
     if (!/.*_matrix$/.test(pageName)) {
-      // highlight cell that has been moved after reloading data
-      let colored = 0;
-
+      // highlight cells that have been modified after reloading data
       d3.selectAll('.td-text')
         .each(function () {
           const tdText = d3.select(this);
+          if (tdText.text().length > 0) {
+            const tdTheme = tdText.attr('column');
+            const tdWord = tdText.text().match(/(\w+?)(?: \(\d+\))?$/)[1];
+            const tdSentences = JSON.parse(tdText.attr('data-sentences'));
 
-          for (let i = 0; i < changedData.length && colored < changedData.length; i++) {
-            if (tdText.text() === changedData[i].movedText
-            && tdText.attr('column') === changedData[i].targetColumn) {
+            let moved = false;
+            let reclassified = false;
+
+            for (let i = 0; i < changedData.length; i++) {
+              const changedDataRow = changedData[i];
+              let movedSentence;
+
+              if (changedDataRow.movedText === null) { // check moved single sentences
+                if (changedDataRow.movingSentences.predictSentences.length > 0) {
+                  movedSentence = changedDataRow.movingSentences.predictSentences[0];
+                } else {
+                  movedSentence = changedDataRow.movingSentences.trainSentences[0];
+                }
+              }
+
+              if (tdTheme === changedDataRow.targetColumn                 //
+                && (tdText.text() === changedDataRow.movedText            // check if keyword was moved
+                  || tdSentences.predictSentences.includes(movedSentence)    //
+                  || tdSentences.trainSentences.includes(movedSentence))) {  // check if sentence was moved
+                moved = true;
+                break;
+              }
+            }
+
+            if (reclassifyChangesDict.length > 0) {
+              // check if word was reclassified
+              if (reclassifyChangesDict[themes.indexOf(tdTheme)][tdTheme].indexOf(tdWord) > -1) {
+                reclassified = true;
+              }
+            }
+
+            if (moved || reclassified) { // color background if moved or reclassified
               d3.select(this.parentNode.parentNode)
                 .style('background-color', () => {
                   if (pageName === 'predict_keywords') {
@@ -435,7 +526,6 @@ const generateTable = function () {
                     return '#9ffcb5';
                   }
                 });
-              colored++;
             }
           }
         });
@@ -484,13 +574,16 @@ const generateTable = function () {
     d3.select('#re-classify-button')
       .attr('disabled', null);
   }
-  // d3.select('#re-classify-button')
-  //   .attr('disabled', null);
+
+  d3.select('#bin-div')
+    .style('visibility', 'visible')
+    .style('z-index', maxZIndex);
 };
 
 const keywordDragStarted = function () {
   d3.selectAll('.td-tooltip')
-    .style('visibility', 'hidden');
+    .remove();
+
   d3.selectAll('.td-text')
     .classed('td-clicked', false);
 
@@ -507,7 +600,10 @@ const keywordDragStarted = function () {
 };
 
 
-const sentenceDragStarted = function () {
+const sentenceDragStarted = function (event) {
+  d3.select(this)
+    .style('transform', `translate(${event.x}px, ${event.y}px)`);
+
   d3.selectAll('.td-tooltip-sentences')
     .style('overflow-x', 'visible')
     .style('overflow-y', 'visible');
@@ -535,9 +631,9 @@ const sentenceDragStarted = function () {
 
 
 const keywordDragged = function (event) {
-  if (d3.select('#bin-div').style('visibility') === 'hidden') {
+  if (!d3.select('#bin-div').classed('expanded')) {
     d3.select('#bin-div')
-      .style('visibility', 'visible')
+      .classed('expanded', true)
       .style('z-index', maxZIndex - 1);
   }
 
@@ -548,9 +644,9 @@ const keywordDragged = function (event) {
 
 
 const sentenceDragged = function (event) {
-  if (d3.select('#bin-div').style('visibility') === 'hidden') {
+  if (!d3.select('#bin-div').classed('expanded')) {
     d3.select('#bin-div')
-      .style('visibility', 'visible')
+      .classed('expanded', true)
       .style('z-index', maxZIndex - 1);
 
     d3.selectAll('.td-tooltip')
@@ -565,7 +661,7 @@ const sentenceDragged = function (event) {
 const keywordDragEnded = function (event) {
   if (dragging) {
     d3.select('#bin-div')
-      .style('visibility', 'hidden');
+      .classed('expanded', false);
 
     d3.select(this)
       .style('left', '0px')
@@ -588,6 +684,12 @@ const keywordDragEnded = function (event) {
     if (targetColumn !== movingColumn) {
       d3.select('table').remove();
 
+      d3.select('#bin-div')
+        .style('visibility', 'hidden');
+
+      d3.select('#re-classify-button')
+        .attr('disabled', 'disabled');
+
       d3.select('#table-title')
         .style('padding-left', '0px');
 
@@ -607,12 +709,8 @@ const keywordDragEnded = function (event) {
 
 const sentenceDragEnded = function (event) {
   if (dragging) {
-    d3.selectAll('.td-tooltip-sentences')
-      .style('overflow-x', 'auto')
-      .style('overflow-y', 'hidden');
-
     d3.select('#bin-div')
-      .style('visibility', 'hidden');
+      .classed('expanded', false);
 
     const sentenceDiv = d3.select(this);
     const movingSentence = sentenceDiv.text();
@@ -621,19 +719,25 @@ const sentenceDragEnded = function (event) {
     const movingColumn = d3.select(this.parentNode.parentNode.parentNode.parentNode).attr('column');
     let targetColumn = null;
 
+    d3.selectAll('.td-tooltip')
+      .remove();
+
     // if not in bin, set targetColumn
     if (d3.pointer(event)[0] < ((window.innerWidth + window.pageXOffset) - 400) ||
     d3.pointer(event)[1] < ((window.innerHeight + window.pageYOffset) - 250)) {
       targetColumn =
       d3.select(document.elementFromPoint(d3.pointer(event)[0] - window.pageXOffset,
         d3.pointer(event)[1] - window.pageYOffset)).attr('column');
-      if (targetColumn === null) { // sentence dragged to where tooltip was
-          targetColumn = movingColumn;
-      }
     }
 
     if (targetColumn !== movingColumn) {
       d3.select('table').remove();
+
+      d3.select('#bin-div')
+        .style('visibility', 'hidden');
+
+      d3.select('#re-classify-button')
+        .attr('disabled', 'disabled');
 
       d3.select('#table-title')
         .style('padding-left', '0px');
@@ -654,12 +758,7 @@ const sentenceDragEnded = function (event) {
         updateData(null, movingSentences, movingColumn, targetColumn);
       }, 1);
     } else {
-      sentenceDiv
-        .style('transform', 'translate(0, 0)')
-        .style('display', 'inline-block')
-        .style('padding', '0')
-        .style('display', 'initial')
-        .style('visibility', 'hidden');
+      sentenceDiv.remove();
     }
 
     dragging = false;
@@ -676,9 +775,10 @@ const generateClickEvents = function () {
 
       d3.select(this)
         .on('click', function () {
-          // hide other tooltips and change font to normal
+          // remove other tooltips and change font to normal
           d3.selectAll('.td-tooltip')
-            .style('visibility', 'hidden');
+            .remove();
+
           d3.selectAll('.td-text')
             .classed('td-clicked', false);
 
@@ -697,11 +797,11 @@ const generateClickEvents = function () {
             .attr('src', '../static/close.svg')
             .classed('close-icon', true)
             .on('click', function () {
-              tooltip
-                .style('visibility', 'hidden');
               d3.select(this.parentNode.parentNode.parentNode)
                 .select('.td-text')
                 .classed('td-clicked', false);
+              tooltip
+                .remove();
             });
 
           tooltip
@@ -748,19 +848,41 @@ const generateClickEvents = function () {
                     JSON.parse(d3.select(this).attr('data-sentences')).trainSentences;
 
                   for (let i = 0; i < predictSentences.length; i++) {
+                    predictSentences[i] = predictSentences[i]
+                      .replace(/\\t/g, '\t')
+                      .replace(/\\n/g, '\n')
+                      .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                      // to-do: encoding
+                      .replace(/�/g, ' ')
+                      .trim();
                     predictSentences[i] = '<div class="sentence" type="predictSentence" style="background-color: #ebfaff">' +
                       `${predictSentences[i].replace(regex, '<span style="color: #0081eb;' +
                       ` font-weight: bold">${word}</span>`)}</div>`;
                   }
 
                   for (let i = 0; i < trainSentences.length; i++) {
+                    trainSentences[i] = trainSentences[i]
+                      .replace(/\\t/g, '\t')
+                      .replace(/\\n/g, '\n')
+                      .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                      // to-do: encoding
+                      .replace(/�/g, ' ')
+                      .trim();
                     trainSentences[i] = '<div class="sentence" type="trainSentence" style="background-color: #f2f2f2">' +
                       `${trainSentences[i].replace(regex, '<span style="font-weight: bold">' +
                       `${word}</span>`)}</div>`;
                   }
 
-                  const html = `${predictSentences.join('</br>')}</br>` +
-                    `${trainSentences.join('</br>')}`;
+                  let html;
+
+                  if (predictSentences.length > 0 && trainSentences.length > 0) {
+                    html = `${predictSentences.join('</br>')}</br>` +
+                      `${trainSentences.join('</br>')}`;
+                    } else if (predictSentences.length > 0) {
+                      html = predictSentences.join('</br>');
+                    } else {
+                      html = trainSentences.join('</br>');
+                    }
 
                   return html;
                 } else if (pageName === 'train_keywords' || 'predict_keywords') {
@@ -768,6 +890,13 @@ const generateClickEvents = function () {
                     JSON.parse(d3.select(this).attr('data-sentences')).sentences;
 
                   for (let i = 0; i < sentences.length; i++) {
+                    sentences[i] = sentences[i]
+                      .replace(/\\t/g, '\t')
+                      .replace(/\\n/g, '\n')
+                      .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                      // to-do: encoding
+                      .replace(/�/g, ' ')
+                      .trim();
                     if (pageName === 'predict_keywords') {
                       sentences[i] = '<div class="sentence" type="predict" style="background-color: #ebfaff">' +
                         `${sentences[i].replace(regex, '<span style="color: #0081eb;' +
@@ -791,7 +920,8 @@ const generateClickEvents = function () {
           d3.selectAll('.sentence')
             .call(d3.drag()
               .subject(function () {
-                return { x: 0, y: -this.parentNode.scrollTop };
+                // to-do: less hacky?
+                return { x: 0, y: -(this.parentNode.scrollTop * 0.98) };
               })
               .on('start', sentenceDragStarted)
               .on('drag', sentenceDragged)
@@ -804,8 +934,11 @@ const generateClickEvents = function () {
 const updateData = function (movingText, movingSentences, movingColumn, targetColumn) {
   console.log(`moving ${movingText} from ${movingColumn} to ${targetColumn}`);
 
-  d3.select('#re-classify-button')
-    .attr('disabled', 'disabled');
+  if (!oldThemeDataDictSaved) {
+    // CLONE array of objects (save dict state before moving keywords/sentences)
+    oldThemeDataDict = JSON.parse(JSON.stringify(themeDataDict));
+    oldThemeDataDictSaved = true;
+  }
 
   let movedText = movingText;
 
@@ -862,7 +995,6 @@ const updateData = function (movingText, movingSentences, movingColumn, targetCo
                 // to-do: check why sometimes this is never true
                 // (e.g. move 1st sentence from "ten (2)" from vj -> social)
                 if (sentence === movingSentence) {
-                  console.log(`======SENTENCE TO REMOVE FOUND IN "${word}"======`);
                   // update text
                   movedText = `${word} (${movingCount - 1})`;
                   console.log(`${movingColumn}: "${movingColumnData[i][0]}" ==> "${movedText}"`);
@@ -990,9 +1122,6 @@ const updateData = function (movingText, movingSentences, movingColumn, targetCo
           const movingColumnTrainSentence = movingColumnDataRow[2][j];
 
           if (regExp.test(movingColumnTrainSentence)) {
-            if (movingColumnWord === 'pasta') {
-              console.log(`matched sentence = ${movingColumnTrainSentence}`);
-            }
             if (movingColumnCount === 1) {
               movingColumnData.splice(i, 1);
             } else {
@@ -1130,6 +1259,8 @@ const updateData = function (movingText, movingSentences, movingColumn, targetCo
 
     console.log('---------themeDataDict AFTER MOVING---------');
     console.log(themeDataDict);
+    console.log('---------(oldThemeDataDict after moving)-------');
+    console.log(oldThemeDataDict);
     console.log('---------data AFTER MOVING---------');
     console.log(data);
 
@@ -1147,44 +1278,21 @@ const updateData = function (movingText, movingSentences, movingColumn, targetCo
 };
 
 
-// const updateData = function (movingSentences, movingColumn, targetColumn) {
-//   d3.select('#re-classify-button')
-//     .attr('disabled', 'disabled');
-//
-//   const bodyObj = {};
-//   bodyObj.movingSentences = movingSentences;
-//   bodyObj.movingColumn = movingColumn;
-//   bodyObj.targetColumn = targetColumn;
-//
-//   fetch(`/update_${pageName}`, {
-//     method: 'POST',
-//     mode: 'cors',
-//     cache: 'no-cache',
-//     credentials: 'same-origin',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     redirect: 'follow',
-//     referrerPolicy: 'no-referrer',
-//     body: JSON.stringify(bodyObj)
-//   }).then((res) => res.json().then((tableData) => {
-//     data = tableData;
-//     console.log(data);
-//
-//     firstLoading = true;
-//
-//     generateTable();
-//
-//     d3.select('#loading-gif')
-//       .style('display', 'none');
-//   }));
-// };
-
-
 const addReclassifyListener = function () {
+  let reclassifyUrl;
+
+  if (reclassifyCount === 0) {
+    reclassifyUrl = `/re-classify_${pageName}`;
+  } else {
+    reclassifyUrl = `/re-classify_${pageName}_1`;
+  }
+
   d3.select('#re-classify-button')
     .on('click', () => {
       d3.select('table').remove();
+
+      d3.select('#bin-div')
+        .style('visibility', 'hidden');
 
       d3.select('#table-title')
         .style('padding-left', '0px');
@@ -1195,7 +1303,7 @@ const addReclassifyListener = function () {
       d3.select('#loading-gif')
           .style('display', 'block');
 
-      fetch(`/re-classify_${pageName}`, {
+      fetch(reclassifyUrl, {
         method: 'POST',
         mode: 'cors',
         cache: 'no-cache',
@@ -1206,11 +1314,17 @@ const addReclassifyListener = function () {
         redirect: 'follow',
         referrerPolicy: 'no-referrer',
         body: JSON.stringify(changedData)
-      }).then((res) => res.json().then((tableData) => {
-        data = tableData;
+      }).then((res) => res.json().then((reclassifiedData) => {
+        data = reclassifiedData;
         console.log(data);
 
         firstLoading = true;
+
+        oldThemeDataDictSaved = false;
+
+        reclassifyCount++;
+
+        changedData = [];
 
         generateTable();
 

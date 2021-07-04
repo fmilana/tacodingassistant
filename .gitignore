@@ -13,6 +13,10 @@ reorder_exit_predict.csv
 reorder_exit_train.csv
 reorder_exit_train_1.csv
 reorder_exit_predict_1.csv
+reorder_exit_predict_keywords.csv
+reorder_exit_predict_keywords_1.csv
+reorder_exit_train_keywords.csv
+reorder_exit_train_keywords_1.csv
 reorder_exit_oversampled.csv
 /logs
 classification.txt

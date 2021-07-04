@@ -4,7 +4,6 @@ import re
 import pandas as pd
 import numpy as np
 import scipy
-import math
 import matplotlib.pyplot as plt
 import seaborn as sns
 import docx
@@ -40,6 +39,8 @@ from sklearn.metrics import classification_report, multilabel_confusion_matrix
 from xgboost import XGBClassifier
 from export_docx_themes_with_embeddings import Export
 
+print('inside script.')
+start_script = datetime.now()
 
 doc_path = sys.argv[1]
 
@@ -54,8 +55,11 @@ else:
     export.process()
 
 cat_df = pd.read_csv('text/reorder_exit_themes.csv', encoding='utf-8-sig')
-train_df = pd.read_csv(train_file_path, encoding='Windows-1252')
-predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
+train_df = pd.read_csv(train_file_path, encoding='utf-8')
+moved_predict_df = pd.DataFrame()
+
+interviewer_regex = r'''/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|
+    \d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/'''
 
 
 def get_sample_weights(Y_train):
@@ -163,29 +167,34 @@ def add_classification_to_csv(clf, prediction_output, prediction_proba):
 
     new_df = pd.concat([out_df, proba_df], axis=1)
 
-    predict_df = pd.read_csv(predict_file_path, encoding='Windows-1252')
+    predict_df = pd.read_csv(predict_file_path, encoding='utf-8')
 
     predict_df = predict_df.merge(new_df, left_index=True, right_index=True)
 
     if len(sys.argv) == 3 and sys.argv[2].endswith('.csv'):
         global train_df
+        global moved_predict_df
         # add moved predictions so they still show up in table as predictions
-        moved_predict_df = train_df.loc[train_df['codes'].isna()]
         moved_predict_df = moved_predict_df.drop([
             'file name',
+            'comment_id',
             'codes',
             'themes'], axis=1)
-        moved_predict_df = moved_predict_df.drop(['comment_id'], axis=1)
 
         for theme in themes_list:
             moved_predict_df[f'{theme} probability'] = moved_predict_df[theme]
 
         predict_df = predict_df.append(moved_predict_df)
 
+        # # after adding moved sentences to predict_df, remove those sentences
+        # # that were already in predict_df (predicted by clf)
+        # predict_df = predict_df.drop_duplicates(subset='original_sentence',
+        #     keep='last')
+
         # remove moved predictions from train
         train_df = train_df[train_df['codes'].notna()]
 
-    predict_df.to_csv(predict_file_path, index=False)
+    predict_df.to_csv(predict_file_path, index=False, encoding='utf-8-sig')
 
 
 def plot_heatmaps(clf_name, Y_true, Y_predicted, sentences_dict, themes_list):
@@ -214,7 +223,7 @@ def write_cms_to_csv(sentences_dict, themes_list):
 
     for theme in themes_list:
         with open(f'text/cm/reorder_exit_{theme.replace(" ", "_")}_cm.csv',
-            'w', newline='') as file:
+            'w', newline='', encoding='utf-8') as file:
 
             writer = csv.writer(file, delimiter=',')
 
@@ -336,9 +345,12 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample,
     print('running classify function...')
     start_function = datetime.now()
 
+    print('running generate_training_and_testing_data...')
+    start_gen = datetime.now()
     (X_train, X_test, Y_train, Y_test,
     test_cleaned_sentences, themes_list) = generate_training_and_testing_data(
         oversample, many_together)
+    print(f'generate_training_and_testing_data run in {datetime.now() - start_gen}')
 
     print('fitting clf...')
     start_fit = datetime.now()
@@ -346,6 +358,9 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample,
     clf.fit(X_train, Y_train)
 
     print(f'done fitting clf in {datetime.now() - start_fit}')
+
+    print(f'generating confusion matrices...')
+    start_cm = datetime.now()
 
     scores = []
 
@@ -429,6 +444,8 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample,
         accuracies.append((tp + tn)/(tp + tn + fp + fn))
         f_measures.append(f_measure)
 
+    print(f'confusion matrices created in {datetime.now() - start_cm}')
+
     print(f'classify function run in {datetime.now() - start_function}')
 
     return (scores, true_positives, true_negatives, false_positives,
@@ -453,23 +470,35 @@ text = get_text(doc_path).replace("’", "'")
 print('writing sentences to predict csv...')
 start_writing = datetime.now()
 
-with open(predict_file_path, 'w', newline='') as predict_file:
+with open(predict_file_path, 'w', newline='', encoding='utf-8') as predict_file:
     writer = csv.writer(predict_file, delimiter=',')
     writer.writerow(['original_sentence', 'cleaned_sentence',
         'sentence_embedding'])
 
-    train_df = pd.read_csv(train_file_path, encoding='Windows-1252')
+    train_df = pd.read_csv(train_file_path, encoding='utf-8')
     train_original_sentences = train_df['original_sentence'].tolist()
+
+    # save which have been moved to train as re-classification
+    # (before oversampling!!)
+    moved_predict_df = train_df.loc[train_df['codes'].isna()]
+
+    train_moved_sentences = moved_predict_df['original_sentence'].tolist()
 
     all_original_sentences = sent_tokenize(text)
 
     uncoded_original_sentences = []
 
     for sentence in all_original_sentences:
-        if sentence not in train_original_sentences:
-            uncoded_original_sentences.append(sentence)
+        if (sentence not in train_moved_sentences and
+            sentence not in train_original_sentences and
+            re.sub(interviewer_regex, '', sentence, flags=re.IGNORECASE)
+            .strip() not in train_original_sentences and
+            sentence[:-1] not in train_original_sentences): # to-do: better way
+            uncoded_original_sentences.append(sentence)     # to check for "."
 
     sentence_embedding_list = []
+
+    start_emb = datetime.now()
 
     for sentence in uncoded_original_sentences:
         cleaned_sentence = remove_stop_words(clean_sentence(sentence))
@@ -478,6 +507,8 @@ with open(predict_file_path, 'w', newline='') as predict_file:
         writer.writerow([sentence, cleaned_sentence, sentence_embedding])
 
         sentence_embedding_list.append(sentence_embedding)
+
+    print(f'done writing data in csv in {datetime.now() - start_emb}')
 
     predict_file.close()
 
@@ -492,3 +523,6 @@ _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
 
 print(f'accuracy per class = {accuracies}')
 print(f'f_measure per class = {f_measures}')
+
+
+print(f'script finished in {datetime.now() - start_script}')
