@@ -519,11 +519,11 @@ const generateTable = function () {
 
             if (moved || reclassified) { // color background if moved or reclassified
               d3.select(this.parentNode.parentNode)
-                .style('background-color', () => {
+                .style('border', () => {
                   if (pageName === 'predict_keywords') {
-                    return '#9fe5fc';
+                    return '4px solid #69b7d1';
                   } else if (pageName === 'keywords') {
-                    return '#9ffcb5';
+                    return '4px solid #6bcf83';
                   }
                 });
             }
@@ -560,7 +560,10 @@ const generateTable = function () {
   }
 
   d3.select('#loading-gif')
-      .style('display', 'none');
+    .style('display', 'none');
+
+  d3.select('#loading-text')
+    .style('display', 'none');
 
   const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
 
@@ -696,6 +699,10 @@ const keywordDragEnded = function (event) {
       d3.select('#loading-gif')
         .style('display', 'block');
 
+      d3.select('#loading-text')
+        .text('Updating table...')
+        .style('display', 'block');
+
       // setTimeout to avoid freezing
       setTimeout(() => {
         updateData(movingText, movingSentences, movingColumn, targetColumn);
@@ -743,6 +750,10 @@ const sentenceDragEnded = function (event) {
         .style('padding-left', '0px');
 
       d3.select('#loading-gif')
+        .style('display', 'block');
+
+      d3.select('#loading-text')
+        .text('Updating table...')
         .style('display', 'block');
 
       if (sentenceType === 'trainSentence') {
@@ -1301,7 +1312,11 @@ const addReclassifyListener = function () {
         .attr('disabled', 'disabled');
 
       d3.select('#loading-gif')
-          .style('display', 'block');
+        .style('display', 'block');
+
+      d3.select('#loading-text')
+        .text('Re-classifying sentences...')
+        .style('display', 'block');
 
       fetch(reclassifyUrl, {
         method: 'POST',
@@ -1315,6 +1330,8 @@ const addReclassifyListener = function () {
         referrerPolicy: 'no-referrer',
         body: JSON.stringify(changedData)
       }).then((res) => res.json().then((reclassifiedData) => {
+        console.log('----------------------------------------------------------------------------------------------------------UPDATING TEXT')
+
         data = reclassifiedData;
         console.log(data);
 
@@ -1325,11 +1342,20 @@ const addReclassifyListener = function () {
         reclassifyCount++;
 
         changedData = [];
+        
+        d3.select('#loading-text')
+          .text('Updating table...');
 
-        generateTable();
+        // timeout needed to change loading text
+        setTimeout(() => {
+          generateTable();
 
-        d3.select('#loading-gif')
-          .style('display', 'none');
+          d3.select('#loading-gif')
+            .style('display', 'none');
+
+          d3.select('#loading-text')
+            .style('display', 'none');
+        }, 1);
       }));
     });
 };

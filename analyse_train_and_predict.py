@@ -154,6 +154,7 @@ for i, dict in enumerate(freq_dict_list):
                     row.append('')
             writer.writerow(row)
 
+
 # create keywords csv's
 for i, dict in enumerate(keywords_dict_list):
     keywords_df = pd.DataFrame(dict.items(), columns=['word', 'sentences'])

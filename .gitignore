@@ -18,6 +18,7 @@ reorder_exit_predict_keywords_1.csv
 reorder_exit_train_keywords.csv
 reorder_exit_train_keywords_1.csv
 reorder_exit_oversampled.csv
+embeddings.pickle
 /logs
 classification.txt
 /models

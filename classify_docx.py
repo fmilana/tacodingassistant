@@ -1,6 +1,10 @@
+print('before imports')
+
 import sys
 import csv
 import re
+import os
+import pickle
 import pandas as pd
 import numpy as np
 import scipy
@@ -38,6 +42,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, multilabel_confusion_matrix
 from xgboost import XGBClassifier
 from export_docx_themes_with_embeddings import Export
+
 
 print('inside script.')
 start_script = datetime.now()
@@ -185,11 +190,6 @@ def add_classification_to_csv(clf, prediction_output, prediction_proba):
             moved_predict_df[f'{theme} probability'] = moved_predict_df[theme]
 
         predict_df = predict_df.append(moved_predict_df)
-
-        # # after adding moved sentences to predict_df, remove those sentences
-        # # that were already in predict_df (predicted by clf)
-        # predict_df = predict_df.drop_duplicates(subset='original_sentence',
-        #     keep='last')
 
         # remove moved predictions from train
         train_df = train_df[train_df['codes'].notna()]
@@ -498,19 +498,51 @@ with open(predict_file_path, 'w', newline='', encoding='utf-8') as predict_file:
 
     sentence_embedding_list = []
 
+    cleaned_sentence_embedding_dict = {}
+
     start_emb = datetime.now()
 
-    for sentence in uncoded_original_sentences:
-        cleaned_sentence = remove_stop_words(clean_sentence(sentence))
-        sentence_embedding = model.get_vector(cleaned_sentence)
+    if os.path.exists('text/embeddings.pickle'):
+        with open('text/embeddings.pickle', 'rb') as handle:
+            dict = pickle.load(handle)
+            for sentence in uncoded_original_sentences:
+                try:
+                    cleaned_sentence = dict[sentence][0]
+                    sentence_embedding = dict[sentence][1]
+                except KeyError:
+                    cleaned_sentence = remove_stop_words(
+                        clean_sentence(sentence))
+                    sentence_embedding = model.get_vector(cleaned_sentence)
 
-        writer.writerow([sentence, cleaned_sentence, sentence_embedding])
+                writer.writerow([sentence, cleaned_sentence,
+                    sentence_embedding])
 
-        sentence_embedding_list.append(sentence_embedding)
+                sentence_embedding_list.append(sentence_embedding)
+
+                cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence,
+                    sentence_embedding]
+    else:
+        for sentence in uncoded_original_sentences:
+            cleaned_sentence = remove_stop_words(clean_sentence(sentence))
+            sentence_embedding = model.get_vector(cleaned_sentence)
+
+            writer.writerow([sentence, cleaned_sentence, sentence_embedding])
+
+            sentence_embedding_list.append(sentence_embedding)
+
+            cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence,
+                sentence_embedding]
 
     print(f'done writing data in csv in {datetime.now() - start_emb}')
 
     predict_file.close()
+
+
+# save sentence, cleaned_sentence, sentence_embedding dict to pickle
+with open('text/embeddings.pickle', 'wb') as handle:
+    pickle.dump(cleaned_sentence_embedding_dict, handle,
+        protocol=pickle.HIGHEST_PROTOCOL)
+#-------------------------------------------------------------------
 
 sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
