@@ -379,7 +379,9 @@ const generateTable = function () {
     })
     .classed('td-with-sentences', (d) => {
       if (d.value.length > 1) {
-        if (d.value[1].length > 0 || d.value[2].length > 0) {
+        console.log(`d.value[1] = ${d.value[1]}, d.value[2] = ${d.value[2]}}`);
+        if (d.value[1].length > 0 
+          || (d.value[2] !== undefined && d.value[2].length > 0)) {
           return true;
         }
         return false;
@@ -805,7 +807,7 @@ const generateClickEvents = function () {
             .append('div')
             .classed('close-icon-wrapper', true)
             .append('img')
-            .attr('src', '../static/close.svg')
+            .attr('src', '../static/res/close.svg')
             .classed('close-icon', true)
             .on('click', function () {
               d3.select(this.parentNode.parentNode.parentNode)

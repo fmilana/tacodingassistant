@@ -27,3 +27,5 @@ embeddings.pickle
 classification.txt
 /models
 /embeddings
+analysis_stopwords.txt
+extra_stopwords.txt
