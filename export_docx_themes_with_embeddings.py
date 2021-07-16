@@ -115,7 +115,7 @@ class Export():
                             theme = cat_df.columns[np.where(find_code==True)[0]].item()
                             if theme not in themes:
                                 themes.append(theme)
-                        except ValueError as e:
+                        except ValueError:
                             missing_codes.append(code)
                     themes = sorted(themes, key=str.casefold)
                     themes = '; '.join(themes)

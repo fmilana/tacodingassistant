@@ -1199,7 +1199,7 @@ const updateData = function (movingText, movingSentences, movingColumn, targetCo
           }));
 
           trainVocab.forEach((word) => {
-            word = word.toLowerCase();
+            const lowerWord = word.toLowerCase();
 
             let joined = false;
 
@@ -1209,7 +1209,7 @@ const updateData = function (movingText, movingSentences, movingColumn, targetCo
               if (targetColumnDataRow[0].match(/(\w+?)(?: \(\d+\))?$/)[1] !== movingWord) {
                 const targetColumnWord = targetColumnDataRow[0].match(/(\w+?)(?: \(\d+\))?$/)[1];
 
-                if (targetColumnWord === word) {
+                if (targetColumnWord === lowerWord) {
                   const targetColumnCount =
                     parseInt(targetColumnDataRow[0].match(/\((\d+?)\)$/)[1], 10);
 
@@ -1220,9 +1220,9 @@ const updateData = function (movingText, movingSentences, movingColumn, targetCo
                 }
               }
             }
-            if (!joined && word !== movingWord) { // create new cell if not found existing
+            if (!joined && lowerWord !== movingWord) { // create new cell if not found existing
               const newDataRow = [];
-              newDataRow.push(`${word} (1)`);
+              newDataRow.push(`${lowerWord} (1)`);
               newDataRow.push([]);
               newDataRow.push([movingTrainSentence]);
 
@@ -1330,8 +1330,6 @@ const addReclassifyListener = function () {
         referrerPolicy: 'no-referrer',
         body: JSON.stringify(changedData)
       }).then((res) => res.json().then((reclassifiedData) => {
-        console.log('----------------------------------------------------------------------------------------------------------UPDATING TEXT')
-
         data = reclassifiedData;
         console.log(data);
 

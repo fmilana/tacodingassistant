@@ -16,8 +16,6 @@ const themesNames = [
   'value judgements'
 ];
 
-const sentenceStopWordsRegex = new RegExp(/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|\d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/, 'gi');
-
 const app = express();
 
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -377,7 +375,7 @@ app.post(new RegExp(/^\/re-classify_.*$/), (req, res) => {
           const trainSentences = changedDataRow.movingSentences.trainSentences;
           const predictSentences = changedDataRow.movingSentences.predictSentences;
           const movingColumn = changedDataRow.movingColumn;
-          const targetColumn = changedDataRow.targetColumn;
+          const targetColumn = changedDataRow.targetColumn; 
 
           console.log(`modifying train obj... (${performance.now() - t0})`);
 
@@ -443,7 +441,7 @@ app.post(new RegExp(/^\/re-classify_.*$/), (req, res) => {
 
         new ObjectsToCsv(trainObj).toDisk('text/reorder_exit_train_1.csv');
 
-        console.log(`done modifying train! calling reclassify script... (${performance.now() - t0})`)
+        console.log(`done modifying train! calling reclassify script... (${performance.now() - t0})`);
 
         const reclassifyProcess = spawn('python',
           ['classify_docx.py', 'text/reorder_exit.docx', 'text/reorder_exit_train_1.csv']);
@@ -457,7 +455,7 @@ app.post(new RegExp(/^\/re-classify_.*$/), (req, res) => {
         // });
 
         reclassifyProcess.on('exit', () => {
-          console.log(`reclassify script finished! calling analyseProcess... (${performance.now() - t0})`)
+          console.log(`reclassify script finished! calling analyseProcess... (${performance.now() - t0})`);
           console.log(`calling analyseProcess... (${performance.now() - t0})`);
           const analyseProcess = spawn('python',
             ['analyse_train_and_predict.py', 'text/reorder_exit_train_1.csv']);

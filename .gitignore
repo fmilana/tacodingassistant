@@ -1,7 +1,10 @@
+__pycache__
+.vscode
 .eslintrc
 *.pyc
 *.tsv
 *.model
+nvivo
 reorder_exit_analyse.csv
 reorder_exit_analyse_1.csv
 reorder_exit_train_analyse.csv
