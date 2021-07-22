@@ -22,7 +22,11 @@ app.use(bodyParser.json({ limit: '50mb' }));
 
 app.use('/static', express.static('static'));
 
-app.get('/index.html', (req, res) => {
+app.get('/main.html', (req, res) => {
+  res.sendFile(`${__dirname}/templates/main.html`);
+});
+
+app.get('/text.html', (req, res) => {
    res.sendFile(`${__dirname}/templates/index.html`);
 });
 
@@ -51,7 +55,7 @@ app.get(new RegExp(/^\/.*_matrix.html$/), (req, res) => {
   }
 });
 
-app.get('/get_html', (req, res) => {
+app.get('/get_text', (req, res) => {
   extractText('text/reorder_exit.docx').then((docText) => {
     csvtojson().fromFile('text/reorder_exit_train.csv')
       .then((trainObj) => {
@@ -75,7 +79,7 @@ app.get('/get_html', (req, res) => {
 
             for (let i = 0; i < predictObj.length; i++) {
               const obj = predictObj[i];
-              const position = obj.position;
+              // const position = obj.position;
               let predictSentence = obj.original_sentence;
               let themes = '';
 
@@ -95,7 +99,7 @@ app.get('/get_html', (req, res) => {
                 predictSentence = predictSentence.replace(regExp, '').trim();
 
                 jsonObj.push({
-                  position,
+                  // position,
                   predictSentence,
                   themes: themes.replace(/;/, ',')
                 });

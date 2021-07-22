@@ -1,12 +1,15 @@
 /* Navbar:  https://www.w3schools.com/howto/howto_css_dropdown_navbar.asp */
-.navbar {
-  overflow: hidden;
+.navbar-top {
+  position: fixed;
+  top: 0;
+  width: 100%;
   background-color: #f1f1f1;
   border: 1px solid #ccc;
   font-family: Arial;
+  z-index: 3;
 }
 
-.navbar a {
+.navbar-top a {
   float: left;
   font-size: 16px;
   text-align: center;
@@ -31,19 +34,29 @@
   margin: 0; 
 }
 
-.active {
-  background-color: #ccc;
+.dropbtn {
+  pointer-events: none;
 }
 
+#text-button {
+  cursor: pointer;
 }
 
-.navbar a:hover, .dropdown:hover .dropbtn {
+#codes-button {
+  cursor: pointer;
+}
+
+.btn-active {
+  background-color: #ccc !important;
+}
+
+.navbar-top a:hover, .dropdown:hover .dropbtn {
   background-color: #ddd;
 }
 
 .dropdown-content {
   display: none;
-  position: absolute;
+  position: fixed;
   background-color: #f9f9f9;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -57,6 +70,7 @@
   text-decoration: none;
   display: block;
   text-align: left;
+  cursor: pointer;
 }
 
 .dropdown-content a:hover {
@@ -67,6 +81,23 @@
   display: block;
 }
 
+/* to-do: check which div causes h scrollbar */
+body {
+  overflow-x: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+#text-container {
+  position: fixed;
+  width: 100%;
+  top: 50px;
+  bottom: 0;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 #text-paragraph {
   display: block;
   white-space: pre-wrap;
@@ -74,8 +105,8 @@
   font-size: 20px;
   line-height: 1.4;
   padding: 30px;
-  margin-top: 40px;
-  margin-left: 100px;
+  margin-top: 50px;
+  margin-left: 80px;
 }
 
 #comments-box {
@@ -84,26 +115,28 @@
 }
 
 #loading-gif {
-  display: none;
-  margin-top: 100px;
+  display: block;
+  height: 70px;
+  width: 70px;
+  margin-top: 350px;
   margin-left: auto;
   margin-right: auto;
+}
+
+#table-container {
+  position: fixed;
+  width: 100%;
+  top: 50px;
+  bottom: 0;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #loading-text {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 18px;
   text-align: center;
-}
-
-/* to-do: check which div causes h scrollbar */
-body {
-  margin: 0;
-  overflow-x: hidden;
-}
-
-body.words {
-  margin: 0;
 }
 
 /* Index tooltip */
@@ -322,7 +355,7 @@ table.green tr:nth-child(odd) td:nth-child(even) {
 #bin-div {
   position: fixed;
   bottom: 20px;
-  right: 20px;
+  right: 40px;
   width: 235px;
   height: 100px;
   padding: 0 10px 10px 10px;
