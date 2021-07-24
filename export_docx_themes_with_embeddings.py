@@ -1,4 +1,4 @@
-import sys, os
+import os
 import zipfile
 import csv
 import pandas as pd

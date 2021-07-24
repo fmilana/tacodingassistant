@@ -88,6 +88,16 @@ body {
   margin: 0;
 }
 
+/* from chrome user agent style sheet */
+h1 {
+  display: block;
+  margin-block-start: 0.67em;
+  margin-block-end: 0.67em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+
 #text-container {
   position: fixed;
   width: 100%;

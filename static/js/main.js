@@ -2,6 +2,7 @@
 
 let textBackend;
 let tableBackend;
+let reclassifyBackend;
 
 let currentTabId = 'text-button';
 
@@ -13,6 +14,11 @@ const onTextData = function (data) {
 
 const onTableData = function (data) {
   tableLib.loadTable('keywords', data);
+};
+
+
+const onReclassifyData = function (data) {
+  tableLib.loadReclassifiedTable(data); // pass table name?
 };
 
 
@@ -43,9 +49,39 @@ d3.select(window).on('load', () => {
           d3.select('#text-container')
             .style('display', 'flex');
         } else if (tabId === 'all-keywords-button') {
-          const tableContainer = d3.select('#table-container');
+          let tableContainer = d3.select('#table-container');
           if (tableContainer.empty()) {
+            tableContainer = d3.select('body')
+              .append('div')
+                .attr('id', 'table-container');
+
+            tableContainer
+              .append('button')
+                .attr('id', 're-classify-button')
+                .attr('type', 'button')
+                .property('disabled', true)
+                .text('Re-classify');
+            
+            tableContainer
+              .append('h1')
+                .attr('id', 'table-title')
+                .text('Keywords');
+
+            const binDiv = tableContainer
+              .append('div')
+                .attr('id', 'bin-div');
+            
+            binDiv
+              .append('h1')
+              .attr('id', 'bin-title')
+              .text('Bin');
+            
+            binDiv
+              .append('p')
+              .text('Drag here to remove theme');
+
             tableBackend.get_table();
+
             d3.select('#loading-gif')
               .style('display', 'block');
           } else {
@@ -63,9 +99,11 @@ d3.select(window).on('load', () => {
       new QWebChannel(qt.webChannelTransport, (channel) => {
         textBackend = channel.objects.textBackend;
         tableBackend = channel.objects.tableBackend;
+        reclassifyBackend = channel.objects.reclassifyBackend;
         // connect signals from the external object to callback functions
         textBackend.signal.connect(onTextData);
         tableBackend.signal.connect(onTableData);
+        reclassifyBackend.signal.connect(onReclassifyData);
         // call a function on the external object
         textBackend.get_text();
       });

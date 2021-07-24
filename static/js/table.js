@@ -1,4 +1,4 @@
-/* global document fetch d3 screen window $*/
+/* global document fetch d3 screen window reclassifyBackend $*/
 const tableLib = (function () {
   let page;
 
@@ -35,35 +35,6 @@ const tableLib = (function () {
     d3.select('#loading-gif')
       .style('display', 'none');
 
-    const tableContainer = d3.select('body')
-      .append('div')
-        .attr('id', 'table-container');
-
-    tableContainer
-      .append('button')
-        .attr('id', 're-classify-button')
-        .attr('type', 'button')
-        .property('disabled', true)
-        .text('Re-classify');
-    
-    tableContainer
-      .append('h1')
-        .attr('id', 'table-title')
-        .text('Keywords');
-
-    const binDiv = tableContainer
-      .append('div')
-        .attr('id', 'bin-div');
-    
-    binDiv
-      .append('h1')
-      .attr('id', 'bin-title')
-      .text('Bin');
-    
-    binDiv
-      .append('p')
-      .text('Drag here to remove theme');
-
     generateTable();
 
     d3.select('#loading-gif')
@@ -71,6 +42,34 @@ const tableLib = (function () {
 
     const endTime = new Date().getTime();
     console.log(`Table (JavaScript) => ${((endTime - startTime) / 1000).toFixed(2)} seconds`);
+  };
+
+
+  const loadReclassifiedTable = function (reclassifiedData) {
+    data = reclassifiedData;
+    // console.log(data);
+
+    firstLoading = true;
+
+    oldThemeDataDictSaved = false;
+
+    reclassifyCount++;
+
+    changedData = [];
+    
+    d3.select('#loading-text')
+      .text('Updating table...');
+
+    // timeout needed to change loading text
+    setTimeout(() => {
+      generateTable();
+
+      d3.select('#loading-gif')
+        .style('display', 'none');
+
+      d3.select('#loading-text')
+        .style('display', 'none');
+    }, 1);
   };
 
 
@@ -95,8 +94,7 @@ const tableLib = (function () {
 
         // get counts from first entry
         for (let i = 0; i < themes.length; i++) {
-          const theme = themes[i];
-          const count = parseInt(data[0][theme], 10);
+          const count = parseInt(data[0][i], 10);
           counts.push(count);
         }
 
@@ -125,7 +123,7 @@ const tableLib = (function () {
         for (let j = 0; j < data.length; j++) {
           const dataRow = data[j];
 
-          if (dataRow[theme][0] !== 'undefined') {
+          if (typeof dataRow[theme][0] !== 'undefined') {
             const themeDataRow = [];
             themeDataRow.push(dataRow[theme][0]);
             themeDataRow.push(dataRow[theme][1]);
@@ -926,7 +924,7 @@ const tableLib = (function () {
           return token.length >= 2 && stopWords.indexOf(token) === -1;
         }));
 
-        console.log(vocab);
+        // console.log(vocab);
 
         vocab.forEach((word) => {
           word = word.toLowerCase();
@@ -945,7 +943,7 @@ const tableLib = (function () {
                 if (sentenceType === 'trainSentence') {
                   index = 2;
                 }
-                console.log(`trying to find and remove "${movingSentence}" in "${word}"`);
+                // console.log(`trying to find and remove "${movingSentence}" in "${word}"`);
 
                 for (let j = 0; j < movingColumnData[i][index].length; j++) {
                   const sentence = movingColumnData[i][index][j]
@@ -1019,6 +1017,7 @@ const tableLib = (function () {
           if (movingColumnDataRow[0] === movingText) {
             if (targetColumn !== null) {
               const targetColumnData = themeDataDict[themes.indexOf(targetColumn)][targetColumn];
+              // console.log(JSON.stringify(targetColumnData));
 
               const movingWord = movingText.match(/(\w+?)(?: \(\d+\))?$/)[1];
               const movingCount = parseInt(movingText.match(/\((\d+?)\)$/)[1], 10);
@@ -1047,8 +1046,8 @@ const tableLib = (function () {
                 themeDataRow.push(movingColumnDataRow[1]);
                 themeDataRow.push(movingColumnDataRow[2]);
 
-                console.log('themeDataRow (keyword) vvvvvvvvvvvvvvvvvv');
-                console.log(themeDataRow);
+                // console.log('themeDataRow (keyword) vvvvvvvvvvvvvvvvvv');
+                // console.log(themeDataRow);
 
                 targetColumnData.push(themeDataRow);
               }
@@ -1221,12 +1220,12 @@ const tableLib = (function () {
         data.push(dataRow);
       }
 
-      console.log('---------themeDataDict AFTER MOVING---------');
-      console.log(themeDataDict);
-      console.log('---------(oldThemeDataDict after moving)-------');
-      console.log(oldThemeDataDict);
-      console.log('---------data AFTER MOVING---------');
-      console.log(data);
+      // console.log('---------themeDataDict AFTER MOVING---------');
+      // console.log(themeDataDict);
+      // console.log('---------(oldThemeDataDict after moving)-------');
+      // console.log(oldThemeDataDict);
+      // console.log('---------data AFTER MOVING---------');
+      // console.log(data);
 
       if (movingText !== null) { // moved keyword
         changedData.push({ movedText, movingSentences, movingColumn, targetColumn });
@@ -1234,8 +1233,8 @@ const tableLib = (function () {
         changedData.push({ movedText: null, movingSentences, movingColumn, targetColumn });
       }
 
-      console.log('changedData vvvv');
-      console.log(changedData);
+      // console.log('changedData vvvv');
+      // console.log(changedData);
 
       generateTable();
     }
@@ -1243,14 +1242,6 @@ const tableLib = (function () {
 
 
   const addReclassifyListener = function () {
-    let reclassifyUrl;
-
-    if (reclassifyCount === 0) {
-      reclassifyUrl = `/re-classify_${page}`;
-    } else {
-      reclassifyUrl = `/re-classify_${page}_1`;
-    }
-
     d3.select('#re-classify-button')
       .on('click', () => {
         d3.select('table').remove();
@@ -1270,48 +1261,16 @@ const tableLib = (function () {
         d3.select('#loading-text')
           .text('Re-classifying sentences...')
           .style('display', 'block');
-
-        fetch(reclassifyUrl, {
-          method: 'POST',
-          mode: 'cors',
-          cache: 'no-cache',
-          credentials: 'same-origin',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          redirect: 'follow',
-          referrerPolicy: 'no-referrer',
-          body: JSON.stringify(changedData)
-        }).then((res) => res.json().then((reclassifiedData) => {
-          data = reclassifiedData;
-          console.log(data);
-
-          firstLoading = true;
-
-          oldThemeDataDictSaved = false;
-
-          reclassifyCount++;
-
-          changedData = [];
-          
-          d3.select('#loading-text')
-            .text('Updating table...');
-
-          // timeout needed to change loading text
-          setTimeout(() => {
-            generateTable();
-
-            d3.select('#loading-gif')
-              .style('display', 'none');
-
-            d3.select('#loading-text')
-              .style('display', 'none');
-          }, 1);
-        }));
+        
+        if (reclassifyCount === 0) {
+          reclassifyBackend.get_data(page, changedData, true);
+        } else {
+          reclassifyBackend.get_data(page, changedData, false);
+        }
       });
   };
 
-  return { loadTable };
+  return { loadTable, loadReclassifiedTable };
 }());
 
 // export { loadTable };

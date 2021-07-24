@@ -1,5 +1,3 @@
-print('before imports')
-
 import sys
 import csv
 import re
@@ -19,49 +17,18 @@ from preprocess import (
     clean_sentence,
     remove_stop_words)
 from collections import Counter
-from matplotlib.colors import ListedColormap
-from matplotlib.cm import hsv
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.preprocessing import LabelEncoder, MinMaxScaler
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import MultinomialNB, GaussianNB
-from sklearn import tree
-from sklearn.ensemble import (
-    AdaBoostClassifier,
-    GradientBoostingClassifier,
-    RandomForestClassifier
-)
-from sklearn.neural_network import MLPClassifier
-from skmultilearn.adapt import MLkNN, BRkNNaClassifier, MLARAM
-from skmultilearn.problem_transform import (
-    BinaryRelevance,
-    ClassifierChain,
-    LabelPowerset
-)
-from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import classification_report, multilabel_confusion_matrix
+from skmultilearn.problem_transform import ClassifierChain
+from sklearn.metrics import multilabel_confusion_matrix
 from xgboost import XGBClassifier
 from export_docx_themes_with_embeddings import Export
 
 
-print('inside script.')
-start_script = datetime.now()
+train_file_path = None
+predict_file_path = None
 
-doc_path = sys.argv[1]
-
-if len(sys.argv) == 3 and sys.argv[2].endswith('.csv'):
-    train_file_path = sys.argv[2]
-    predict_file_path = train_file_path.replace('train', 'predict')
-else:
-    train_file_path = doc_path.replace('.docx', '_train.csv')
-    predict_file_path = doc_path.replace('.docx', '_predict.csv')
-
-    export = Export(doc_path)
-    export.process()
-
-cat_df = pd.read_csv('text/reorder_exit_themes.csv', encoding='utf-8-sig')
-train_df = pd.read_csv(train_file_path, encoding='utf-8')
-moved_predict_df = pd.DataFrame()
+cat_df = None
+train_df = None
+moved_predict_df = None
 
 interviewer_regex = r'''/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|
     \d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/'''
@@ -92,7 +59,6 @@ def get_sample_weights(Y_train):
 
 def generate_training_and_testing_data(oversample, many_together):
     themes_list = list(cat_df)
-    print(f'themes_list = ${themes_list}')
     global train_df
     # convert embedding string to np array
     if not many_together:
@@ -460,101 +426,122 @@ def get_text(file_path):
     return '\n'.join(full_text)
 
 
-if len(sys.argv) == 3 and sys.argv[2].endswith('.csv'):
-    model = Sentence2Vec()
-else:
-    model = export.model
+def run_classifier(doc_path, modified_train_file_path=None):
+    global train_file_path
+    global predict_file_path
+    global cat_df
+    global train_df
+    global moved_predict_df
 
-text = get_text(doc_path).replace("’", "'")
+    print('inside script.')
+    start_script = datetime.now()
 
-print('writing sentences to predict csv...')
-start_writing = datetime.now()
+    if modified_train_file_path is not None:
+        train_file_path = modified_train_file_path
+        predict_file_path = modified_train_file_path.replace('train', 'predict')
+        model = Sentence2Vec()
+    else:
+        train_file_path = doc_path.replace('.docx', '_train.csv')
+        predict_file_path = doc_path.replace('.docx', '_predict.csv')
 
-with open(predict_file_path, 'w', newline='', encoding='utf-8') as predict_file:
-    writer = csv.writer(predict_file, delimiter=',')
-    writer.writerow(['original_sentence', 'cleaned_sentence',
-        'sentence_embedding'])
+        export = Export(doc_path)
+        export.process()
+        model = export.model
 
+    cat_df = pd.read_csv('text/reorder_exit_themes.csv', encoding='utf-8-sig')
     train_df = pd.read_csv(train_file_path, encoding='utf-8')
-    train_original_sentences = train_df['original_sentence'].tolist()
+    moved_predict_df = pd.DataFrame()
 
-    # save which have been moved to train as re-classification
-    # (before oversampling!!)
-    moved_predict_df = train_df.loc[train_df['codes'].isna()]
+    text = get_text(doc_path).replace("’", "'")
 
-    train_moved_sentences = moved_predict_df['original_sentence'].tolist()
+    print('writing sentences to predict csv...')
+    start_writing = datetime.now()
 
-    all_original_sentences = sent_tokenize(text)
+    with open(predict_file_path, 'w', newline='', encoding='utf-8') as predict_file:
+        writer = csv.writer(predict_file, delimiter=',')
+        writer.writerow(['original_sentence', 'cleaned_sentence',
+            'sentence_embedding'])
 
-    uncoded_original_sentences = []
+        train_df = pd.read_csv(train_file_path, encoding='utf-8')
+        train_original_sentences = train_df['original_sentence'].tolist()
 
-    for sentence in all_original_sentences:
-        if (sentence not in train_moved_sentences and
-            sentence not in train_original_sentences and
-            re.sub(interviewer_regex, '', sentence, flags=re.IGNORECASE)
-            .strip() not in train_original_sentences and
-            sentence[:-1] not in train_original_sentences): # to-do: better way
-            uncoded_original_sentences.append(sentence)     # to check for "."
+        # save which have been moved to train as re-classification
+        # (before oversampling!!)
+        moved_predict_df = train_df.loc[train_df['codes'].isna()]
 
-    sentence_embedding_list = []
+        train_moved_sentences = moved_predict_df['original_sentence'].tolist()
 
-    cleaned_sentence_embedding_dict = {}
+        all_original_sentences = sent_tokenize(text)
 
-    start_emb = datetime.now()
+        uncoded_original_sentences = []
 
-    if os.path.exists('text/embeddings.pickle'):
-        with open('text/embeddings.pickle', 'rb') as handle:
-            dict = pickle.load(handle)
+        for sentence in all_original_sentences:
+            if (sentence not in train_moved_sentences and
+                sentence not in train_original_sentences and
+                re.sub(interviewer_regex, '', sentence, flags=re.IGNORECASE)
+                .strip() not in train_original_sentences and
+                sentence[:-1] not in train_original_sentences): # to-do: better way
+                uncoded_original_sentences.append(sentence)     # to check for "."
+
+        sentence_embedding_list = []
+
+        cleaned_sentence_embedding_dict = {}
+
+        start_emb = datetime.now()
+
+        if os.path.exists('text/embeddings.pickle'):
+            with open('text/embeddings.pickle', 'rb') as handle:
+                dict = pickle.load(handle)
+                for sentence in uncoded_original_sentences:
+                    try:
+                        cleaned_sentence = dict[sentence][0]
+                        sentence_embedding = dict[sentence][1]
+                    except KeyError:
+                        cleaned_sentence = remove_stop_words(
+                            clean_sentence(sentence))
+                        sentence_embedding = model.get_vector(cleaned_sentence)
+
+                    writer.writerow([sentence, cleaned_sentence,
+                        sentence_embedding])
+
+                    sentence_embedding_list.append(sentence_embedding)
+
+                    cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence,
+                        sentence_embedding]
+        else:
             for sentence in uncoded_original_sentences:
-                try:
-                    cleaned_sentence = dict[sentence][0]
-                    sentence_embedding = dict[sentence][1]
-                except KeyError:
-                    cleaned_sentence = remove_stop_words(
-                        clean_sentence(sentence))
-                    sentence_embedding = model.get_vector(cleaned_sentence)
+                cleaned_sentence = remove_stop_words(clean_sentence(sentence))
+                sentence_embedding = model.get_vector(cleaned_sentence)
 
-                writer.writerow([sentence, cleaned_sentence,
-                    sentence_embedding])
+                writer.writerow([sentence, cleaned_sentence, sentence_embedding])
 
                 sentence_embedding_list.append(sentence_embedding)
 
                 cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence,
                     sentence_embedding]
-    else:
-        for sentence in uncoded_original_sentences:
-            cleaned_sentence = remove_stop_words(clean_sentence(sentence))
-            sentence_embedding = model.get_vector(cleaned_sentence)
 
-            writer.writerow([sentence, cleaned_sentence, sentence_embedding])
+        print(f'done writing data in csv in {datetime.now() - start_emb}')
 
-            sentence_embedding_list.append(sentence_embedding)
-
-            cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence,
-                sentence_embedding]
-
-    print(f'done writing data in csv in {datetime.now() - start_emb}')
-
-    predict_file.close()
+        predict_file.close()
 
 
-# save sentence, cleaned_sentence, sentence_embedding dict to pickle
-with open('text/embeddings.pickle', 'wb') as handle:
-    pickle.dump(cleaned_sentence_embedding_dict, handle,
-        protocol=pickle.HIGHEST_PROTOCOL)
-#-------------------------------------------------------------------
+    # save sentence, cleaned_sentence, sentence_embedding dict to pickle
+    with open('text/embeddings.pickle', 'wb') as handle:
+        pickle.dump(cleaned_sentence_embedding_dict, handle,
+            protocol=pickle.HIGHEST_PROTOCOL)
+    #-------------------------------------------------------------------
 
-sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
+    sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 
-print(f'done writing in {datetime.now() - start_writing}')
+    print(f'done writing in {datetime.now() - start_writing}')
 
-clf = ClassifierChain(classifier=XGBClassifier())
+    clf = ClassifierChain(classifier=XGBClassifier())
 
-_, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
-    clf, 'ClassifierChain XGBoost oversample', True, False)
+    _, _, _, _, _, accuracies, f_measures = classify(sentence_embedding_matrix,
+        clf, 'ClassifierChain XGBoost oversample', True, False)
 
-print(f'accuracy per class = {accuracies}')
-print(f'f_measure per class = {f_measures}')
+    print(f'accuracy per class = {accuracies}')
+    print(f'f_measure per class = {f_measures}')
 
 
-print(f'script finished in {datetime.now() - start_script}')
+    print(f'script finished in {datetime.now() - start_script}')
