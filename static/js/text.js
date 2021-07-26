@@ -5,21 +5,22 @@ const textLib = (function () {
 
     const text = highlightSentences(data[0], data[1], data[2]);
 
-    d3.select('#loading-gif')
+    const textContainer = d3.select('#text-container');
+
+    textContainer.select('#loading-gif')
       .style('display', 'none');
-    
-    const textContainer = d3.select('body')
+
+    const textContainerRow = textContainer
       .append('div')
-        .attr('id', 'text-container')
-        .classed('row', true);
+      .classed('row', true);
     
-    textContainer
+    textContainerRow
       .append('div')
         .classed('col-9', true)
         .append('div')
           .attr('id', 'text-box');
     
-    textContainer
+    textContainerRow
       .append('div')
         .classed('col-3', true)
         .append('div')
@@ -122,6 +123,11 @@ const textLib = (function () {
       let y = obj.y;
       const color = obj.color;
       const themes = obj.themes;
+
+      if (themes === null) {
+        console.log('--------------------------------------> themes = null. obj vvv');
+        console.log(JSON.stringify(obj));
+      }
 
       const skipText = (themes === lastThemes) && ((lastY === (y - 28) || (lastY === (y - 33))));
       const concatCanvas = (y === lastY);

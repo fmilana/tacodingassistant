@@ -7,7 +7,9 @@
     <script type="text/javascript" src="../static/js/lib/jquery.min.js"></script>
     <script type="text/javascript" src="../static/js/main.js"></script>
     <script type="text/javascript" src="../static/js/text.js"></script>
-    <script type="text/javascript" src="../static/js/table.js"></script>
+    <script type="text/javascript" src="../static/js/all_table.js"></script>
+    <script type="text/javascript" src="../static/js/predict_table.js"></script>
+    <script type="text/javascript" src="../static/js/train_table.js"></script>
     <link rel="stylesheet" type="text/css" href="../static/res/lib/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="../static/res/style.css"/>
     <title>Thematic Analysis Tool</title>
@@ -40,6 +42,35 @@
         </div>
       </div>
     </div>
-    <img id="loading-gif" src="../static/res/loading.gif">
+    <div id="text-container">
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+    <div id="all-table-container" class="table-container">
+      <button id="re-classify-button" type="button" disabled>Re-classify</button>
+      <h1 id="table-title">Keywords</h1>
+      <div id="bin-div">
+        <h1 id="bin-title">Bin</h1>
+        <p>Drag here to remove theme</p>
+      </div>
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+    <div id="predict-table-container" class="table-container">
+      <button id="re-classify-button" type="button" disabled>Re-classify</button>
+      <h1 id="table-title">Predict Keywords</h1>
+      <div id="bin-div">
+        <h1 id="bin-title">Bin</h1>
+        <p>Drag here to remove theme</p>
+      </div>
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+    <div id="train-table-container" class="table-container">
+      <button id="re-classify-button" type="button" disabled>Re-classify</button>
+      <h1 id="table-title">Train Keywords</h1>
+      <div id="bin-div">
+        <h1 id="bin-title">Bin</h1>
+        <p>Drag here to remove theme</p>
+      </div>
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
   </body>
 </html>

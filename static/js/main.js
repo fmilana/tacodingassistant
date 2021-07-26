@@ -1,7 +1,9 @@
-/* global d3 window qt QWebChannel textLib tableLib $*/
+/* global d3 window qt QWebChannel textLib trainTableLib predictTableLib allTableLib $*/
 
 let textBackend;
-let tableBackend;
+let allTableBackend;
+let predictTableBackend;
+let trainTableBackend;
 let reclassifyBackend;
 
 let currentTabId = 'text-button';
@@ -12,17 +14,57 @@ const onTextData = function (data) {
 };
 
 
-const onTableData = function (data) {
-  tableLib.loadTable('keywords', data);
+const onAllTableData = function (dataAndReclassified) {
+  const data = dataAndReclassified[0];
+  const reclassified = dataAndReclassified[1];
+
+  if (reclassified) {
+    allTableLib.loadReclassifiedTable(data);
+  } else {
+    allTableLib.loadTable(data);
+  }
 };
 
 
-const onReclassifyData = function (data) {
-  tableLib.loadReclassifiedTable(data); // pass table name?
+const onPredictTableData = function (dataAndReclassified) {
+  const data = dataAndReclassified[0];
+  const reclassified = dataAndReclassified[1];
+
+  if (reclassified) {
+    predictTableLib.loadReclassifiedTable(data);
+  } else {
+    predictTableLib.loadTable(data);
+  }
+};
+
+
+const onTrainTableData = function (dataAndReclassified) {
+  const data = dataAndReclassified[0];
+  const reclassified = dataAndReclassified[1];
+
+  if (reclassified) {
+    trainTableLib.loadReclassifiedTable(data);
+  } else {
+    trainTableLib.loadTable(data);
+  }
+};
+
+
+const onReclassified = function () {
+  allTableBackend.get_table(true); // true-> reclassified
+  predictTableBackend.get_table(true);
+  trainTableBackend.get_table(true);
 };
 
 
 d3.select(window).on('load', () => {  
+  const tabToContainerDict = {
+    'text-button': 'text-container',
+    'all-keywords-button': 'all-table-container',
+    'predict-keywords-button': 'predict-table-container',
+    'train-keywords-button': 'train-table-container'
+  };
+
   // Navbar functionality
   d3.select('.navbar-top')
     .selectAll('a')
@@ -37,57 +79,11 @@ d3.select(window).on('load', () => {
           d3.select(this.parentNode.parentNode).select('.dropbtn').classed('btn-active', true);
         }
 
-        if (currentTabId === 'text-button') {
-          d3.select('#text-container')
-            .style('display', 'none');
-        } else if (currentTabId === 'all-keywords-button') {
-          d3.select('#table-container')
-            .style('display', 'none');
-        }
+        d3.select(`#${tabToContainerDict[currentTabId]}`)
+          .style('display', 'none');
 
-        if (tabId === 'text-button') {
-          d3.select('#text-container')
-            .style('display', 'flex');
-        } else if (tabId === 'all-keywords-button') {
-          let tableContainer = d3.select('#table-container');
-          if (tableContainer.empty()) {
-            tableContainer = d3.select('body')
-              .append('div')
-                .attr('id', 'table-container');
-
-            tableContainer
-              .append('button')
-                .attr('id', 're-classify-button')
-                .attr('type', 'button')
-                .property('disabled', true)
-                .text('Re-classify');
-            
-            tableContainer
-              .append('h1')
-                .attr('id', 'table-title')
-                .text('Keywords');
-
-            const binDiv = tableContainer
-              .append('div')
-                .attr('id', 'bin-div');
-            
-            binDiv
-              .append('h1')
-              .attr('id', 'bin-title')
-              .text('Bin');
-            
-            binDiv
-              .append('p')
-              .text('Drag here to remove theme');
-
-            tableBackend.get_table();
-
-            d3.select('#loading-gif')
-              .style('display', 'block');
-          } else {
-            tableContainer.style('display', 'block');
-          }
-        }
+        d3.select(`#${tabToContainerDict[tabId]}`)
+          .style('display', 'block');
 
         currentTabId = tabId;
       }
@@ -98,14 +94,21 @@ d3.select(window).on('load', () => {
     if (qt !== undefined) {
       new QWebChannel(qt.webChannelTransport, (channel) => {
         textBackend = channel.objects.textBackend;
-        tableBackend = channel.objects.tableBackend;
+        allTableBackend = channel.objects.allTableBackend;
+        predictTableBackend = channel.objects.predictTableBackend;
+        trainTableBackend = channel.objects.trainTableBackend;
         reclassifyBackend = channel.objects.reclassifyBackend;
         // connect signals from the external object to callback functions
         textBackend.signal.connect(onTextData);
-        tableBackend.signal.connect(onTableData);
-        reclassifyBackend.signal.connect(onReclassifyData);
-        // call a function on the external object
+        allTableBackend.signal.connect(onAllTableData);
+        predictTableBackend.signal.connect(onPredictTableData);
+        trainTableBackend.signal.connect(onTrainTableData);
+        reclassifyBackend.signal.connect(onReclassified);
+        // call functions on the external objects
         textBackend.get_text();
+        allTableBackend.get_table(false); // false-> not reclassified
+        predictTableBackend.get_table(false);
+        trainTableBackend.get_table(false);
       });
     }
   } catch (error) {

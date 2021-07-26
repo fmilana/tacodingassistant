@@ -1,4 +1,3 @@
-import sys
 import csv
 import re
 import os
@@ -142,9 +141,9 @@ def add_classification_to_csv(clf, prediction_output, prediction_proba):
 
     predict_df = predict_df.merge(new_df, left_index=True, right_index=True)
 
-    if len(sys.argv) == 3 and sys.argv[2].endswith('.csv'):
+    global moved_predict_df
+    if moved_predict_df is not None:
         global train_df
-        global moved_predict_df
         # add moved predictions so they still show up in table as predictions
         moved_predict_df = moved_predict_df.drop([
             'file name',
@@ -161,6 +160,7 @@ def add_classification_to_csv(clf, prediction_output, prediction_proba):
         train_df = train_df[train_df['codes'].notna()]
 
     predict_df.to_csv(predict_file_path, index=False, encoding='utf-8-sig')
+    moved_predict_df = None
 
 
 def plot_heatmaps(clf_name, Y_true, Y_predicted, sentences_dict, themes_list):
@@ -450,7 +450,6 @@ def run_classifier(doc_path, modified_train_file_path=None):
 
     cat_df = pd.read_csv('text/reorder_exit_themes.csv', encoding='utf-8-sig')
     train_df = pd.read_csv(train_file_path, encoding='utf-8')
-    moved_predict_df = pd.DataFrame()
 
     text = get_text(doc_path).replace("’", "'")
 

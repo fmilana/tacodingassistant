@@ -133,7 +133,30 @@ h1 {
   margin-right: auto;
 }
 
-#table-container {
+#all-table-container {
+  display: none;
+  position: fixed;
+  width: 100%;
+  top: 50px;
+  bottom: 0;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#predict-table-container {
+  display: none;
+  position: fixed;
+  width: 100%;
+  top: 50px;
+  bottom: 0;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#train-table-container {
+  display: none;
   position: fixed;
   width: 100%;
   top: 50px;
@@ -314,7 +337,7 @@ table.green .td-clicked {
   white-space: normal;
   margin: auto;
   margin-bottom: 10px;
-  width: 455px;
+  width: 97%;
   max-height: 250px;
   padding: 0 10px 10px 20px;
   overflow-y: auto;
@@ -330,7 +353,7 @@ table.green .td-clicked {
 .td-div {
   position: absolute;
   visibility: visible;
-  padding: 10px 20px;
+  padding: 5px 20px 20px 20px;
   background-color: transparent;
   cursor: move;
 }
@@ -365,7 +388,7 @@ table.green tr:nth-child(odd) td:nth-child(even) {
 #bin-div {
   position: fixed;
   bottom: 20px;
-  right: 40px;
+  right: 35px;
   width: 235px;
   height: 100px;
   padding: 0 10px 10px 10px;
