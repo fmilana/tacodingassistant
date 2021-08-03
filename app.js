@@ -46,6 +46,17 @@ app.get('/train_codes.html', (req, res) => {
   res.sendFile(`${__dirname}/templates/train_codes.html`);
 });
 
+app.get('/main.html', (req, res) => {
+  res.sendFile(`${__dirname}/templates/main.html`);
+});
+
+const fs = require('fs');
+
+app.get('/get_cm_json', (req, res) => {
+  const data = JSON.parse(fs.readFileSync('cm_data.json'));
+  res.json(data);
+});
+
 app.get(new RegExp(/^\/.*_matrix.html$/), (req, res) => {
   const themeName = req.url.match(/^\/(.*?)_matrix.html$/)[1];
   if (themesNames.map(name => name.replace(/ /g, '_')).includes(themeName)) {

@@ -7,9 +7,11 @@
     <script type="text/javascript" src="../static/js/lib/jquery.min.js"></script>
     <script type="text/javascript" src="../static/js/main.js"></script>
     <script type="text/javascript" src="../static/js/text.js"></script>
+    <script type="text/javascript" src="../static/js/codes.js"></script>
     <script type="text/javascript" src="../static/js/all_table.js"></script>
     <script type="text/javascript" src="../static/js/predict_table.js"></script>
     <script type="text/javascript" src="../static/js/train_table.js"></script>
+    <script type="text/javascript" src="../static/js/confusion_tables.js"></script>
     <link rel="stylesheet" type="text/css" href="../static/res/lib/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="../static/res/style.css"/>
     <title>Thematic Analysis Tool</title>
@@ -32,6 +34,7 @@
         <button class="dropbtn">Confusion Tables
           <img src="../static/res/caret-down-fill.svg", height=12px, width=12px/>
         </button>
+        <!-- hard-coded -->
         <div class="dropdown-content">
           <a id="practices-cm-button">Practices</a>
           <a id="social-cm-button">Social</a>
@@ -43,6 +46,10 @@
       </div>
     </div>
     <div id="text-container">
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+    <div id="codes-table-container" class="table-container">
+      <h1 id="table-title">Codes</h1>
       <img id="loading-gif" src="../static/res/loading.gif">
     </div>
     <div id="all-table-container" class="table-container">
@@ -70,6 +77,9 @@
         <h1 id="bin-title">Bin</h1>
         <p>Drag here to remove theme</p>
       </div>
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+    <div id="confusion-tables-container">
       <img id="loading-gif" src="../static/res/loading.gif">
     </div>
   </body>

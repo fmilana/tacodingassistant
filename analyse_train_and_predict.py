@@ -1,8 +1,5 @@
-import sys
 import csv
 import pandas as pd
-from datetime import datetime
-from functools import reduce
 from nltk import word_tokenize
 from collections import Counter
 
@@ -74,7 +71,7 @@ def analyse(train_file_path=None):
                         train_word_freq_dict[theme].append(word)
                         both_word_freq_dict[theme].append(word)
                         if (word in train_keywords_dict and
-                            index not in train_keywords_dict[word]):
+                        index not in train_keywords_dict[word]):
                             train_keywords_dict[word].append(index)
                         elif word not in train_keywords_dict:
                             train_keywords_dict[word] = [index]
@@ -168,8 +165,10 @@ def analyse(train_file_path=None):
 
         cm_word_freq_dict = {col_name: [] for col_name in col_names}
 
+        cm_keywords_dict = {}
+
         for index, row in cm_df.iterrows():
-            for col_name in col_names:
+            for col_index, col_name in enumerate(col_names):
                 sentence = row[col_name]
 
                 if isinstance(sentence, str) and len(sentence) > 0:
@@ -180,6 +179,12 @@ def analyse(train_file_path=None):
                             word = word.lower()
                             if word not in more_stop_words:
                                 cm_word_freq_dict[col_name].append(word)
+                                if (word in cm_keywords_dict and 
+                                index not in cm_keywords_dict[word][col_index]):
+                                    cm_keywords_dict[word][col_index].append(index)
+                                elif word not in cm_keywords_dict:
+                                    cm_keywords_dict[word] = [[],[],[],[]]
+                                    cm_keywords_dict[word][col_index] = [index]
 
         for col_name in cm_word_freq_dict:
             counter = Counter(cm_word_freq_dict[col_name])
@@ -204,5 +209,11 @@ def analyse(train_file_path=None):
                     except IndexError:
                         row.append('')
                 writer.writerow(row)
+
+        # keyword mathcing file:
+        cm_keywords_df = pd.DataFrame(cm_keywords_dict.items(), 
+            columns=['word', 'sentences'])
+        cm_keywords_df.to_csv(f'text/cm/reorder_exit_{theme}_cm_keywords.csv',
+            index=False)
 
     # print(f'done analysing in {datetime.now() - start}')

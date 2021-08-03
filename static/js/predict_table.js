@@ -1,4 +1,4 @@
-/* global document d3 screen window reclassifyBackend $*/
+/* global document d3 screen window reclassifyBackend threadStartId $*/
 
 const predictTableLib = (function () {
   let themeDataDict = [];
@@ -50,8 +50,9 @@ const predictTableLib = (function () {
   };
 
 
-  const loadReclassifiedTable = function (reclassifiedData) {
+  const loadReclassifiedTable = function (reclassifiedData, callback) {
     console.log('===========================> lOADING RECLASSIFIED PREDICT_TABLE');
+    const startTime = new Date().getTime();
     data = reclassifiedData;
 
     firstLoading = true;
@@ -68,17 +69,23 @@ const predictTableLib = (function () {
 
     // timeout needed to change loading text
     setTimeout(() => {
-      if (!d3.select('#predict-table-container').select('table').empty()) {
-        d3.select('#predict-table-container')
-          .select('table')
-          .remove();
+      // if (!d3.select('#predict-table-container').select('table').empty()) {
+      //   d3.select('#predict-table-container')
+      //     .select('table')
+      //     .remove();
 
-        d3.select('#predict-table-container')
-          .select('#loading-gif')
-          .style('display', 'block');
-      }
+      //   d3.select('#predict-table-container')
+      //     .select('#loading-gif')
+      //     .style('display', 'block');
+      // }
 
       generateTable();
+
+      const endTime = new Date().getTime();
+      console.log(`PredictTable (JavaScript) => ${((endTime - startTime) / 1000).toFixed(2)} seconds`);
+      
+      console.log('calling callback (other threads)...');
+      callback();
     }, 1);
   };
 
@@ -365,6 +372,7 @@ const predictTableLib = (function () {
       .style('z-index', maxZIndex++);
 
     d3.select(this)
+      .classed('dragging', true)
       .style('z-index', maxZIndex++);
 
     dragging = true;
@@ -397,6 +405,7 @@ const predictTableLib = (function () {
       .style('z-index', maxZIndex++);
 
     d3.select(this)
+      .classed('dragging', true)
       .style('visibility', 'visible')
       .style('display', 'inline-block')
       .style('padding', '7px')
@@ -444,6 +453,7 @@ const predictTableLib = (function () {
         .classed('expanded', false);
 
       d3.select(this)
+        .classed('dragging', false)
         .style('left', '0px')
         .style('top', '0px');
 
@@ -462,8 +472,15 @@ const predictTableLib = (function () {
       }
 
       if (targetColumn !== movingColumn) {
+        console.log('======================================> REMOVING TABLE...');
         d3.select('#predict-table-container')
           .select('table').remove();
+
+        if (d3.select('#predict-table-container').select('table').empty()) {
+          console.log('=====================================> TABLE GONE');
+        } else {
+          console.log('=====================================> TABLE STILL HERE SOMEHOW??');
+        }
 
         d3.select('#predict-table-container')
           .select('#bin-div')
@@ -499,6 +516,9 @@ const predictTableLib = (function () {
 
   const sentenceDragEnded = function (event) {
     if (dragging) {
+      d3.select(this)
+        .classed('dragging', false);
+
       d3.select('#predict-table-container')
         .select('#bin-div')
         .classed('expanded', false);
@@ -522,8 +542,16 @@ const predictTableLib = (function () {
       }
 
       if (targetColumn !== movingColumn) {
+        console.log('=====================================> REMOVING TABLE');
         d3.select('#predict-table-container')
-          .select('table').remove();
+          .select('table')
+          .remove();
+
+        if (d3.select('#predict-table-container').select('table').empty()) {
+          console.log('=====================================> TABLE GONE');
+        } else {
+          console.log('=====================================> TABLE STILL HERE SOMEHOW??');
+        }
 
         d3.select('#predict-table-container')
           .select('#bin-div')
@@ -558,7 +586,7 @@ const predictTableLib = (function () {
 
       dragging = false;
 
-      console.log(`moving predictSentence "${movingSentence}" from "${movingColumn}" to "${targetColumn}"`);
+      // console.log(`moving predictSentence "${movingSentence}" from "${movingColumn}" to "${targetColumn}"`);
     }
   };
 
@@ -608,23 +636,6 @@ const predictTableLib = (function () {
               .append('div')
               .classed('td-tooltip-sentences', true);
 
-            const tooltipRect = tooltip.node().getBoundingClientRect();
-            const tableRect = d3.select('#predict-table-container').select('table').node().getBoundingClientRect();
-            const tdRect = this.parentNode.parentNode.getBoundingClientRect();
-
-            tooltip
-              .style('top', `${tdRect.height}px`)
-              .style('left', () => {
-                if (tdRect.x === 0) {
-                  return '10px';
-                } else if (tdRect.x + tooltipRect.width < tableRect.width) {
-                  return '0px';
-                }
-                const cutOff = (tdRect.x + tooltipRect.width) - tableRect.width;
-                return `${-(cutOff) - 10}px`;
-              })
-              .style('z-index', maxZIndex++);
-
             d3.select('#predict-table-container')
               .selectAll('th')
               .style('z-index', maxZIndex++);
@@ -668,6 +679,30 @@ const predictTableLib = (function () {
                 return tooltipSentences.html();
               });
 
+            const tooltipRect = tooltip.node().getBoundingClientRect();
+            const tableRect = d3.select('#predict-table-container').select('table').node().getBoundingClientRect();
+            const tdRect = this.parentNode.parentNode.getBoundingClientRect();
+
+            tooltip
+              .style('top', () => {
+                if (tdRect.y + tooltipRect.height + d3.select('#predict-table-container').node().scrollTop < tableRect.height) {             // fix this
+                  return `${tdRect.height}px`;
+                }
+                const cutOff = ((tableRect.height - tdRect.y - tooltipRect.height
+                  - d3.select('#predict-table-container').node().scrollTop) + 105);
+                return `${cutOff}px`;
+              })
+              .style('left', () => {
+                if (tdRect.x === 0) {
+                  return '10px';
+                } else if (tdRect.x + tooltipRect.width < tableRect.width) {
+                  return '0px';
+                }
+                const cutOff = (tdRect.x + tooltipRect.width) - tableRect.width;
+                return `${-(cutOff) - 10}px`;
+              })
+              .style('z-index', maxZIndex++);
+
             d3.select('#predict-table-container')
               .selectAll('.sentence')
               .call(d3.drag()
@@ -684,7 +719,7 @@ const predictTableLib = (function () {
 
 
   const updateData = function (movingText, movingSentences, movingColumn, targetColumn) {
-    console.log(`moving ${movingText} from ${movingColumn} to ${targetColumn}`);
+    // console.log(`moving ${movingText} from ${movingColumn} to ${targetColumn}`);
 
     // TODO: move to txt?
     const stopWords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves',
@@ -764,7 +799,7 @@ const predictTableLib = (function () {
                 if (sentence === movingSentence) {
                   // update text
                   movedText = `${word} (${movingCount - 1})`;
-                  console.log(`${movingColumn}: "${movingColumnData[i][0]}" ==> "${movedText}"`);
+                  // console.log(`${movingColumn}: "${movingColumnData[i][0]}" ==> "${movedText}"`);
                   movingColumnData[i][0] = movedText;
                   // find original sentence (to move later if needed)
                   originalSentence = movingColumnData[i][1][j];
@@ -786,7 +821,7 @@ const predictTableLib = (function () {
             if (targetWord === word) {
               const targetCount = parseInt(targetColumnData[i][0].match(/\((\d+?)\)/)[1], 10);
               movedText = `${word} (${targetCount + 1})`;
-              console.log(`${targetColumn}: "${targetColumnData[i][0]}" ==> "${movedText}"`);
+              // console.log(`${targetColumn}: "${targetColumnData[i][0]}" ==> "${movedText}"`);
               targetColumnData[i][0] = movedText;
               // add sentence
               targetColumnData[i][1] = targetColumnData[i][1].concat(originalSentence);
@@ -799,7 +834,7 @@ const predictTableLib = (function () {
             const themeDataRow = [];
             themeDataRow.push(`${word} (1)`);
             themeDataRow.push([originalSentence]);
-            console.log(`${targetColumn}: ==> "${word} (1)"`);
+            // console.log(`${targetColumn}: ==> "${word} (1)"`);
 
             targetColumnData.push(themeDataRow);
           }
@@ -981,6 +1016,23 @@ const predictTableLib = (function () {
     d3.select('#predict-table-container')
       .select('#re-classify-button')
       .on('click', () => {
+        if (!d3.select('#text-container').select('.row').empty()) {
+          d3.select('#text-container').select('.row').remove();
+          d3.select('#text-container').select('#loading-gif').style('display', 'block');
+        } 
+        if (!d3.select('#all-table-container').select('table').empty()) {
+          d3.select('#all-table-container').select('table').remove();
+          d3.select('#all-table-container').select('#loading-gif').style('display', 'block');
+        }
+        if (!d3.select('#train-table-container').select('table').empty()) {
+          d3.select('#train-table-container').select('table').remove();
+          d3.select('#train-table-container').select('#loading-gif').style('display', 'block');
+        }
+        if (!d3.selectAll('.cm-container').empty()) {
+          d3.selectAll('.cm-container').remove();
+          d3.select('#confusion-tables-container').select('#loading-gif').style('display', 'block');
+        }
+
         d3.select('#predict-table-container')
           .select('table').remove();
 
@@ -1005,6 +1057,8 @@ const predictTableLib = (function () {
         //   .text('Re-classifying sentences...')
         //   .style('display', 'block');
         
+        threadStartId = 'predict-keywords-button';
+
         if (reclassifyCount === 0) {
           reclassifyBackend.get_data(changedData, true);
         } else {

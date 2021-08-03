@@ -133,6 +133,17 @@ h1 {
   margin-right: auto;
 }
 
+#codes-table-container {
+  display: none;
+  position: fixed;
+  width: 100%;
+  top: 50px;
+  bottom: 0;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 #all-table-container {
   display: none;
   position: fixed;
@@ -164,6 +175,21 @@ h1 {
   margin: 0;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+#confusion-tables-container {
+  display: none;
+  position: fixed;
+  width: 100%;
+  top: 50px;
+  bottom: 0;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.table-container {
+  display: none;
 }
 
 #loading-text {
@@ -346,8 +372,16 @@ table.green .td-clicked {
 }
 
 .sentence {
-  cursor: move;
+  cursor: grab;
   transform: translate(0, 0);
+}
+
+#codes-table-container .sentence {
+  cursor: default;
+}
+
+#confusion-tables-container .sentence {
+  cursor: default;
 }
 
 .td-div {
@@ -355,7 +389,19 @@ table.green .td-clicked {
   visibility: visible;
   padding: 5px 20px 20px 20px;
   background-color: transparent;
-  cursor: move;
+  cursor: grab;
+}
+
+.dragging {
+  cursor: grabbing;
+}
+
+#codes-table-container .td-div {
+  cursor: default;
+}
+
+#confusion-tables-container .td-div {
+  cursor: default;
 }
 
 table.blue tr, table.blue td {

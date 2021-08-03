@@ -1,6 +1,7 @@
 import sys
 import re
 import docx
+import json
 import pandas as pd
 from PySide2.QtCore import QDir, QObject, QThread, QUrl, Signal, Slot
 from PySide2.QtWebChannel import QWebChannel
@@ -191,14 +192,13 @@ class WebEnginePage(QWebEnginePage):
 
 class TextThread(QThread):
     thread_signal = Signal('QVariant')
+    reclassified = None
 
     def run(self):
-        print('===========================> TEXT THREAD STARTED!!')
+        print('===========================> TEXT THREAD STARTED')
         minimum_proba = 0.95
         # hard-coded
         doc_path = 'text/reorder_exit.docx'
-
-        data = []
 
         document = docx.Document(doc_path)
         whole_text = []
@@ -206,8 +206,12 @@ class TextThread(QThread):
             whole_text.append(paragraph.text)
         whole_text = '\n\n'.join(whole_text)
 
-        train_df = pd.read_csv(doc_path.replace('.docx', '_train.csv'))
-        predict_df = pd.read_csv(doc_path.replace('.docx', '_predict.csv'))
+        if self.reclassified:
+            train_df = pd.read_csv(doc_path.replace('.docx', '_train_1.csv'))
+            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict_1.csv'))
+        else:
+            train_df = pd.read_csv(doc_path.replace('.docx', '_train.csv'))
+            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict.csv'))
 
         train_data = []
         for _, row in train_df.iterrows():
@@ -215,21 +219,58 @@ class TextThread(QThread):
 
         predict_data = []
         for index, row in predict_df.iterrows():
-          themes = ''
-          for i in range(3, len(predict_df.columns), 1):
+          row_themes = ''
+          for i in range(3, len(predict_df.columns) - len(themes), 1):
             if (predict_df.iloc[index, i] == 1 and 
             row[f'{predict_df.columns[i]} probability'] > minimum_proba):
-              if len(themes) == 0:
-                themes = predict_df.columns[i]
+              if len(row_themes) == 0:
+                row_themes = predict_df.columns[i]
               else:
-                themes += f', {predict_df.columns[i]}'
+                row_themes += f', {predict_df.columns[i]}'
           
-          if len(themes) > 0:
-            predict_data.append([row['original_sentence'], themes])
+          if len(row_themes) > 0:
+            predict_data.append([row['original_sentence'], row_themes])
 
         data = [whole_text, train_data, predict_data]
     
         self.thread_signal.emit(data)
+
+
+class CodesTableThread(QThread):
+    thread_signal = Signal('QVariant')
+
+    def run(self):
+        print('===========================> CODES TABLE THREAD STARTED')
+        data = []
+        counts = [0 for _ in themes]
+
+        train_df = pd.read_csv(doc_path.replace('.docx', '_train.csv'))
+        codes_df = pd.read_csv(doc_path.replace('.docx', '_codes.csv'))
+
+        for _, row in train_df.iterrows():
+            if row['codes'] != '':
+                for i, theme in enumerate(themes):
+                    counts[i] += int(row[theme])
+
+        titles = []
+        for i, theme in enumerate(themes):
+            titles.append(f'{theme} ({counts[i]})')
+
+        data.append(titles)
+        
+        for _, codes_row in codes_df.iterrows():
+            table_row = {}
+            for theme in themes:
+                code = codes_row[theme]
+                if isinstance(code, str):
+                    sentences = []
+                    for _, train_row in train_df.iterrows():
+                        if code in train_row['codes']:
+                            sentences.append(train_row['original_sentence'])
+                        table_row[theme] = [f'{code} ({len(sentences)})', sentences]
+            data.append(table_row)
+        
+        self.thread_signal.emit(data)    
 
 
 class AllTableThread(QThread):
@@ -237,7 +278,7 @@ class AllTableThread(QThread):
     reclassified = None
 
     def run(self):
-        print('===========================> ALL TABLE THREAD STARTED!!')
+        print('===========================> ALL TABLE THREAD STARTED')
         data = load_table_data('all-table', self.reclassified)
         self.thread_signal.emit(data)
 
@@ -247,7 +288,7 @@ class PredictTableThread(QThread):
     reclassified = None
 
     def run(self):
-        print('===========================> PREDICT TABLE THREAD STARTED!!')
+        print('===========================> PREDICT TABLE THREAD STARTED')
         data = load_table_data('predict-table', self.reclassified)
         self.thread_signal.emit(data)
 
@@ -257,7 +298,7 @@ class TrainTableThread(QThread):
     reclassified = None
 
     def run(self):
-        print('===========================> TRAIN TABLE THREAD STARTED!!')
+        print('===========================> TRAIN TABLE THREAD STARTED')
         data = load_table_data('train-table', self.reclassified)
         self.thread_signal.emit(data)
 
@@ -268,6 +309,7 @@ class ReclassifyThread(QThread):
     first_reclassify = None
 
     def run(self):
+        print('===========================> RECLASSIFY THREAD STARTED')
         if self.first_reclassify:
             train_path = doc_path.replace('.docx', '_train.csv')
             predict_path = doc_path.replace('.docx', '_predict.csv')
@@ -294,43 +336,47 @@ class ReclassifyThread(QThread):
                 for index, row in train_df.iterrows():
                     if row['codes'] != '':
                         # unescape \t and \n
-                        sentence = re.sub(r'\\t', '\t', row['original_sentence'])
-                        sentence = re.sub(r'\\n', '\n', sentence)
+                        sentence = row['original_sentence'].replace(r'\\t', '\t').replace(r'\\n', '\n')
                         if sentence in train_sentences:
-                            train_df.loc[index, 'themes'] = row['themes'].replace(moving_column, target_column)
                             train_df.loc[index, moving_column] = '0'
-                            train_df.loc[index, target_column] = '1'
+                            if target_column is not None:
+                                train_df.loc[index, 'themes'] = row['themes'].replace(moving_column, target_column)
+                                train_df.loc[index, target_column] = '1'
 
-            for sentence in predict_sentences:
-                # unescape \t and \n
-                sentence = re.sub(r'\\t', '\t', sentence)
-                sentence = re.sub(r'\\n', '\n', sentence)
-                matching_row = predict_df.loc[predict_df['original_sentence'] == sentence]
-                cleaned_sentence = str(matching_row['cleaned_sentence'].any())
-                sentence_embedding = str(matching_row['sentence_embedding'].any())
-                all_themes = [target_column]
-                for theme in themes: 
-                    if (theme != moving_column and theme != target_column and 
-                    str(matching_row[theme].any()) == '1'):
-                        all_themes.append(theme)
-                
-                predict_as_train_row = {
-                    'file name': doc_path,
-                    'comment_id': '',
-                    'original_sentence': sentence,
-                    'cleaned_sentence': cleaned_sentence,
-                    'sentence_embedding': sentence_embedding,
-                    'codes': '',
-                    'themes': '; '.join(sorted(all_themes))
-                }
+            if len(predict_sentences) > 0:
+                for index, row in predict_df.iterrows():
+                    # unescape \t and \n
+                    sentence = row['original_sentence'].replace(r'\\t', '\t').replace(r'\\n', '\n')
+                    if sentence in predict_sentences:
+                        cleaned_sentence = predict_df.loc[index, 'cleaned_sentence']
+                        sentence_embedding = predict_df.loc[index, 'sentence_embedding']
+                        if target_column is not None:
+                            all_themes = [target_column]
+                        else:
+                            all_themes = []
+                            for theme in themes: 
+                                if (theme != moving_column and theme != target_column and 
+                                str(predict_df.loc[index, theme].any()) == '1'):
+                                    all_themes.append(theme)
 
-                for theme in themes:
-                    if theme == target_column:
-                        predict_as_train_row[theme] = '1'
-                    else:
-                        predict_as_train_row[theme] = '0'
+                                predict_as_train_row = {
+                                    'file name': doc_path,
+                                    'comment_id': '',
+                                    'original_sentence': sentence,
+                                    'cleaned_sentence': cleaned_sentence,
+                                    'sentence_embedding': sentence_embedding,
+                                    'codes': '',
+                                    'themes': '; '.join(sorted(all_themes))
+                                }
 
-                train_df = train_df.append(predict_as_train_row, ignore_index=True)
+                                for theme in themes:
+                                    if theme in all_themes:
+                                        predict_as_train_row[theme] = '1'
+                                    else:
+                                        predict_as_train_row[theme] = '0'
+
+                                train_df = train_df.append(predict_as_train_row, ignore_index=True)
+
 
         new_train_path = doc_path.replace('.docx', '_train_1.csv')
         train_df.to_csv(new_train_path, index=False)
@@ -343,13 +389,55 @@ class ReclassifyThread(QThread):
         analyse(new_train_path)
         print('done!')
 
-        # print('loading table data...')
-        # all_data = load_table_data('all-table', True)
-        # predict_data = load_table_data('predict-table', True)
-        # train_data = load_table_data('train-table', True)
-        # print('done!')
-
         self.thread_signal.emit('done')
+
+
+class ConfusionTablesThread(QThread):
+    thread_signal = Signal('QVariant')
+
+    def run(self):
+        print('===========================> CONFUSION TABLES THREAD STARTED')
+        data = []
+
+        for theme in themes:
+            table_data = []
+
+            cm_csv_name = doc_path.rsplit('/', 1)[-1].replace('.docx', f'_{theme.replace(" ", "_")}_cm.csv')
+            cm_path = f'text/cm/{cm_csv_name}'
+
+            cm_df = pd.read_csv(cm_path)
+            cm_analyse_df = pd.read_csv(cm_path.replace('.csv', '_analyse.csv'))
+            cm_keywords_df = pd.read_csv(cm_path.replace('.csv', '_keywords.csv'))
+
+            table_data.append(list(cm_analyse_df.columns)) # titles
+
+            for _, analyse_row in cm_analyse_df.iterrows():
+                data_row = {}
+                for column_index, column in enumerate(cm_analyse_df.columns):
+                    text = analyse_row[column]
+                    if isinstance(text, str):
+                        word = re.sub(r' \(\d+\)$', '', text)
+                        sentences = []
+
+                        matching_indices = cm_keywords_df.loc[cm_keywords_df['word'] == word, 'sentences'].item()
+
+                        if isinstance(matching_indices, str):
+                            indices_lists = json.loads(matching_indices)
+
+                            for index in indices_lists[column_index]:
+                                sentence = cm_df.iloc[index, column_index]
+                                sentences.append(sentence)
+                    
+                        data_row[column] = [text, sentences]
+                table_data.append(data_row)
+            
+            data.append(table_data)
+            print(f'"{theme}" confusion table done')
+
+        # with open('cm_data.json', 'w') as f:
+        #     json.dump(data, f)
+            
+        self.thread_signal.emit(data)
 
 
 # partly based on https://stackoverflow.com/a/50610834/6872193
@@ -362,8 +450,9 @@ class TextBackend(QObject):
         self.thread = TextThread(self)
         self.thread.thread_signal.connect(self.send_text)
 
-    @Slot()
-    def get_text(self):
+    @Slot(bool)
+    def get_text(self, reclassified):
+        self.thread.reclassified = reclassified
         self.start = time.time()
         self.thread.start()
 
@@ -371,6 +460,27 @@ class TextBackend(QObject):
     def send_text(self, data):
         end = time.time()
         print(f'Text (Python) => {round(end-self.start, 2)} seconds')
+        self.signal.emit(data)
+
+
+class CodesTableBackend(QObject):
+    signal = Signal('QVariant')
+    start = None
+
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+        self.thread = CodesTableThread(self)
+        self.thread.thread_signal.connect(self.send_table)
+
+    @Slot()
+    def get_table(self):
+        self.start = time.time()
+        self.thread.start()
+
+    @Slot(str)
+    def send_table(self, data):
+        end = time.time()
+        print(f'Codes Table (Python) => {round(end-self.start, 2)} seconds')
         self.signal.emit(data)
 
 
@@ -474,6 +584,27 @@ class ReclassifyBackend(QObject):
         print(f'Reclassify (Python) => {round(end-self.start, 2)} seconds')
         self.signal.emit('done')
 
+
+class ConfusionTablesBackend(QObject):
+    signal = Signal('QVariant')
+    start = None
+
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+        self.thread = ConfusionTablesThread(self)
+        self.thread.thread_signal.connect(self.send_data)
+
+    @Slot()
+    def get_data(self):
+        self.start = time.time()
+        self.thread.start()
+
+    @Slot(str)
+    def send_data(self, data):
+        end = time.time()
+        print(f'Confusion Tables (Python) => {round(end-self.start, 2)} seconds')
+        self.signal.emit(data)
+
     
 class WebView(QWebEngineView):
     def __init__(self, parent=None):
@@ -491,17 +622,21 @@ class AppWindow(QMainWindow):
         self.view = WebView(self)
         self.page = self.view.page()
         self.text_backend = TextBackend(self.view)
+        self.codes_table_backend = CodesTableBackend(self.view)
         self.all_table_backend = AllTableBackend(self.view)
         self.predict_table_backend = PredictTableBackend(self.view)
         self.train_table_backend = TrainTableBackend(self.view)
         self.reclassify_backend = ReclassifyBackend(self.view)
+        self.confusion_tables_backend = ConfusionTablesBackend(self.view)
         channel = QWebChannel(self)
         self.page.setWebChannel(channel)
         channel.registerObject('textBackend', self.text_backend)
+        channel.registerObject('codesTableBackend', self.codes_table_backend)
         channel.registerObject('allTableBackend', self.all_table_backend)
         channel.registerObject('predictTableBackend', self.predict_table_backend)
         channel.registerObject('trainTableBackend', self.train_table_backend)
         channel.registerObject('reclassifyBackend', self.reclassify_backend)
+        channel.registerObject('confusionTablesBackend', self.confusion_tables_backend)
         self.view.load(QUrl.fromLocalFile(QDir.current().filePath('templates/main.html')))
         self.setCentralWidget(self.view)
 

@@ -1,6 +1,6 @@
 /* global d3 */
 const textLib = (function () {
-  const loadText = function (data) {
+  const loadText = function (data, callback) {
     const startTime = new Date().getTime();
 
     const text = highlightSentences(data[0], data[1], data[2]);
@@ -26,7 +26,7 @@ const textLib = (function () {
         .append('div')
           .attr('id', 'comments-box');
 
-    d3.select('#text-box')
+    textContainerRow.select('#text-box')
       .selectAll('p')
       .data([text])
       .enter()
@@ -38,6 +38,9 @@ const textLib = (function () {
 
     const endTime = new Date().getTime();
     console.log(`Text (JavaScript) => ${((endTime - startTime) / 1000).toFixed(2)} seconds`);
+
+    console.log('calling callback (other threads)...');
+    callback();
   };
 
 
@@ -99,7 +102,8 @@ const textLib = (function () {
   const generateComments = function () {
     const commentsObj = [];
 
-    d3.selectAll('span')
+    d3.select('#text-container')
+      .selectAll('span')
       .each(function () {
         const obj = {
           themes: d3.select(this).attr('data-tooltip'),
@@ -124,16 +128,12 @@ const textLib = (function () {
       const color = obj.color;
       const themes = obj.themes;
 
-      if (themes === null) {
-        console.log('--------------------------------------> themes = null. obj vvv');
-        console.log(JSON.stringify(obj));
-      }
-
       const skipText = (themes === lastThemes) && ((lastY === (y - 28) || (lastY === (y - 33))));
       const concatCanvas = (y === lastY);
 
       if (!concatCanvas) {
-        const canvas = d3.select('#comments-box')
+        const canvas = d3.select('#text-container')
+          .select('#comments-box')
           .append('svg')
           .style('position', 'absolute')
           .style('top', () => {

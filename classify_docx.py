@@ -26,6 +26,7 @@ train_file_path = None
 predict_file_path = None
 
 cat_df = None
+original_train_df = None # save train_df copy here before test split and oversampling
 train_df = None
 moved_predict_df = None
 
@@ -59,6 +60,8 @@ def get_sample_weights(Y_train):
 def generate_training_and_testing_data(oversample, many_together):
     themes_list = list(cat_df)
     global train_df
+    global original_train_df
+    original_train_df = train_df.copy()
     # convert embedding string to np array
     if not many_together:
         train_df['sentence_embedding'] = train_df['sentence_embedding'].apply(
@@ -73,7 +76,7 @@ def generate_training_and_testing_data(oversample, many_together):
 
     training_list = []
     testing_list = []
-    # we now iterate by themes
+    # iterate by themes
     for name, group in by_themes:
         training = group.sample(frac=.8)
         testing = group.loc[~group.index.isin(training.index)]
@@ -211,8 +214,8 @@ def write_cms_to_csv(sentences_dict, themes_list):
                 for sentence in sentences:
                     # to-do: better way than .any()
                     # str() used because sometimes bool
-                    original_sentence = str(train_df.loc[
-                        train_df['cleaned_sentence'] == sentence]['original_sentence'].any())
+                    original_sentence = str(original_train_df.loc[
+                        original_train_df['cleaned_sentence'] == sentence]['original_sentence'].any())
 
                     if len(original_sentence) > 0:
                         # # remove interview artifacts (not stopwords)
@@ -448,7 +451,7 @@ def run_classifier(doc_path, modified_train_file_path=None):
         export.process()
         model = export.model
 
-    cat_df = pd.read_csv('text/reorder_exit_themes.csv', encoding='utf-8-sig')
+    cat_df = pd.read_csv('text/reorder_exit_codes.csv', encoding='utf-8-sig')
     train_df = pd.read_csv(train_file_path, encoding='utf-8')
 
     text = get_text(doc_path).replace("’", "'")

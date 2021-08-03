@@ -1,4 +1,4 @@
-/* global document d3 screen window reclassifyBackend $*/
+/* global document d3 screen window reclassifyBackend threadStartId $*/
 
 const allTableLib = (function () {
   let themeDataDict = [];
@@ -7,6 +7,7 @@ const allTableLib = (function () {
 
   let themes = [];
 
+  //hard-coded
   const sentenceStopWordsRegex = new RegExp(/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|\d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/, 'gi');
 
   let firstLoading = true;
@@ -50,8 +51,9 @@ const allTableLib = (function () {
   };
 
 
-  const loadReclassifiedTable = function (reclassifiedData) {
+  const loadReclassifiedTable = function (reclassifiedData, callback) {
     console.log('===========================> lOADING RECLASSIFIED ALL_TABLE');
+    const startTime = new Date().getTime();
     data = reclassifiedData;
 
     firstLoading = true;
@@ -68,17 +70,14 @@ const allTableLib = (function () {
 
     // timeout needed to change loading text
     setTimeout(() => {
-      if (!d3.select('#all-table-container').select('table').empty()) {
-        d3.select('#all-table-container')
-          .select('table')
-          .remove();
-
-        d3.select('#all-table-container')
-          .select('#loading-gif')
-          .style('display', 'block');
-      }
 
       generateTable();
+
+      const endTime = new Date().getTime();
+      console.log(`AllTable (JavaScript) => ${((endTime - startTime) / 1000).toFixed(2)} seconds`);
+
+      console.log('calling callback (other threads)...');
+      callback();
     }, 1);
   };
 
@@ -394,6 +393,7 @@ const allTableLib = (function () {
       .style('z-index', maxZIndex++);
 
     d3.select(this)
+      .classed('dragging', true)
       .style('z-index', maxZIndex++);
 
     dragging = true;
@@ -426,6 +426,7 @@ const allTableLib = (function () {
       .style('z-index', maxZIndex++);
 
     d3.select(this)
+      .classed('dragging', true)
       .style('visibility', 'visible')
       .style('display', 'inline-block')
       .style('padding', '7px')
@@ -473,6 +474,7 @@ const allTableLib = (function () {
         .classed('expanded', false);
 
       d3.select(this)
+        .classed('dragging', false)
         .style('left', '0px')
         .style('top', '0px');
 
@@ -528,6 +530,9 @@ const allTableLib = (function () {
 
   const sentenceDragEnded = function (event) {
     if (dragging) {
+      d3.select(this)
+        .classed('dragging', false);
+
       d3.select('#all-table-container')
         .select('#bin-div')
         .classed('expanded', false);
@@ -644,23 +649,6 @@ const allTableLib = (function () {
               .append('div')
               .classed('td-tooltip-sentences', true);
 
-            const tooltipRect = tooltip.node().getBoundingClientRect();
-            const tableRect = d3.select('#all-table-container').select('table').node().getBoundingClientRect();
-            const tdRect = this.parentNode.parentNode.getBoundingClientRect();
-
-            tooltip
-              .style('top', `${tdRect.height}px`)
-              .style('left', () => {
-                if (tdRect.x === 0) {
-                  return '10px';
-                } else if (tdRect.x + tooltipRect.width < tableRect.width) {
-                  return '0px';
-                }
-                const cutOff = (tdRect.x + tooltipRect.width) - tableRect.width;
-                return `${-(cutOff) - 10}px`;
-              })
-              .style('z-index', maxZIndex++);
-
             d3.select('#all-table-container')
               .selectAll('th')
               .style('z-index', maxZIndex++);
@@ -723,6 +711,30 @@ const allTableLib = (function () {
                 }
                 return tooltipSentences.html();
               });
+
+            const tooltipRect = tooltip.node().getBoundingClientRect();
+            const tableRect = d3.select('#all-table-container').select('table').node().getBoundingClientRect();
+            const tdRect = this.parentNode.parentNode.getBoundingClientRect();
+
+            tooltip
+              .style('top', () => {
+                if (tdRect.y + tooltipRect.height + d3.select('#all-table-container').node().scrollTop < tableRect.height) {             // fix this
+                  return `${tdRect.height}px`;
+                }
+                const cutOff = ((tableRect.height - tdRect.y - tooltipRect.height
+                  - d3.select('#all-table-container').node().scrollTop) + 105);
+                return `${cutOff}px`;
+              })
+              .style('left', () => {
+                if (tdRect.x === 0) {
+                  return '10px';
+                } else if (tdRect.x + tooltipRect.width < tableRect.width) {
+                  return '0px';
+                }
+                const cutOff = (tdRect.x + tooltipRect.width) - tableRect.width;
+                return `${-(cutOff) - 10}px`;
+              })
+              .style('z-index', maxZIndex++);
 
             d3.select('#all-table-container')
               .selectAll('.sentence')
@@ -1114,6 +1126,24 @@ const allTableLib = (function () {
     d3.select('#all-table-container')
       .select('#re-classify-button')
       .on('click', () => {
+        if (!d3.select('#text-container').select('.row').empty()) {
+          d3.select('#text-container').select('.row').remove();
+          d3.select('#text-container').select('#loading-gif').style('display', 'block');
+        } 
+        if (!d3.select('#predict-table-container').select('table').empty()) {
+          d3.select('#predict-table-container').select('table').remove();
+          d3.select('#predict-table-container').select('#loading-gif').style('display', 'block');
+        }
+        if (!d3.select('#train-table-container').select('table').empty()) {
+          d3.select('#train-table-container').select('table').remove();
+          d3.select('#train-table-container').select('#loading-gif').style('display', 'block');
+        }
+        if (!d3.selectAll('.cm-container').empty()) {
+          d3.selectAll('.cm-container').remove();
+          d3.select('#confusion-tables-container').select('#loading-gif').style('display', 'block');
+        }
+
+
         d3.select('#all-table-container')
           .select('table').remove();
 
@@ -1137,7 +1167,9 @@ const allTableLib = (function () {
         //   .select('#loading-text')
         //   .text('Re-classifying sentences...')
         //   .style('display', 'block');
-        
+
+        threadStartId = 'all-keywords-button';
+
         if (reclassifyCount === 0) {
           reclassifyBackend.get_data(changedData, true);
         } else {

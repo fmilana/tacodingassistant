@@ -31,3 +31,4 @@ classification.txt
 analysis_stopwords.txt
 extra_stopwords.txt
 static/js/old_tablejs_file.js
+cm_data.json
