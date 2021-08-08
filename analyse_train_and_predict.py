@@ -68,8 +68,10 @@ def analyse(train_file_path=None):
                 for word in words:
                     word = word.lower()
                     if word not in more_stop_words:
+                        # for analyse.csv
                         train_word_freq_dict[theme].append(word)
                         both_word_freq_dict[theme].append(word)
+                        # for keywords.csv
                         if (word in train_keywords_dict and
                         index not in train_keywords_dict[word]):
                             train_keywords_dict[word].append(index)
@@ -84,8 +86,10 @@ def analyse(train_file_path=None):
                     for word in words:
                         word = word.lower()
                         if word not in more_stop_words:
+                            # for analyse.csv
                             predict_word_freq_dict[theme].append(word)
                             both_word_freq_dict[theme].append(word)
+                            # for keywords.csv
                             if (word in predict_keywords_dict and
                                 index not in predict_keywords_dict[word]):
                                 predict_keywords_dict[word].append(index)
@@ -148,12 +152,10 @@ def analyse(train_file_path=None):
                         row.append('')
                 writer.writerow(row)
 
-
     # create keywords csv's
     for i, dict in enumerate(keywords_dict_list):
         keywords_df = pd.DataFrame(dict.items(), columns=['word', 'sentences'])
         keywords_df.to_csv(keywords_path_list[i], index=False)
-
 
     # cm analysis
     for theme in themes_list:

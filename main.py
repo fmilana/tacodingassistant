@@ -280,6 +280,8 @@ class AllTableThread(QThread):
     def run(self):
         print('===========================> ALL TABLE THREAD STARTED')
         data = load_table_data('all-table', self.reclassified)
+        # with open('all_table_data.json', 'w') as f:
+        #     json.dump(data, f)
         self.thread_signal.emit(data)
 
 
@@ -440,6 +442,15 @@ class ConfusionTablesThread(QThread):
         self.thread_signal.emit(data)
 
 
+class LogThread(QThread):
+    data = None
+    
+    def run(self):
+        with open('app.log', 'a') as f:
+            f.write(f'{self.data}\n')
+            f.close()
+
+
 # partly based on https://stackoverflow.com/a/50610834/6872193
 class TextBackend(QObject):
     signal = Signal('QVariant')
@@ -494,7 +505,6 @@ class AllTableBackend(QObject):
         self.thread = AllTableThread(self)
         self.thread.thread_signal.connect(self.send_table)      
 
-    # TODO: Differentiate different table types (in args?)
     @Slot(bool)
     def get_table(self, reclassified):
         self.reclassified = reclassified
@@ -520,7 +530,6 @@ class PredictTableBackend(QObject):
         self.thread = PredictTableThread(self)
         self.thread.thread_signal.connect(self.send_table)      
 
-    # TODO: Differentiate different table types (in args?)
     @Slot(bool)
     def get_table(self, reclassified):
         self.reclassified = reclassified
@@ -546,7 +555,6 @@ class TrainTableBackend(QObject):
         self.thread = TrainTableThread(self)
         self.thread.thread_signal.connect(self.send_table)      
 
-    # TODO: Differentiate different table types (in args?)
     @Slot(bool)
     def get_table(self, reclassified):
         self.reclassified = reclassified
@@ -605,6 +613,18 @@ class ConfusionTablesBackend(QObject):
         print(f'Confusion Tables (Python) => {round(end-self.start, 2)} seconds')
         self.signal.emit(data)
 
+
+class LogBackend(QObject):
+    
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+        self.thread = LogThread(self)
+
+    @Slot(str)
+    def log(self, data):
+        self.thread.data = data
+        self.thread.start()
+
     
 class WebView(QWebEngineView):
     def __init__(self, parent=None):
@@ -628,6 +648,7 @@ class AppWindow(QMainWindow):
         self.train_table_backend = TrainTableBackend(self.view)
         self.reclassify_backend = ReclassifyBackend(self.view)
         self.confusion_tables_backend = ConfusionTablesBackend(self.view)
+        self.log_backend = LogBackend(self.view)
         channel = QWebChannel(self)
         self.page.setWebChannel(channel)
         channel.registerObject('textBackend', self.text_backend)
@@ -637,6 +658,7 @@ class AppWindow(QMainWindow):
         channel.registerObject('trainTableBackend', self.train_table_backend)
         channel.registerObject('reclassifyBackend', self.reclassify_backend)
         channel.registerObject('confusionTablesBackend', self.confusion_tables_backend)
+        channel.registerObject('logBackend', self.log_backend)
         self.view.load(QUrl.fromLocalFile(QDir.current().filePath('templates/main.html')))
         self.setCentralWidget(self.view)
 

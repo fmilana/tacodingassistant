@@ -57,6 +57,11 @@ app.get('/get_cm_json', (req, res) => {
   res.json(data);
 });
 
+app.get('/get_all_table_json', (req, res) => {
+  const data = JSON.parse(fs.readFileSync('all_table_data.json'));
+  res.json(data);
+});
+
 app.get(new RegExp(/^\/.*_matrix.html$/), (req, res) => {
   const themeName = req.url.match(/^\/(.*?)_matrix.html$/)[1];
   if (themesNames.map(name => name.replace(/ /g, '_')).includes(themeName)) {

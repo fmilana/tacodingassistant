@@ -1,4 +1,4 @@
-/* global d3 window qt QWebChannel textLib codesTableLib trainTableLib predictTableLib allTableLib confusionTablesLib */
+/* global d3 window qt QWebChannel importLib textLib codesTableLib trainTableLib predictTableLib allTableLib confusionTablesLib */
 
 // hard-coded
 const themes = [
@@ -25,6 +25,7 @@ let predictTableBackend;
 let trainTableBackend;
 let reclassifyBackend;
 let confusionTablesBackend;
+let logBackend;
 
 let threadStartId = 'text-button'; // which page started threads
 let tabId = 'text-button';
@@ -137,6 +138,8 @@ const onConfusionTablesData = function (data) {
 
 
 d3.select(window).on('load', () => {  
+  importLib.setupImportPage();
+
   for (let i = 0; i < themes.length; i++) {
     tabToContainerDict[`${themes[i].replace(/ /g, '-')}-cm-button`] = `${themes[i].replace(/ /g, '-')}-table-container`;
   }
@@ -172,6 +175,8 @@ d3.select(window).on('load', () => {
         d3.select(`#${tabToContainerDict[tabId]}`)
           .style('display', 'block');
 
+        logBackend.log(`[${new Date().getTime()}]: switched to ${tabId}`);
+
         currentTabId = tabId;
       }
     });
@@ -187,6 +192,7 @@ d3.select(window).on('load', () => {
         trainTableBackend = channel.objects.trainTableBackend;
         reclassifyBackend = channel.objects.reclassifyBackend;
         confusionTablesBackend = channel.objects.confusionTablesBackend;
+        logBackend = channel.objects.logBackend;
         // connect signals from the external object to callback functions
         textBackend.signal.connect(onTextData);
         codesTableBackend.signal.connect(onCodesTableData);
@@ -196,15 +202,16 @@ d3.select(window).on('load', () => {
         reclassifyBackend.signal.connect(onReclassified);
         confusionTablesBackend.signal.connect(onConfusionTablesData);
         // call functions on the external objects
-        textBackend.get_text(false); // false-> not reclassified data
+        // textBackend.get_text(false); // false-> not reclassified data
+        logBackend.log(`[${new Date().getTime()}]: app launched`);
       });
     }
   } catch (error) {
     console.log('something went wrong when setting up the Qt connection');
     console.log(error);
-    fetch('/get_cm_json')
-      .then((res) => res.json().then((data) => {
-        onConfusionTablesData(data);
-      }));
+    // fetch('/get_cm_json')
+    //   .then((res) => res.json().then((data) => {
+    //     onConfusionTablesData(data);
+    //   }));
   }
 });

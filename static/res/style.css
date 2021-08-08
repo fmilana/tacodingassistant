@@ -1,5 +1,102 @@
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#import-container {
+  width: 100%;
+  height: 96vh;
+  text-align: center;
+  position: relative;
+}
+
+#import-title {
+  font-size: 50px;
+  padding-top: 30px;
+  font-weight: normal;
+}
+
+#import-row {
+  margin: auto;
+  width: 80%;
+  height: 40%;
+}
+
+#codes-col {
+  margin-top: auto;
+  margin-bottom: 90px;
+}
+
+#transcript-col {
+  margin-top: auto;
+  margin-bottom: 90px;
+}
+
+#theme-code-col {
+  margin-top: auto;
+  margin-bottom: 130px;
+}
+
+.inner-import-container {
+  text-align: left;
+}
+
+#transcript-inner {
+  text-align: left;
+  display: inline-block;
+  margin: 0 0 0 auto;
+}
+
+#codes-inner {
+  text-align: left;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+#theme-code-inner {
+  text-align: left;
+  margin: 0 auto;
+}
+
+#transcript-chooser {
+  display: block;
+  margin-bottom: 10px;
+}
+
+#codes-chooser {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.import-label {
+  font-size: 25px;
+}
+
+#transcript-checkbox-label {
+  font-size: 20px;
+}
+
+#codes-checkbox-label {
+  font-size: 20px;
+}
+
+#filter-textarea {
+  height: 200px;
+  width: 500px;
+  resize: none;
+}
+
+#finish-import-button {
+  position: absolute;
+  right: 50px;
+  bottom: 50px;
+  height: 45px;
+  width: 90px;
+}
+
 /* Navbar:  https://www.w3schools.com/howto/howto_css_dropdown_navbar.asp */
 .navbar-top {
+  display: none;
   position: fixed;
   top: 0;
   width: 100%;
@@ -99,6 +196,7 @@ h1 {
 }
 
 #text-container {
+  display: none;
   position: fixed;
   width: 100%;
   top: 50px;

@@ -1,4 +1,4 @@
-/* global document fetch d3 screen window $*/
+/* global document fetch d3 screen window logBackend $*/
 
 const confusionTablesLib = (function () {
   let themes = [];
@@ -83,7 +83,8 @@ const confusionTablesLib = (function () {
       const rows = tbody.selectAll('tr')
         .data(tableData)
         .enter()
-        .append('tr');
+        .append('tr')
+        .attr('position', (row) => tableData.indexOf(row));
 
       // cells
       rows.selectAll('td')
@@ -91,6 +92,7 @@ const confusionTablesLib = (function () {
         .enter()
         .append('td')
         .style('position', 'relative')
+        .attr('column', (d) => d.title)
         .append('div')
         .classed('td-div', true)
         .style('top', '0px')
@@ -171,6 +173,8 @@ const confusionTablesLib = (function () {
 
         d3.select(this)
           .on('click', function () {
+            const columnName = d3.select(this.parentNode.parentNode).attr('column').replace(/ \(\d+\)$/, '');
+            logBackend.log(`[${new Date().getTime()}]: keyword "${d3.select(this).text()}" (${columnName}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
             // remove other tooltips and change font to normal
             tableContainer
               .selectAll('.td-tooltip')
@@ -195,6 +199,7 @@ const confusionTablesLib = (function () {
               .attr('src', '../static/res/close.svg')
               .classed('close-icon', true)
               .on('click', function () {
+                logBackend.log(`[${new Date().getTime()}]: tooltip closed`);
                 d3.select(this.parentNode.parentNode.parentNode)
                   .select('.td-text')
                   .classed('td-clicked', false);

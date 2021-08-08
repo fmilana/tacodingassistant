@@ -1,4 +1,4 @@
-/* global document d3 screen window reclassifyBackend threadStartId $*/
+/* global document d3 screen window reclassifyBackend threadStartId logBackend $*/
 
 const allTableLib = (function () {
   let themeDataDict = [];
@@ -70,7 +70,6 @@ const allTableLib = (function () {
 
     // timeout needed to change loading text
     setTimeout(() => {
-
       generateTable();
 
       const endTime = new Date().getTime();
@@ -188,7 +187,8 @@ const allTableLib = (function () {
     const rows = tbody.selectAll('tr')
       .data(data)
       .enter()
-      .append('tr');
+      .append('tr')
+      .attr('position', (row) => data.indexOf(row));
 
     // cells
     rows.selectAll('td')
@@ -516,7 +516,7 @@ const allTableLib = (function () {
         //   .select('#loading-text')
         //   .text('Updating table...')
         //   .style('display', 'block');
-
+        logBackend.log(`[${new Date().getTime()}]: keyword "${movingText}" (${movingColumn}) at position ${d3.select(this.parentNode.parentNode).attr('position')} moved to "${targetColumn}"`);
         // setTimeout to avoid freezing
         setTimeout(() => {
           updateData(movingText, movingSentences, movingColumn, targetColumn);
@@ -581,14 +581,19 @@ const allTableLib = (function () {
         //   .text('Updating table...')
         //   .style('display', 'block');
 
+        let logString = '';
+
         if (sentenceType === 'trainSentence') {
           movingSentences.trainSentences = [movingSentence];
           movingSentences.predictSentences = [];
+          logString = 'train';
         } else if (sentenceType === 'predictSentence') {
           movingSentences.trainSentences = [];
           movingSentences.predictSentences = [movingSentence];
+          logString = 'predict';
         }
 
+        logBackend.log(`[${new Date().getTime()}]: ${logString} sentence moved to "${targetColumn}"`);
         // setTimeout to avoid freezing
         setTimeout(() => {
           updateData(null, movingSentences, movingColumn, targetColumn);
@@ -608,10 +613,11 @@ const allTableLib = (function () {
     d3.select('#all-table-container')
       .selectAll('.td-with-sentences')
       .each(function () {
-        const word = d3.select(this).text().replace(/ \(\d+\)/, '');
+        const word = d3.select(this).text().replace(/ \(\d+\)$/, '');
 
         d3.select(this)
           .on('click', function () {
+            logBackend.log(`[${new Date().getTime()}]: keyword "${d3.select(this).text()}" (${d3.select(this).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
             // remove other tooltips and change font to normal
             d3.select('#all-table-container')
               .selectAll('.td-tooltip')
@@ -636,6 +642,7 @@ const allTableLib = (function () {
               .attr('src', '../static/res/close.svg')
               .classed('close-icon', true)
               .on('click', function () {
+                logBackend.log(`[${new Date().getTime()}]: tooltip closed`);
                 d3.select(this.parentNode.parentNode.parentNode)
                   .select('.td-text')
                   .classed('td-clicked', false);
@@ -1126,6 +1133,8 @@ const allTableLib = (function () {
     d3.select('#all-table-container')
       .select('#re-classify-button')
       .on('click', () => {
+        logBackend.log(`[${new Date().getTime()}]: reclassify`);
+
         if (!d3.select('#text-container').select('.row').empty()) {
           d3.select('#text-container').select('.row').remove();
           d3.select('#text-container').select('#loading-gif').style('display', 'block');

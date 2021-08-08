@@ -5,6 +5,7 @@
     <script type="text/javascript" src="../static/js/lib/qwebchannel.js"></script>
     <script type="text/javascript" src="../static/js/lib/d3.js"></script>
     <script type="text/javascript" src="../static/js/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/import.js"></script>
     <script type="text/javascript" src="../static/js/main.js"></script>
     <script type="text/javascript" src="../static/js/text.js"></script>
     <script type="text/javascript" src="../static/js/codes.js"></script>
@@ -45,6 +46,42 @@
         </div>
       </div>
     </div>
+    <!-- import page -->
+    <div id="import-container">
+      <h1 id="import-title">Thematic Analysis Coding Assistant</h1>
+      <div id="import-row" class="row">
+        <div id="transcript-col" class="col">
+          <div id="transcript-inner">
+            <p class="import-label">Import your transcript:</p>
+            <input id="transcript-chooser" type="file" class="chooser" accept=".docx">
+            <input id="transcript-checkbox" type="checkbox">
+            <label id="transcript-checkbox-label" class="checkbox-inline" for="transcript-checkbox">Document contains codes</label>
+          </div>
+        </div>
+        <div id="codes-col" class="col">
+          <div id="codes-inner">
+            <p id="codes-label" class="import-label">Select codes folder:</p>
+            <input id="codes-chooser" type="file" class="chooser" webkitdirectory directory multiple>
+            <input id="codes-checkbox" type="checkbox">
+            <label id="codes-checkbox-label" class="checkbox-inline" for="codes-checkbox">Codes are hierarchical</label>
+          </div>
+        </div>
+        <div id="theme-code-col" class="col">
+          <div id="theme-code-inner">
+            <p id="theme-code-label" class="import-label">Import theme-code table:</p>
+            <input id="theme-code-chooser" type="file" class="chooser" accept=".csv">
+          </div>
+        </div>
+      </div>
+      <div id="filter-row" class="row">
+        <div id="filter-inner" class="inner-filter-container">
+          <p class="import-label">Enter comma-separated keywords to ignore:</p>
+          <textarea id="filter-textarea" placeholder="Interviewer 1,Participant A,[unclear],etc..."></textarea>
+        </div>
+      </div>
+      <button id="finish-import-button">Done</button>
+    </div>
+    <!--  -->
     <div id="text-container">
       <img id="loading-gif" src="../static/res/loading.gif">
     </div>

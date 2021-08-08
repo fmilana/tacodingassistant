@@ -1,4 +1,4 @@
-/* global document fetch d3 screen window $*/
+/* global document fetch d3 screen window logBackend $*/
 
 const codesTableLib = (function () {
   let data;
@@ -54,7 +54,8 @@ const codesTableLib = (function () {
     const rows = tbody.selectAll('tr')
       .data(data)
       .enter()
-      .append('tr');
+      .append('tr')
+      .attr('position', (row) => data.indexOf(row));
 
     // cells
     rows.selectAll('td')
@@ -69,6 +70,7 @@ const codesTableLib = (function () {
       .enter()
       .append('td')
       .style('position', 'relative')
+      .attr('column', (d) => d.theme)
       .append('div')
       .classed('td-div', true)
       .style('top', '0px')
@@ -144,6 +146,8 @@ const codesTableLib = (function () {
       .each(function () {
         d3.select(this)
           .on('click', function () {
+            logBackend.log(`[${new Date().getTime()}]: code "${d3.select(this).text()}" (${d3.select(this.parentNode.parentNode).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+
             // remove other tooltips and change font to normal
             d3.select('#codes-table-container')
               .selectAll('.td-tooltip')
@@ -168,6 +172,8 @@ const codesTableLib = (function () {
               .attr('src', '../static/res/close.svg')
               .classed('close-icon', true)
               .on('click', function () {
+                logBackend.log(`[${new Date().getTime()}]: tooltip closed`);
+
                 d3.select(this.parentNode.parentNode.parentNode)
                   .select('.td-text')
                   .classed('td-clicked', false);
