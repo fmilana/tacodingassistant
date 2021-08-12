@@ -3,10 +3,10 @@ import re
 import docx
 import json
 import pandas as pd
-from PySide2.QtCore import QDir, QObject, QThread, QUrl, Signal, Slot
+from PySide2.QtCore import QDir, QJsonValue, QObject, QThread, QUrl, Signal, Slot
 from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
-from PySide2.QtWidgets import QApplication, QMainWindow
+from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
 from classify_docx import run_classifier
 from analyse_train_and_predict import analyse
 
@@ -23,6 +23,8 @@ themes = [
     'system perception',
     'value judgements'
 ]
+
+regexp = ''
 
 first_reclassify = True
 
@@ -384,7 +386,7 @@ class ReclassifyThread(QThread):
         train_df.to_csv(new_train_path, index=False)
 
         print('running run_classifier...')
-        run_classifier(doc_path, new_train_path)
+        run_classifier(doc_path, regexp, new_train_path)
         print('done!')
 
         print('running analyse...')
@@ -449,6 +451,46 @@ class LogThread(QThread):
         with open('app.log', 'a') as f:
             f.write(f'{self.data}\n')
             f.close()
+
+
+# class WriteFileThread(QThread):
+#     file = None
+
+#     def run(self):
+#         print('inside writefilethread')
+#         print(f'type(self.file) = {type(self.file)}')
+#         print(self.file)
+
+
+class ImportThread(QThread):
+    thread_signal = Signal('QVariant')
+    input_regexp = None
+    regular_expression = None
+    case_insensitive = None
+
+    def run(self):
+        global regexp
+
+        if self.regular_expression:
+            if self.case_insensitive and not self.input_regexp.strip().startswith('(?i)'):
+                regexp = '(?i)' + self.input_regexp
+            else:
+                regexp = self.input_regexp
+        else:
+            if self.case_insensitive:
+                regexp = '(?i)(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
+            else:
+                regexp = '(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
+        try: 
+            re.compile(regexp)
+            valid = True
+        except re.error:
+            valid = False
+
+        print(f'saved regexp =================================> {regexp}')
+        
+        self.thread_signal.emit([regexp, valid])
+
 
 
 # partly based on https://stackoverflow.com/a/50610834/6872193
@@ -615,7 +657,6 @@ class ConfusionTablesBackend(QObject):
 
 
 class LogBackend(QObject):
-    
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
         self.thread = LogThread(self)
@@ -625,6 +666,62 @@ class LogBackend(QObject):
         self.thread.data = data
         self.thread.start()
 
+
+# class WriteFileBackend(QObject):
+#     def __init__(self, parent=None):
+#         QObject.__init__(self, parent)
+#         self.thread = WriteFileThread(self)
+
+#     @Slot(QJsonValue) #slot type?
+#     def write_file(self, file):
+#         self.thread.file = file
+#         self.thread.start()
+
+
+class ImportBackend(QObject):
+    signal = Signal('QVariant')
+
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent)
+        self.thread = ImportThread(self)
+        self.thread.thread_signal.connect(self.send_data)
+
+    @Slot(str, bool, bool)
+    def save_regexp(self, input_regexp, regular_expression, case_insensitive):
+        print(f'inside save_regexp with input_regexp = {input_regexp}, regular_expression = {regular_expression}, case_insensitive = {case_insensitive}')
+
+        self.thread.input_regexp = input_regexp
+        self.thread.regular_expression = regular_expression
+        self.thread.case_insensitive = case_insensitive
+        self.thread.start()
+
+    @Slot(str)
+    def send_data(self, data):
+        self.signal.emit(data)
+
+
+class FileChooserBackend(QObject):    
+    signal = Signal('QVariant')
+
+    def __init__(self, parent=None, main_window=None):
+        QObject.__init__(self, parent)
+        self._main_window = main_window
+        
+    @Slot()
+    def open_transcript_chooser(self):                
+        path_to_file, _ = QFileDialog.getOpenFileName(self._main_window, self.tr('Import Document'), self.tr('~/Desktop/'), self.tr('Document (*.docx)'))
+        self.signal.emit(['transcript', path_to_file])
+
+    @Slot()
+    def open_codes_chooser(self):
+        path_to_folder = QFileDialog.getExistingDirectory(self._main_window, self.tr('Choose Directory'), self.tr('~/Desktop/'), QFileDialog.ShowDirsOnly)
+        self.signal.emit(['codes', path_to_folder])
+
+    @Slot()
+    def open_theme_code_table_chooser(self):
+        path_to_file, _ = QFileDialog.getOpenFileName(self._main_window, self.tr('Import Table'), self.tr('~/Desktop/'), self.tr('Table (*.csv)'))
+        self.signal.emit(['codeThemeTable', path_to_file])
+        
     
 class WebView(QWebEngineView):
     def __init__(self, parent=None):
@@ -649,6 +746,10 @@ class AppWindow(QMainWindow):
         self.reclassify_backend = ReclassifyBackend(self.view)
         self.confusion_tables_backend = ConfusionTablesBackend(self.view)
         self.log_backend = LogBackend(self.view)
+        self.import_backend = ImportBackend(self.view)
+        self.file_chooser_backend = FileChooserBackend(self.view, self)
+        # self.file_chooser_backend = FileChooserBackend(super())
+        # self.write_file_backend = WriteFileBackend(self.view)
         channel = QWebChannel(self)
         self.page.setWebChannel(channel)
         channel.registerObject('textBackend', self.text_backend)
@@ -659,6 +760,9 @@ class AppWindow(QMainWindow):
         channel.registerObject('reclassifyBackend', self.reclassify_backend)
         channel.registerObject('confusionTablesBackend', self.confusion_tables_backend)
         channel.registerObject('logBackend', self.log_backend)
+        # channel.registerObject('writeFileBackend', self.write_file_backend)
+        channel.registerObject('importBackend', self.import_backend)
+        channel.registerObject('fileChooserBackend', self.file_chooser_backend)
         self.view.load(QUrl.fromLocalFile(QDir.current().filePath('templates/main.html')))
         self.setCentralWidget(self.view)
 

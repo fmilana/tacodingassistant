@@ -72,11 +72,7 @@ body {
   font-size: 25px;
 }
 
-#transcript-checkbox-label {
-  font-size: 20px;
-}
-
-#codes-checkbox-label {
+.checkbox-inline {
   font-size: 20px;
 }
 
@@ -84,6 +80,18 @@ body {
   height: 200px;
   width: 500px;
   resize: none;
+}
+
+#filter-checkbox-div {
+  display: block;
+}
+
+#regexp-label {
+  margin-right: 25px;
+}
+
+#case-insensitive-checkbox {
+  margin-left: 25px;
 }
 
 #finish-import-button {

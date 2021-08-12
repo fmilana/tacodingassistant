@@ -26,10 +26,62 @@ let trainTableBackend;
 let reclassifyBackend;
 let confusionTablesBackend;
 let logBackend;
+// eslint-disable-next-line no-unused-vars
+// let writeFileBackend;
+// eslint-disable-next-line no-unused-vars
+let importBackend;
+// eslint-disable-next-line no-unused-vars
+let fileChooserBackend;
 
+// eslint-disable-next-line prefer-const
 let threadStartId = 'text-button'; // which page started threads
 let tabId = 'text-button';
 let currentTabId = 'text-button';
+
+// eslint-disable-next-line no-unused-vars
+let regexp = null;
+
+let transcriptPath = null;
+let codesPath = null;
+let themeCodeTablePath = null;
+
+
+const onImportData = function (data) {
+  regexp = new RegExp(data[0].replace(/^\(\?i\)/, ''), 'gi');
+  const valid = data[1];
+
+  if (valid) {
+    // run scripts on imported files
+    // + add themes to navbar (cm's)
+    d3.select('#import-container')
+      .remove();
+
+    d3.select('.navbar-top')
+      .style('display', 'block');
+
+    d3.select('#text-container')
+      .style('display', 'block');
+
+    textBackend.get_text(false);
+  } else {
+    // error message
+    alert('Please check your filtered keywords or regular expression');
+    logBackend.log(`[${new Date().getTime()}]: import error`);
+  }
+};
+
+
+const onPath = function (data) {
+  console.log(data);
+
+  if (data[0] === 'transcript') {
+    transcriptPath = data[1];
+  } else if (data[0] === 'codes') {
+    codesPath = data[1];
+  } else {
+    themeCodeTablePath = data[1];
+  }
+};
 
 
 const onTextData = function (data) {
@@ -43,6 +95,7 @@ const onTextData = function (data) {
     } 
   });
 };
+
 
 const onCodesTableData = function (data) {
   codesTableLib.loadTable(data);
@@ -193,6 +246,9 @@ d3.select(window).on('load', () => {
         reclassifyBackend = channel.objects.reclassifyBackend;
         confusionTablesBackend = channel.objects.confusionTablesBackend;
         logBackend = channel.objects.logBackend;
+        // writeFileBackend = channel.objects.writeFileBackend;
+        importBackend = channel.objects.importBackend;
+        fileChooserBackend = channel.objects.fileChooserBackend;
         // connect signals from the external object to callback functions
         textBackend.signal.connect(onTextData);
         codesTableBackend.signal.connect(onCodesTableData);
@@ -201,6 +257,8 @@ d3.select(window).on('load', () => {
         trainTableBackend.signal.connect(onTrainTableData);
         reclassifyBackend.signal.connect(onReclassified);
         confusionTablesBackend.signal.connect(onConfusionTablesData);
+        importBackend.signal.connect(onImportData);
+        fileChooserBackend.signal.connect(onPath);
         // call functions on the external objects
         // textBackend.get_text(false); // false-> not reclassified data
         logBackend.log(`[${new Date().getTime()}]: app launched`);

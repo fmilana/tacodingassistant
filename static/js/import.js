@@ -1,23 +1,34 @@
-/* global d3 document $ textBackend logBackend */
+/* global d3 document $ textBackend logBackend writeFileBackend importBackend fileChooserBackend */
 // eslint-disable-next-line no-unused-vars
 const importLib = (function () {
   const setupImportPage = function () {
     let transcriptCheckboxValue = false;
     let codesCheckboxValue = false;
 
-    // d3.select('#transcript-chooser')
-    //   .on('change', () => {
-    //     console.log('change!!');
-    //     console.log(JSON.stringify(this));
-    //     console.log(`this.files = ${this.files}`);
-    //     console.log(`this.files[0] = ${this.files[0]}`);
-    //   });
+    let transcriptFile = null;
 
-    document.getElementById('transcript-chooser')
-      .addEventListener('change', () => {
-        const file = $('#transcript-chooser')[0].files[0];
-        // continue
-      }, false);
+    // document.getElementById('transcript-chooser')
+    //   .addEventListener('change', () => {
+    //     const file = $('#transcript-chooser')[0].files[0];
+    //     // writeFileBackend.write_file(file);
+    //     transcriptFile = file;
+    //     // continue
+    //   }, false);
+
+    d3.select('#transcript-chooser')
+      .on('click', () => {
+        fileChooserBackend.open_transcript_chooser();
+      });
+
+    d3.select('#codes-chooser')
+      .on('click', () => {
+        fileChooserBackend.open_codes_chooser();
+      });
+
+    d3.select('#theme-code-chooser')
+      .on('click', () => {
+        fileChooserBackend.open_theme_code_table_chooser();
+      });
 
     d3.select('#transcript-checkbox')
       .on('click', () => {
@@ -34,9 +45,9 @@ const importLib = (function () {
 
           if (codesCheckboxValue) {
             d3.select('#theme-code-label')
-            .style('color', '#000000');
+              .style('color', '#000000');
             d3.select('#theme-code-chooser')
-              .attr('disabled', null);
+              .property('disabled', false);
           }
         } else {
           d3.select('#codes-label')
@@ -64,12 +75,12 @@ const importLib = (function () {
           d3.select('#theme-code-label')
             .style('color', '#BFBFBF');
           d3.select('#theme-code-chooser')
-            .property('disabled', true);
+              .property('disabled', true);
         } else {
           d3.select('#theme-code-label')
             .style('color', '#000000');
           d3.select('#theme-code-chooser')
-            .attr('disabled', null);
+            .property('disabled', false);
         }
       });
 
@@ -84,29 +95,27 @@ const importLib = (function () {
         let logData = '';
 
         if (transcriptCheckboxValue) {
-          logData = `[${new Date().getTime()}]: import page closed with document containing codes`;
+          logData = `[${new Date().getTime()}]: import document containing codes`;
         } else if (codesCheckboxValue) {
-          logData = `[${new Date().getTime()}]: import page closed with hierarchical codes documents`;
+          logData = `[${new Date().getTime()}]: import hierarchical codes documents`;
         } else {
-          logData = `[${new Date().getTime()}]: import page closed with codes documents and a theme-code table`;
+          logData = `[${new Date().getTime()}]: import codes documents and a theme-code table`;
         }
 
-        logData += `. Filtered keywords: "${$('#filter-textarea').val()}"`;
+        const filterKeywords = $('#filter-textarea').val();
+        const regularExpression = $('#regexp-checkbox').is(':checked');
+        const caseInsensitive = $('#case-insensitive-checkbox').is(':checked');
+
+        logData += `. Filtered keywords: "${filterKeywords}"`;
 
         logBackend.log(logData);
 
-        // run scripts on imported files
-        // + add themes to navbar (cm's)
-        d3.select('#import-container')
-          .remove();
+        // console.log(`typeof transcriptFile = ${transcriptFile}`);
+        // console.log(`filename = ${transcriptFile.name}`);
 
-        d3.select('.navbar-top')
-          .style('display', 'block');
+        // writeFileBackend.write_file(transcriptFile);
 
-        d3.select('#text-container')
-          .style('display', 'block');
-
-        textBackend.get_text(false);
+        importBackend.save_regexp(filterKeywords, regularExpression, caseInsensitive);
       });
   };
 

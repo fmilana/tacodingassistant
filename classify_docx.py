@@ -22,6 +22,8 @@ from xgboost import XGBClassifier
 from export_docx_themes_with_embeddings import Export
 
 
+regexp = None
+
 train_file_path = None
 predict_file_path = None
 
@@ -29,9 +31,6 @@ cat_df = None
 original_train_df = None # save train_df copy here before test split and oversampling
 train_df = None
 moved_predict_df = None
-
-interviewer_regex = r'''/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|
-    \d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/'''
 
 
 def get_sample_weights(Y_train):
@@ -429,12 +428,16 @@ def get_text(file_path):
     return '\n'.join(full_text)
 
 
-def run_classifier(doc_path, modified_train_file_path=None):
+def run_classifier(doc_path, interviewer_regexp, modified_train_file_path=None):
+    global regexp
     global train_file_path
     global predict_file_path
     global cat_df
     global train_df
     global moved_predict_df
+
+    global regexp
+    regexp = interviewer_regexp
 
     print('inside script.')
     start_script = datetime.now()
@@ -448,7 +451,7 @@ def run_classifier(doc_path, modified_train_file_path=None):
         predict_file_path = doc_path.replace('.docx', '_predict.csv')
 
         export = Export(doc_path)
-        export.process()
+        export.process(regexp)
         model = export.model
 
     cat_df = pd.read_csv('text/reorder_exit_codes.csv', encoding='utf-8-sig')
@@ -480,7 +483,7 @@ def run_classifier(doc_path, modified_train_file_path=None):
         for sentence in all_original_sentences:
             if (sentence not in train_moved_sentences and
                 sentence not in train_original_sentences and
-                re.sub(interviewer_regex, '', sentence, flags=re.IGNORECASE)
+                re.sub(regexp, '', sentence, flags=re.IGNORECASE)
                 .strip() not in train_original_sentences and
                 sentence[:-1] not in train_original_sentences): # to-do: better way
                 uncoded_original_sentences.append(sentence)     # to check for "."
@@ -500,7 +503,7 @@ def run_classifier(doc_path, modified_train_file_path=None):
                         sentence_embedding = dict[sentence][1]
                     except KeyError:
                         cleaned_sentence = remove_stop_words(
-                            clean_sentence(sentence))
+                            clean_sentence(sentence, regexp))
                         sentence_embedding = model.get_vector(cleaned_sentence)
 
                     writer.writerow([sentence, cleaned_sentence,
@@ -512,7 +515,7 @@ def run_classifier(doc_path, modified_train_file_path=None):
                         sentence_embedding]
         else:
             for sentence in uncoded_original_sentences:
-                cleaned_sentence = remove_stop_words(clean_sentence(sentence))
+                cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
                 sentence_embedding = model.get_vector(cleaned_sentence)
 
                 writer.writerow([sentence, cleaned_sentence, sentence_embedding])

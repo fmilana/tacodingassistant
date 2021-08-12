@@ -1,4 +1,3 @@
-import sys
 import os
 import zipfile
 import numpy as np
@@ -9,9 +8,8 @@ from nltk import sent_tokenize
 from preprocess import clean_sentence, remove_stop_words
 
 
-if len(sys.argv) == 2:
+def import_codes(dir_path, regexp):
     model = Sentence2Vec()
-    dir_path = sys.argv[1]
     cat_df = pd.read_csv('text/reorder_exit_themes.csv', encoding='utf-8-sig')
 
     header = [
@@ -43,7 +41,7 @@ if len(sys.argv) == 2:
                         and paragraph.find('w:t')):
                             node = paragraph.find('w:t').get_text() 
                             for sentence in sent_tokenize(node):
-                                cleaned_sentence = remove_stop_words(clean_sentence(sentence))
+                                cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
                             
                                 if train_df['original_sentence'].eq(sentence).any():
                                     matching_index = train_df.index[
@@ -92,8 +90,3 @@ if len(sys.argv) == 2:
         train_df.to_csv('text/reorder_exit_nvivo_train.csv', index=False)
     else:
         print('wrong folder path')
-
-elif len(sys.argv) == 1:
-    print('missing folder path argument')
-else:
-    print('too many arguments')

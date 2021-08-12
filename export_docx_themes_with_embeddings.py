@@ -53,7 +53,7 @@ class Export():
         return self.transverse(first_row, end, text + '\n')
 
 
-    def process(self):
+    def process(self, regexp):
         self.model = Sentence2Vec()
         print(f'extracting comments from {self.doc_path}...')
         start = datetime.now()
@@ -102,7 +102,7 @@ class Export():
                 for sentence in sent_tokenize(text):
                     cleaned_sentence = remove_stop_words(
                         # remove_stop_words(remove_interview_format(sentence)))
-                        clean_sentence(sentence))
+                        clean_sentence(sentence, regexp))
                     sentence_to_cleaned_dict[sentence] = [cleaned_sentence,
                         self.model.get_vector(cleaned_sentence)]
 

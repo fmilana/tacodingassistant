@@ -1,9 +1,7 @@
-/* global document fetch d3 screen window logBackend $*/
+/* global document fetch d3 screen window regexp logBackend $*/
 
 const confusionTablesLib = (function () {
   let themes = [];
-
-  const sentenceStopWordsRegex = new RegExp(/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|\d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/, 'gi');
 
   let data;
 

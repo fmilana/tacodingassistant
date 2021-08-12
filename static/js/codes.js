@@ -1,11 +1,8 @@
-/* global document fetch d3 screen window logBackend $*/
+/* global document fetch d3 screen window regexp logBackend $*/
 
 const codesTableLib = (function () {
   let data;
   let maxZIndex = 1;
-
-  // hard-coded
-  const sentenceStopWordsRegex = new RegExp(/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|\d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/, 'gi');
 
 
   const loadTable = function (tableData) {
@@ -225,7 +222,7 @@ const codesTableLib = (function () {
                     const filteredSentence = sentences[i]
                       .replace(/\\t/g, '\t')
                       .replace(/\\n/g, '\n')
-                      .replace(sentenceStopWordsRegex, '')
+                      .replace(regexp, '')
                       .replace(/�/g, ' ')
                       .trim();
                     sentences[i] = `<div style="background-color: #f2f2f2">${filteredSentence}</div>`;

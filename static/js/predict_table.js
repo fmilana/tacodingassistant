@@ -1,4 +1,4 @@
-/* global document d3 screen window reclassifyBackend threadStartId logBackend $*/
+/* global document d3 screen window regexp reclassifyBackend threadStartId logBackend $*/
 
 const predictTableLib = (function () {
   let themeDataDict = [];
@@ -6,8 +6,6 @@ const predictTableLib = (function () {
   let oldThemeDataDictSaved = false;
 
   let themes = [];
-
-  const sentenceStopWordsRegex = new RegExp(/\b(iv|p|a)\d+\s+|p\d+_*\w*\s+|\biv\b|\d{2}:\d{2}:\d{2}|speaker key:|interviewer \d*|participant \w*/, 'gi');
 
   let firstLoading = true;
   let reclassifyCount = 0;
@@ -664,7 +662,7 @@ const predictTableLib = (function () {
                     predictSentences[i] = predictSentences[i]
                       .replace(/\\t/g, '\t')
                       .replace(/\\n/g, '\n')
-                      .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                      .replace(regexp, '') // remove interviewer keywords
                       // to-do: encoding
                       .replace(/�/g, ' ')
                       .trim();
@@ -792,7 +790,7 @@ const predictTableLib = (function () {
 
               for (let j = 0; j < movingColumnData[i][1].length; j++) {
                 const sentence = movingColumnData[i][1][j]
-                  .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                  .replace(regexp, '') // remove interviewer keywords
                   // to-do: encoding
                   .replace(/�/g, ' ')
                   .replace(/\t/g, '    ')
