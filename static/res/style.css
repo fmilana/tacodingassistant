@@ -3,6 +3,101 @@ body {
   padding: 0 !important;
 }
 
+/* import step progress bar */
+
+#import-step-progress-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 850px;
+}
+
+.stepper-wrapper {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.stepper-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  color: #4A4A4A;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
+}
+
+.stepper-item::before {
+  position: absolute;
+  content: "";
+  border-bottom: 2px solid #ccc;
+  width: 100%;
+  top: 20px;
+  left: -50%;
+  z-index: 2;
+}
+
+.stepper-item::after {
+  position: absolute;
+  content: "";
+  border-bottom: 2px solid #ccc;
+  width: 100%;
+  top: 20px;
+  left: 50%;
+  z-index: 2;
+}
+
+.stepper-item .step-counter {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ccc;
+  margin-bottom: 6px;
+}
+
+.stepper-item.active {
+  font-weight: bold;
+}
+
+.stepper-item.completed .step-counter {
+  background-color: #4A4A4A;
+  color: white;
+}
+
+.stepper-item.completed::after {
+  position: absolute;
+  content: "";
+  border-bottom: 2px solid #4A4A4A;
+  width: 100%;
+  top: 20px;
+  left: 50%;
+  z-index: 3;
+}
+
+.stepper-item:first-child::before {
+  content: none;
+}
+
+.stepper-item:last-child::after {
+  content: none;
+}
+
+/*  */
+
+
+
 #import-container {
   width: 100%;
   height: 96vh;
@@ -16,7 +111,102 @@ body {
   font-weight: normal;
 }
 
-#import-row {
+.import-content {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+#import-word-or-nvivo-container {
+  display: none;
+}
+
+#import-theme-code-table-container {
+  display: none;
+}
+
+#import-codes-folder-container {
+  display: none;
+}
+
+#import-hierarchical-container {
+  display: none;
+}
+
+#import-keywords-container {
+  display: none;
+}
+
+input[type=checkbox] {
+  transform: scale(1.5);
+}
+
+.import-label {
+  font-size: 25px;
+}
+
+.import-sub-label {
+  font-size: 20px;
+  margin-top: -10px;
+  margin-bottom: 20px;
+}
+
+.checkbox-group {
+  display: inline-block;
+  margin: 0 20px 0 20px;
+  font-size: 20px;
+} 
+
+.next-button {
+  position: absolute;
+  right: 50px;
+  bottom: 50px;
+  height: 50px;
+  width: 100px;
+}
+
+.back-button {
+  position: absolute;
+  left: 50px;
+  bottom: 50px;
+  height: 50px;
+  width: 100px;
+}
+
+#filter-textarea {
+  height: 200px;
+  width: 500px;
+  resize: none;
+  border:solid 1px black;
+}
+
+#filter-checkbox-div {
+  font-size: 20px;
+}
+
+#regexp-label {
+  margin-right: 25px;
+}
+
+#case-insensitive-checkbox {
+  margin-left: 25px;
+}
+
+#setup-container {
+  display: none;
+  text-align: center;
+}
+
+#setup-label {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 25px;
+}
+
+/* #import-row {
   margin: auto;
   width: 80%;
   height: 40%;
@@ -72,10 +262,6 @@ body {
   font-size: 25px;
 }
 
-.checkbox-inline {
-  font-size: 20px;
-}
-
 #filter-textarea {
   height: 200px;
   width: 500px;
@@ -94,13 +280,13 @@ body {
   margin-left: 25px;
 }
 
-#finish-import-button {
+/* #finish-import-button {
   position: absolute;
   right: 50px;
   bottom: 50px;
   height: 45px;
   width: 90px;
-}
+} */
 
 /* Navbar:  https://www.w3schools.com/howto/howto_css_dropdown_navbar.asp */
 .navbar-top {
@@ -141,6 +327,10 @@ body {
 
 .dropbtn {
   pointer-events: none;
+}
+
+.capitalized {
+  text-transform: capitalize;
 }
 
 #text-button {

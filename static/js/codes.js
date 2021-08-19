@@ -143,7 +143,9 @@ const codesTableLib = (function () {
       .each(function () {
         d3.select(this)
           .on('click', function () {
-            logBackend.log(`[${new Date().getTime()}]: code "${d3.select(this).text()}" (${d3.select(this.parentNode.parentNode).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+            let msTime = new Date().getTime();
+            let dateTime = new Date(msTime);
+            logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: code "${d3.select(this).text()}" (${d3.select(this.parentNode.parentNode).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
 
             // remove other tooltips and change font to normal
             d3.select('#codes-table-container')
@@ -169,7 +171,9 @@ const codesTableLib = (function () {
               .attr('src', '../static/res/close.svg')
               .classed('close-icon', true)
               .on('click', function () {
-                logBackend.log(`[${new Date().getTime()}]: tooltip closed`);
+                msTime = new Date().getTime();
+                dateTime = new Date(msTime);
+                logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: tooltip closed`);
 
                 d3.select(this.parentNode.parentNode.parentNode)
                   .select('.td-text')

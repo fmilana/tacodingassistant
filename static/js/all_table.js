@@ -1,11 +1,9 @@
-/* global document d3 screen window regexp reclassifyBackend threadStartId logBackend $*/
+/* global document d3 screen window regexp themes reclassifyBackend threadStartId logBackend $*/
 
 const allTableLib = (function () {
   let themeDataDict = [];
   let oldThemeDataDict = [];
   let oldThemeDataDictSaved = false;
-
-  let themes = [];
 
   let firstLoading = true;
   let reclassifyCount = 0;
@@ -24,16 +22,6 @@ const allTableLib = (function () {
 
   const loadTable = function (tableData) {
     const startTime = new Date().getTime();
-
-    // hard-coded
-    themes = [
-      'practices',
-      'social',
-      'study vs product',
-      'system perception',
-      'system use',
-      'value judgements'
-    ];
 
     data = tableData;
 
@@ -513,7 +501,9 @@ const allTableLib = (function () {
         //   .select('#loading-text')
         //   .text('Updating table...')
         //   .style('display', 'block');
-        logBackend.log(`[${new Date().getTime()}]: keyword "${movingText}" (${movingColumn}) at position ${d3.select(this.parentNode.parentNode).attr('position')} moved to "${targetColumn}"`);
+        let msTime = new Date().getTime();
+        let dateTime = new Date(msTime);
+        logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: keyword "${movingText}" (${movingColumn}) at position ${d3.select(this.parentNode.parentNode).attr('position')} moved to "${targetColumn}"`);
         // setTimeout to avoid freezing
         setTimeout(() => {
           updateData(movingText, movingSentences, movingColumn, targetColumn);
@@ -590,7 +580,9 @@ const allTableLib = (function () {
           logString = 'predict';
         }
 
-        logBackend.log(`[${new Date().getTime()}]: ${logString} sentence moved to "${targetColumn}"`);
+        let msTime = new Date().getTime();
+        let dateTime = new Date(msTime);
+        logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]:: ${logString} sentence moved to "${targetColumn}"`);
         // setTimeout to avoid freezing
         setTimeout(() => {
           updateData(null, movingSentences, movingColumn, targetColumn);
@@ -614,7 +606,9 @@ const allTableLib = (function () {
 
         d3.select(this)
           .on('click', function () {
-            logBackend.log(`[${new Date().getTime()}]: keyword "${d3.select(this).text()}" (${d3.select(this).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+            let msTime = new Date().getTime();
+            let dateTime = new Date(msTime);
+            logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]:: keyword "${d3.select(this).text()}" (${d3.select(this).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
             // remove other tooltips and change font to normal
             d3.select('#all-table-container')
               .selectAll('.td-tooltip')
@@ -639,7 +633,9 @@ const allTableLib = (function () {
               .attr('src', '../static/res/close.svg')
               .classed('close-icon', true)
               .on('click', function () {
-                logBackend.log(`[${new Date().getTime()}]: tooltip closed`);
+                msTime = new Date().getTime();
+                dateTime = new Date(msTime);
+                logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]:: tooltip closed`);
                 d3.select(this.parentNode.parentNode.parentNode)
                   .select('.td-text')
                   .classed('td-clicked', false);
@@ -1130,7 +1126,9 @@ const allTableLib = (function () {
     d3.select('#all-table-container')
       .select('#re-classify-button')
       .on('click', () => {
-        logBackend.log(`[${new Date().getTime()}]: reclassify`);
+        let msTime = new Date().getTime();
+        let dateTime = new Date(msTime);
+        logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]:: reclassify`);
 
         if (!d3.select('#text-container').select('.row').empty()) {
           d3.select('#text-container').select('.row').remove();

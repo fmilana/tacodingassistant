@@ -19,9 +19,12 @@ from collections import Counter
 from skmultilearn.problem_transform import ClassifierChain
 from sklearn.metrics import multilabel_confusion_matrix
 from xgboost import XGBClassifier
-from export_docx_themes_with_embeddings import Export
+import import_codes_from_document
+import import_codes_from_folder
 
 
+doc_path = None
+cat_path = None
 regexp = None
 
 train_file_path = None
@@ -104,8 +107,8 @@ def generate_training_and_testing_data(oversample, many_together):
 
         print(f'class distribution after oversampling = {class_dist_os}')
 
-        train_df.to_csv('text/reorder_exit_oversampled.csv', index=False,
-            header=True)
+        train_df.to_csv(doc_path.replace('.docx', '_oversampled.csv'), 
+            index=False, header=True)
 
     # create matrices from embedding array columns
     train_embedding_matrix = np.array(train_df['sentence_embedding'].tolist())
@@ -120,7 +123,7 @@ def generate_training_and_testing_data(oversample, many_together):
         test_cleaned_sentences, themes_list)
 
 
-def add_classification_to_csv(clf, prediction_output, prediction_proba):
+def add_classification_to_csv(prediction_output, prediction_proba):
     themes_list = list(cat_df)
 
     if isinstance(prediction_output, scipy.sparse.spmatrix):
@@ -190,9 +193,13 @@ def write_cms_to_csv(sentences_dict, themes_list):
     ]
 
     for theme in themes_list:
-        with open(f'text/cm/reorder_exit_{theme.replace(" ", "_")}_cm.csv',
-            'w', newline='', encoding='utf-8') as file:
+        start_path = re.search(r'^(.*[\\\/])', doc_path).group(0)
+        end_path = re.search(r'([^\/]+).$', doc_path).group(0)
+        end_path = end_path.replace('.docx', f'_{theme.replace(" ", "_")}_cm.csv')
 
+        theme_cm_path = f'{start_path}cm/{end_path}'
+
+        with open(theme_cm_path, 'w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file, delimiter=',')
 
             lengths = []
@@ -346,7 +353,7 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample,
     prediction_proba = clf.predict_proba(sentence_embedding_matrix)
 
     if not many_together:
-        add_classification_to_csv(clf, prediction_output, prediction_proba)
+        add_classification_to_csv(prediction_output, prediction_proba)
 
     sentences_dict = {}
 
@@ -428,7 +435,9 @@ def get_text(file_path):
     return '\n'.join(full_text)
 
 
-def run_classifier(doc_path, interviewer_regexp, modified_train_file_path=None):
+def run_classifier(transcript_path, codes_folder_path, theme_code_table_path, interviewer_regexp, modified_train_file_path=None):
+    global doc_path
+    global cat_path
     global regexp
     global train_file_path
     global predict_file_path
@@ -436,25 +445,31 @@ def run_classifier(doc_path, interviewer_regexp, modified_train_file_path=None):
     global train_df
     global moved_predict_df
 
-    global regexp
+    doc_path = transcript_path
+    cat_path = theme_code_table_path
     regexp = interviewer_regexp
 
     print('inside script.')
     start_script = datetime.now()
 
+    model = Sentence2Vec()
+
     if modified_train_file_path is not None:
         train_file_path = modified_train_file_path
         predict_file_path = modified_train_file_path.replace('train', 'predict')
-        model = Sentence2Vec()
     else:
         train_file_path = doc_path.replace('.docx', '_train.csv')
         predict_file_path = doc_path.replace('.docx', '_predict.csv')
 
-        export = Export(doc_path)
-        export.process(regexp)
-        model = export.model
+        # if from word
+        if codes_folder_path == '':
+            import_codes_from_document.import_codes(model, doc_path, cat_path, regexp)
+        # if from nvivo
+        else:
+            import_codes_from_folder.import_codes(model, doc_path, codes_folder_path, cat_path, regexp)
 
-    cat_df = pd.read_csv('text/reorder_exit_codes.csv', encoding='utf-8-sig')
+
+    cat_df = pd.read_csv(cat_path, encoding='utf-8-sig')
     train_df = pd.read_csv(train_file_path, encoding='utf-8')
 
     text = get_text(doc_path).replace("’", "'")

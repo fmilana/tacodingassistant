@@ -1,10 +1,11 @@
 import csv
+import re
 import pandas as pd
 from nltk import word_tokenize
 from collections import Counter
 
 
-def analyse(train_file_path=None):
+def analyse(doc_path, train_file_path=None):
     # start = datetime.now()
 
     if train_file_path is not None:
@@ -15,8 +16,8 @@ def analyse(train_file_path=None):
         analyse_train_file_path = train_file_path.replace('1.csv', 'analyse_1.csv')
         analyse_both_file_path = train_file_path.replace('train_1.csv', 'analyse_1.csv')
     else:
-        train_file_path = 'text/reorder_exit_train.csv'
-        predict_file_path = 'text/reorder_exit_predict.csv'
+        train_file_path = doc_path.replace('.docx', '_train.csv')
+        predict_file_path = doc_path.replace('.docx', '_predict.csv')
         keywords_train_file_path = train_file_path.replace('.csv', '_keywords.csv')
         keywords_predict_file_path = predict_file_path.replace('.csv', '_keywords.csv')
         analyse_train_file_path = train_file_path.replace('.csv', '_analyse.csv')
@@ -40,6 +41,7 @@ def analyse(train_file_path=None):
         train_df[theme] = train_df[theme].astype(int)
         predict_df[theme] = predict_df[theme].astype(int)
 
+    # hard-coded?
     more_stop_words = ['like', 'yes', 'actually', 'something', 'going', 'could',
         'would', 'oh', 'ah', 'things', 'think', 'know', 'really', 'well', 'kind',
         'always', 'mean', 'maybe', 'get', 'guess', 'bit', 'much', 'go', 'one',
@@ -159,9 +161,13 @@ def analyse(train_file_path=None):
 
     # cm analysis
     for theme in themes_list:
-        theme = theme.replace(' ', '_')
-        cm_df = pd.read_csv(f'text/cm/reorder_exit_{theme}_cm.csv',
-            encoding='utf-8')
+        start_path = re.search(r'^(.*[\\\/])', doc_path).group(0)
+        end_path = re.search(r'([^\/]+).$', doc_path).group(0)
+        end_path = end_path.replace('.docx', f'_{theme.replace(" ", "_")}_cm.csv')
+
+        cm_path = f'{start_path}cm/{end_path}'
+
+        cm_df = pd.read_csv(cm_path, encoding='utf-8')
 
         col_names = cm_df.columns.values
 
@@ -192,8 +198,9 @@ def analyse(train_file_path=None):
             counter = Counter(cm_word_freq_dict[col_name])
             cm_word_freq_dict[col_name] = counter.most_common()
 
-        with open(f'text/cm/reorder_exit_{theme}_cm_analyse.csv',
-            'w', newline='') as file:
+        cm_analyse_path = cm_path.replace('.csv', '_analyse.csv')
+
+        with open(cm_analyse_path, 'w', newline='') as file:
             writer = csv.writer(file, delimiter=',')
             writer.writerow(col_names)
 
@@ -215,7 +222,9 @@ def analyse(train_file_path=None):
         # keyword mathcing file:
         cm_keywords_df = pd.DataFrame(cm_keywords_dict.items(), 
             columns=['word', 'sentences'])
-        cm_keywords_df.to_csv(f'text/cm/reorder_exit_{theme}_cm_keywords.csv',
-            index=False)
+
+        cm_keywords_path = cm_path.replace('.csv', '_keywords.csv')
+
+        cm_keywords_df.to_csv(cm_keywords_path, index=False)
 
     # print(f'done analysing in {datetime.now() - start}')

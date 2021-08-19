@@ -5,8 +5,6 @@ const trainTableLib = (function () {
   let oldThemeDataDict = [];
   let oldThemeDataDictSaved = false;
 
-  let themes = [];
-
   let firstLoading = true;
   let reclassifyCount = 0;
 
@@ -24,16 +22,6 @@ const trainTableLib = (function () {
 
   const loadTable = function (tableData) {
     const startTime = new Date().getTime();
-
-    // hard-coded
-    themes = [
-      'practices',
-      'social',
-      'study vs product',
-      'system perception',
-      'system use',
-      'value judgements'
-    ];
 
     data = tableData;
 
@@ -494,7 +482,9 @@ const trainTableLib = (function () {
         //   .select('#loading-text')
         //   .text('Updating table...')
         //   .style('display', 'block');
-        logBackend.log(`[${new Date().getTime()}]: train keyword "${movingText}" (${movingColumn}) at position ${d3.select(this.parentNode.parentNode).attr('position')} moved to "${targetColumn}"`);
+        let msTime = new Date().getTime();
+        let dateTime = new Date(msTime);
+        logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: train keyword "${movingText}" (${movingColumn}) at position ${d3.select(this.parentNode.parentNode).attr('position')} moved to "${targetColumn}"`);
         // setTimeout to avoid freezing
         setTimeout(() => {
           updateData(movingText, movingSentences, movingColumn, targetColumn);
@@ -560,7 +550,9 @@ const trainTableLib = (function () {
      
         movingSentences.trainSentences = [movingSentence];
 
-        logBackend.log(`[${new Date().getTime()}]: train sentence moved to "${targetColumn}"`);
+        let msTime = new Date().getTime();
+        let dateTime = new Date(msTime);
+        logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: train sentence moved to "${targetColumn}"`);
 
         // setTimeout to avoid freezing
         setTimeout(() => {
@@ -585,7 +577,9 @@ const trainTableLib = (function () {
 
         d3.select(this)
           .on('click', function () {
-            logBackend.log(`[${new Date().getTime()}]: train keyword "${d3.select(this).text()}" (${d3.select(this).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+            let msTime = new Date().getTime();
+            let dateTime = new Date(msTime);
+            logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: train keyword "${d3.select(this).text()}" (${d3.select(this).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
             // remove other tooltips and change font to normal
             d3.select('#train-table-container')
               .selectAll('.td-tooltip')
@@ -610,7 +604,9 @@ const trainTableLib = (function () {
               .attr('src', '../static/res/close.svg')
               .classed('close-icon', true)
               .on('click', function () {
-                logBackend.log(`[${new Date().getTime()}]: tooltip closed`);
+                msTime = new Date().getTime();
+                dateTime = new Date(msTime);
+                logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: tooltip closed`);
                 d3.select(this.parentNode.parentNode.parentNode)
                   .select('.td-text')
                   .classed('td-clicked', false);
@@ -1004,7 +1000,9 @@ const trainTableLib = (function () {
     d3.select('#train-table-container')
       .select('#re-classify-button')
       .on('click', () => {
-        logBackend.log(`[${new Date().getTime()}]: reclassify`);
+        let msTime = new Date().getTime();
+        let dateTime = new Date(msTime);
+        logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: reclassify`);
 
         if (!d3.select('#text-container').select('.row').empty()) {
           d3.select('#text-container').select('.row').remove();
