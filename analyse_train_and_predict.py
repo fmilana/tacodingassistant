@@ -1,8 +1,10 @@
 import csv
+import os
 import re
 import pandas as pd
 from nltk import word_tokenize
 from collections import Counter
+from shutil import copyfile
 
 
 def analyse(doc_path, train_file_path=None):
@@ -20,8 +22,8 @@ def analyse(doc_path, train_file_path=None):
         predict_file_path = doc_path.replace('.docx', '_predict.csv')
         keywords_train_file_path = train_file_path.replace('.csv', '_keywords.csv')
         keywords_predict_file_path = predict_file_path.replace('.csv', '_keywords.csv')
-        analyse_train_file_path = train_file_path.replace('.csv', '_analyse.csv')
         analyse_predict_file_path = predict_file_path.replace('.csv', '_analyse.csv')
+        analyse_train_file_path = train_file_path.replace('.csv', '_analyse.csv')
         analyse_both_file_path = train_file_path.replace('train.csv', 'analyse.csv')
 
 
@@ -145,14 +147,30 @@ def analyse(doc_path, train_file_path=None):
                 if len(dict[theme]) > biggest_list_length:
                     biggest_list_length = len(dict[theme])
 
-            for i in range(biggest_list_length):
+            for j in range(biggest_list_length):
                 row = []
                 for theme in dict:
                     try:
-                        row.append(f'{dict[theme][i][0]} ({dict[theme][i][1]})')
+                        row.append(f'{dict[theme][j][0]} ({dict[theme][j][1]})')
                     except IndexError:
                         row.append('')
                 writer.writerow(row)
+
+            # copy freq data in logs
+            counter = 0
+            while True:
+                num_pattern = r'\d+(?=\.)'
+                freq_path_name = re.search(r'([^\/]+).$', freq_path_list[i]).group(0)
+                if re.match(num_pattern, freq_path_name):
+                    freq_log_path = f'logs/data/{freq_path_name.replace(num_pattern, counter)}'
+                else:
+                    freq_log_path = f'logs/data/{freq_path_name.replace(".csv", "_0.csv")}'
+
+                if os.path.exists(freq_log_path):
+                    counter += 1
+                else:
+                    copyfile(freq_path_list[i], freq_log_path)
+                    break
 
     # create keywords csv's
     for i, dict in enumerate(keywords_dict_list):

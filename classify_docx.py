@@ -332,6 +332,17 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample,
 
     clf.fit(X_train, Y_train)
 
+    # save xgboost model in logs
+    counter = 0
+    while True:
+        model_path = f'logs/models/xgbmodel_{counter}.pickle'
+        if os.path.exists(model_path):
+            counter += 1
+        else:
+            with open(model_path, 'wb') as handle:
+                pickle.dump(clf, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            break
+
     print(f'done fitting clf in {datetime.now() - start_fit}')
 
     print(f'generating confusion matrices...')
@@ -482,7 +493,6 @@ def run_classifier(transcript_path, codes_folder_path, theme_code_table_path, in
         writer.writerow(['original_sentence', 'cleaned_sentence',
             'sentence_embedding'])
 
-        train_df = pd.read_csv(train_file_path, encoding='utf-8')
         train_original_sentences = train_df['original_sentence'].tolist()
 
         # save which have been moved to train as re-classification

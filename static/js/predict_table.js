@@ -1,4 +1,4 @@
-/* global document d3 screen window regexp reclassifyBackend threadStartId logBackend $*/
+/* global document d3 screen window regexp reclassifyBackend threadStartId log $*/
 
 const predictTableLib = (function () {
   let themeDataDict = [];
@@ -20,7 +20,7 @@ const predictTableLib = (function () {
   let reclassifyChangesDict = []; // only updated to latest classification
                                   // (for comparison/visualisation purpose)
 
-  const loadTable = function (tableData) {
+  const loadTable = function (tableData, callback) {
     const startTime = new Date().getTime();
 
     data = tableData;
@@ -33,6 +33,8 @@ const predictTableLib = (function () {
 
     const endTime = new Date().getTime();
     console.log(`PredictTable (JavaScript) => ${((endTime - startTime) / 1000).toFixed(2)} seconds`);
+
+    callback();
   };
 
 
@@ -489,9 +491,7 @@ const predictTableLib = (function () {
         //   .select('#loading-text')
         //   .text('Updating table...')
         //   .style('display', 'block');
-        let msTime = new Date().getTime();
-        let dateTime = new Date(msTime);
-        logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: predict keyword "${movingText}" (${movingColumn}) at position ${d3.select(this.parentNode.parentNode).attr('position')} moved to "${targetColumn}"`);
+        log(`predict keyword "${movingText}" (${movingColumn}) at position ${d3.select(this.parentNode.parentNode).attr('position')} moved to "${targetColumn}"`);
         // setTimeout to avoid freezing
         setTimeout(() => {
           updateData(movingText, movingSentences, movingColumn, targetColumn);
@@ -565,9 +565,7 @@ const predictTableLib = (function () {
      
         movingSentences.predictSentences = [movingSentence];
 
-        let msTime = new Date().getTime();
-        let dateTime = new Date(msTime);
-        logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: predict sentence moved to "${targetColumn}"`);
+        log(`predict sentence moved to "${targetColumn}"`);
 
         // setTimeout to avoid freezing
         setTimeout(() => {
@@ -592,9 +590,7 @@ const predictTableLib = (function () {
 
         d3.select(this)
           .on('click', function () {
-            let msTime = new Date().getTime();
-            let dateTime = new Date(msTime);
-            logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: predict keyword "${d3.select(this).text()}" (${d3.select(this).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+            log(`predict keyword "${d3.select(this).text()}" (${d3.select(this).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
             // remove other tooltips and change font to normal
             d3.select('#predict-table-container')
               .selectAll('.td-tooltip')
@@ -619,9 +615,7 @@ const predictTableLib = (function () {
               .attr('src', '../static/res/close.svg')
               .classed('close-icon', true)
               .on('click', function () {
-                msTime = new Date().getTime();
-                dateTime = new Date(msTime);
-                logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: tooltip closed`);
+                log('tooltip closed');
                 d3.select(this.parentNode.parentNode.parentNode)
                   .select('.td-text')
                   .classed('td-clicked', false);
@@ -1015,9 +1009,7 @@ const predictTableLib = (function () {
     d3.select('#predict-table-container')
       .select('#re-classify-button')
       .on('click', () => {
-        let msTime = new Date().getTime();
-        let dateTime = new Date(msTime);
-        logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: reclassify`);
+        log('reclassify');
 
         if (!d3.select('#text-container').select('.row').empty()) {
           d3.select('#text-container').select('.row').remove();

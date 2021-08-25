@@ -1,11 +1,11 @@
-/* global document fetch d3 screen window regexp logBackend $*/
+/* global document fetch d3 screen window regexp log $*/
 
 const codesTableLib = (function () {
   let data;
   let maxZIndex = 1;
 
 
-  const loadTable = function (tableData) {
+  const loadTable = function (tableData, callback) {
     const startTime = new Date().getTime();
 
     data = tableData;
@@ -17,8 +17,10 @@ const codesTableLib = (function () {
       .style('display', 'none');
 
     const endTime = new Date().getTime();
-      console.log(`CodesTable (JavaScript) => ${((endTime - startTime) / 1000).toFixed(2)} seconds`);
-    };
+    console.log(`CodesTable (JavaScript) => ${((endTime - startTime) / 1000).toFixed(2)} seconds`);
+
+    callback();
+  };
 
 
   const generateTable = function () {
@@ -143,9 +145,7 @@ const codesTableLib = (function () {
       .each(function () {
         d3.select(this)
           .on('click', function () {
-            let msTime = new Date().getTime();
-            let dateTime = new Date(msTime);
-            logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: code "${d3.select(this).text()}" (${d3.select(this.parentNode.parentNode).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+            log(`code "${d3.select(this).text()}" (${d3.select(this.parentNode.parentNode).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
 
             // remove other tooltips and change font to normal
             d3.select('#codes-table-container')
@@ -171,10 +171,7 @@ const codesTableLib = (function () {
               .attr('src', '../static/res/close.svg')
               .classed('close-icon', true)
               .on('click', function () {
-                msTime = new Date().getTime();
-                dateTime = new Date(msTime);
-                logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: tooltip closed`);
-
+                log('tooltip closed');
                 d3.select(this.parentNode.parentNode.parentNode)
                   .select('.td-text')
                   .classed('td-clicked', false);

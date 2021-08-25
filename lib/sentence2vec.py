@@ -14,7 +14,7 @@ from datetime import datetime
 class Sentence2Vec:
     # https://github.com/RaRe-Technologies/gensim-data
     model_name = 'glove-twitter-50'
-    model_file_path = 'embeddings/model.pickle'
+    model_file_path = 'embeddings/word2vec_model.pickle'
 
     vector_sentence_dict = {}
 
@@ -27,7 +27,7 @@ class Sentence2Vec:
         else:
             print('downloading word embeddings...')
             self.model = gensim.downloader.load(self.model_name)
-            with open('embeddings/model.pickle', 'wb') as f:
+            with open('embeddings/word2vec_model.pickle', 'wb') as f:
                 pickle.dump(self.model, f)
         print(f'done in {datetime.now() - start}')
 

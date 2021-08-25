@@ -35,6 +35,13 @@ let codesPath = null;
 let themeCodeTablePath = null;
 
 
+const log = function (message) {
+  const msTime = new Date().getTime();
+  const dateTime = new Date(msTime);
+  logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: ${message}`);
+};
+
+
 const onImportData = function (data) {
   if (data[0] === 'transcript') {
     // transcript file
@@ -78,9 +85,7 @@ const onImportData = function (data) {
     } else {
       // error message
       alert('Please check your filtered keywords or regular expression');
-      let msTime = new Date().getTime();
-      let dateTime = new Date(msTime);
-      logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: import error`);
+      log('import error');
     }
   }
 };
@@ -147,9 +152,7 @@ const onSetup = function (extractedThemes) {
           d3.select(`#${tabToContainerDict[tabId]}`)
             .style('display', 'block');
   
-          let msTime = new Date().getTime();
-          let dateTime = new Date(msTime);
-          logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: switched to ${tabId}`);
+          log(`switched to ${tabId}`);
   
           currentTabId = tabId;
         }
@@ -164,9 +167,7 @@ const onSetup = function (extractedThemes) {
 
 const onTextData = function (data) {
   textLib.loadText(data, () => {
-    let msTime = new Date().getTime();
-    let dateTime = new Date(msTime);
-    logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: setup finished, showing text`);
+    log('setup finished, text finished loading');
 
     if (threadStartId === 'text-button') {
       codesTableBackend.get_table();
@@ -180,7 +181,9 @@ const onTextData = function (data) {
 
 
 const onCodesTableData = function (data) {
-  codesTableLib.loadTable(data);
+  codesTableLib.loadTable(data, () => {
+    log('codes finished loading');
+  });
 };
 
 
@@ -190,6 +193,7 @@ const onAllTableData = function (dataAndReclassified) {
 
   if (reclassified) {
     allTableLib.loadReclassifiedTable(data, () => {
+      log('reclassified all table finished loading');
       if (threadStartId === 'all-keywords-button') {
         predictTableBackend.get_table(true);
         trainTableBackend.get_table(true);
@@ -198,7 +202,9 @@ const onAllTableData = function (dataAndReclassified) {
       } 
     });
   } else {
-    allTableLib.loadTable(data);
+    allTableLib.loadTable(data, () => {
+      log('all table finished loading');
+    });
   }
 };
 
@@ -209,6 +215,7 @@ const onPredictTableData = function (dataAndReclassified) {
 
   if (reclassified) {
     predictTableLib.loadReclassifiedTable(data, () => {
+      log('reclassified predict table finished loading');
       if (threadStartId === 'predict-keywords-button') {
         allTableBackend.get_table(true);
         trainTableBackend.get_table(true);
@@ -217,7 +224,9 @@ const onPredictTableData = function (dataAndReclassified) {
       } 
     });
   } else {
-    predictTableLib.loadTable(data);
+    predictTableLib.loadTable(data, () => {
+      log('predict table finished loading');
+    });
   }
 };
 
@@ -228,6 +237,7 @@ const onTrainTableData = function (dataAndReclassified) {
 
   if (reclassified) {
     trainTableLib.loadReclassifiedTable(data, () => {
+      log('reclassified train table finished loading');
       if (threadStartId === 'train-keywords-button') {
         allTableBackend.get_table(true);
         predictTableBackend.get_table(true);
@@ -236,7 +246,9 @@ const onTrainTableData = function (dataAndReclassified) {
       }
     });
   } else {
-    trainTableLib.loadTable(data);
+    trainTableLib.loadTable(data, () => {
+      log('train table finished loading');
+    });
   }
 };
 
@@ -264,7 +276,9 @@ const onReclassified = function () {
 
 
 const onConfusionTablesData = function (data) {
-  confusionTablesLib.loadTables(data);
+  confusionTablesLib.loadTables(data, () => {
+    log('confusion tables finished loading');
+  });
   if (tabId.endsWith('-cm-button')) {
     d3.select(`#${tabToContainerDict[tabId]}`)
       .style('display', 'block');
@@ -301,9 +315,7 @@ d3.select(window).on('load', () => {
         importBackend.signal.connect(onImportData);
         // call functions on the external objects
         // textBackend.get_text(false); // false-> not reclassified data
-        let msTime = new Date().getTime();
-        let dateTime = new Date(msTime);
-        logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: app launched`);
+        log('app launched');
       });
     }
   } catch (error) {

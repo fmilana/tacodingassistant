@@ -1,4 +1,4 @@
-/* global d3 document $ textBackend logBackend writeFileBackend importBackend */
+/* global d3 document $ textBackend log writeFileBackend importBackend codesPath */
 // eslint-disable-next-line no-unused-vars
 const importLib = (function () {
   const setupImportPage = function () {
@@ -39,6 +39,7 @@ const importLib = (function () {
         let divToShow = '';
         if (wordCheckboxValue) {
           divToShow = '#import-theme-code-table-container';
+          codesPath = '';
         } else {
           divToShow = '#import-codes-folder-container';
         }
@@ -175,26 +176,23 @@ const importLib = (function () {
 
     d3.select('#import-keywords-next-button')
       .on('click', function () {
-        let logData = '';
-
-        let msTime = new Date().getTime();
-        let dateTime = new Date(msTime);
+        let logString = '';
 
         if (wordCheckboxValue) {
-          logData = `[${dateTime.toLocaleString()} (${msTime})]: import document containing codes from Word`;
+          logString = 'import document containing codes from Word';
         } else if (nvivoCheckboxValue && yesHierarchicalCheckboxValue) {
-          logData = `[${dateTime.toLocaleString()} (${msTime})]: import document and hierarchical codes from NVivo`;
+          logString = 'import document and hierarchical codes from NVivo';
         } else {
-          logData = `[${dateTime.toLocaleString()} (${msTime})]: import document, codes from NVivo and theme-code lookup table`;
+          logString = 'import document, codes from NVivo and theme-code lookup table';
         }
 
         const filterKeywords = $('#filter-textarea').val();
         const regularExpression = $('#regexp-checkbox').is(':checked');
         const caseInsensitive = $('#case-insensitive-checkbox').is(':checked');
 
-        logData += `. Filtered keywords: "${filterKeywords}"`;
+        logString += `. Filtered keywords: "${filterKeywords}"`;
 
-        logBackend.log(logData);
+        log(logString);
 
         // console.log(`typeof transcriptFile = ${transcriptFile}`);
         // console.log(`filename = ${transcriptFile.name}`);

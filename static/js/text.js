@@ -40,6 +40,7 @@ const textLib = (function () {
     console.log(`Text (JavaScript) => ${((endTime - startTime) / 1000).toFixed(2)} seconds`);
 
     console.log('calling callback (other threads)...');
+    
     callback();
   };
 

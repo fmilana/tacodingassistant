@@ -24,12 +24,11 @@ reorder_exit_train_keywords.csv
 reorder_exit_train_keywords_1.csv
 reorder_exit_oversampled.csv
 embeddings.pickle
-/logs
+/logs/*
 classification.txt
 /models
-/embeddings
+/embeddings/*
 analysis_stopwords.txt
 extra_stopwords.txt
 static/js/old_tablejs_file.js
 cm_data.json
-app.log

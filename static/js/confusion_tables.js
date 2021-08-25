@@ -1,4 +1,4 @@
-/* global document fetch d3 screen window regexp logBackend themes $*/
+/* global document fetch d3 screen window regexp log themes $*/
 
 const confusionTablesLib = (function () {
   let data;
@@ -160,9 +160,8 @@ const confusionTablesLib = (function () {
         d3.select(this)
           .on('click', function () {
             const columnName = d3.select(this.parentNode.parentNode).attr('column').replace(/ \(\d+\)$/, '');
-            let msTime = new Date().getTime();
-            let dateTime = new Date(msTime);
-            logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: keyword "${d3.select(this).text()}" (${columnName}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+
+            log(`keyword "${d3.select(this).text()}" (${columnName}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
             // remove other tooltips and change font to normal
             tableContainer
               .selectAll('.td-tooltip')
@@ -187,9 +186,7 @@ const confusionTablesLib = (function () {
               .attr('src', '../static/res/close.svg')
               .classed('close-icon', true)
               .on('click', function () {
-                msTime = new Date().getTime();
-                dateTime = new Date(msTime);
-                logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: tooltip closed`);
+                log('tooltip closed');
                 d3.select(this.parentNode.parentNode.parentNode)
                   .select('.td-text')
                   .classed('td-clicked', false);

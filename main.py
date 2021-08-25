@@ -459,7 +459,7 @@ class LogThread(QThread):
     data = None
     
     def run(self):
-        with open('app.log', 'a') as f:
+        with open('logs/app.log', 'a') as f:
             f.write(f'{self.data}\n')
             f.close()
 
@@ -711,18 +711,19 @@ class ImportBackend(QObject):
     @Slot()
     def open_transcript_chooser(self):                
         path_to_file, _ = QFileDialog.getOpenFileName(self._main_window, self.tr('Import Document'), self.tr('~/Desktop/'), self.tr('Document (*.docx)'))
-        # global doc_path
-        # doc_path = path_to_file
+        path_to_file = path_to_file.replace('\\', '/')
         self.signal.emit(['transcript', path_to_file])
 
     @Slot()
     def open_codes_chooser(self):
         path_to_folder = QFileDialog.getExistingDirectory(self._main_window, self.tr('Choose Directory'), self.tr('~/Desktop/'), QFileDialog.ShowDirsOnly)
+        path_to_folder = path_to_folder.replace('\\', '/')
         self.signal.emit(['codes', path_to_folder])
 
     @Slot()
     def open_theme_code_table_chooser(self):
         path_to_file, _ = QFileDialog.getOpenFileName(self._main_window, self.tr('Import Table'), self.tr('~/Desktop/'), self.tr('Table (*.csv)'))
+        path_to_file = path_to_file.replace('\\', '/')
         self.signal.emit(['codeThemeTable', path_to_file])
 
     @Slot(str, bool, bool)
