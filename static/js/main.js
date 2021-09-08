@@ -151,6 +151,11 @@ const onSetup = function (extractedThemes) {
   
           d3.select(`#${tabToContainerDict[tabId]}`)
             .style('display', 'block');
+
+          // generate comments AFTER text appears (to get positions of spans for comments)
+          if (tabId === 'text-button' && d3.selectAll('rect').size() === 0) {
+            textLib.generateComments();
+          }
   
           log(`switched to ${tabId}`);
   

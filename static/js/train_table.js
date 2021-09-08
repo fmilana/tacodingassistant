@@ -225,7 +225,9 @@ const trainTableLib = (function () {
             for (let j = 0; j < trainSentences.length; j++) {
               // JSON cleaning
               const sentence = trainSentences[j]
-                .replace(/\t/g, '\\\\t').replace(/\n/g, '\\\\n');
+                .replace(/\t/g, '\\\\t')
+                .replace(/\n/g, '\\\\n')
+                .replace(/"/g, "'");
 
               dataString += (`"${sentence}"`);
 
@@ -637,6 +639,7 @@ const trainTableLib = (function () {
                     trainSentences[i] = trainSentences[i]
                       .replace(/\\t/g, '\t')
                       .replace(/\\n/g, '\n')
+                      .replace(/"/g, "'")
                       .replace(regexp, '') // remove interviewer keywords
                       // to-do: encoding
                       .replace(/�/g, ' ')
@@ -770,6 +773,7 @@ const trainTableLib = (function () {
                   .replace(/�/g, ' ')
                   .replace(/\t/g, '    ')
                   .replace(/\n/g, ' ')
+                  .replace(/"/g, "'")
                   .trim();
 
                 // to-do: check why sometimes this is never true

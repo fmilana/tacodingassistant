@@ -7,7 +7,7 @@ from collections import Counter
 from shutil import copyfile
 
 
-def analyse(doc_path, train_file_path=None):
+def analyse(doc_path, themes, train_file_path=None):
     # start = datetime.now()
 
     if train_file_path is not None:
@@ -30,8 +30,7 @@ def analyse(doc_path, train_file_path=None):
     train_df = pd.read_csv(train_file_path, encoding='utf-8')
     predict_df = pd.read_csv(predict_file_path, encoding='utf-8')
 
-    themes_list = [name for i, name in enumerate(predict_df.columns)
-        if i >= 3 and i <= 8]
+    themes_list = themes
 
     train_word_freq_dict = {theme: [] for theme in themes_list}
     predict_word_freq_dict = {theme: [] for theme in themes_list}
@@ -156,21 +155,23 @@ def analyse(doc_path, train_file_path=None):
                         row.append('')
                 writer.writerow(row)
 
+            print('starting while loop in analyse...')
+
             # copy freq data in logs
             counter = 0
             while True:
-                num_pattern = r'\d+(?=\.)'
                 freq_path_name = re.search(r'([^\/]+).$', freq_path_list[i]).group(0)
-                if re.match(num_pattern, freq_path_name):
-                    freq_log_path = f'logs/data/{freq_path_name.replace(num_pattern, counter)}'
-                else:
-                    freq_log_path = f'logs/data/{freq_path_name.replace(".csv", "_0.csv")}'
+                freq_path_name = re.sub(r'(_\d)*.csv', '', freq_path_name)
+
+                freq_log_path = f'logs/data/{freq_path_name}_{counter}.csv'
 
                 if os.path.exists(freq_log_path):
                     counter += 1
                 else:
                     copyfile(freq_path_list[i], freq_log_path)
                     break
+
+            print('done!')
 
     # create keywords csv's
     for i, dict in enumerate(keywords_dict_list):

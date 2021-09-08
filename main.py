@@ -2,7 +2,9 @@ import sys
 import re
 import docx
 import json
+import time
 import pandas as pd
+import datetime
 from PySide2.QtCore import QDir, QObject, QThread, QUrl, Signal, Slot
 from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
@@ -10,10 +12,9 @@ from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
 from classify_docx import run_classifier
 from analyse_train_and_predict import analyse
 
-import time
-
 
 doc_path = ''
+doc_file_name = ''
 codes_folder_path = ''
 theme_code_table_path = ''
 
@@ -22,6 +23,8 @@ themes = []
 regexp = ''
 
 first_reclassify = True
+
+classify_counter = 0
 
 
 def load_table_data(table_name, reclassified):
@@ -197,8 +200,10 @@ class SetupThread(QThread):
         print(f'theme_code_table_path = {theme_code_table_path}')
 
         run_classifier(doc_path, codes_folder_path, theme_code_table_path, regexp)
-        analyse(doc_path)
+        print('done with run_classifier in setup thread')
+        print('running analyse now..')
         global themes
+        analyse(doc_path, themes)
         self.thread_signal.emit(themes)
 
 
@@ -372,7 +377,7 @@ class ReclassifyThread(QThread):
                                     all_themes.append(theme)
 
                                 predict_as_train_row = {
-                                    'file name': doc_path,
+                                    'file_name': doc_path,
                                     'comment_id': '',
                                     'original_sentence': sentence,
                                     'cleaned_sentence': cleaned_sentence,
@@ -398,8 +403,11 @@ class ReclassifyThread(QThread):
         print('done!')
 
         print('running analyse...')
-        analyse(doc_path, new_train_path)
+        analyse(doc_path, themes, new_train_path)
         print('done!')
+
+        global classify_counter
+        classify_counter += 1
 
         self.thread_signal.emit('done')
 
@@ -460,6 +468,17 @@ class LogThread(QThread):
     
     def run(self):
         with open('logs/app.log', 'a') as f:
+            global doc_file_name
+            global classify_counter
+            if 'setup finished' in self.data or 'reclassify' in self.data:
+                self.data += f' (logs/models/{doc_file_name}_xgbmodel_{classify_counter}.pickle)'
+            elif 'all table finished loading' in self.data:
+                self.data += f' (logs/data/{doc_file_name}_analyse_{classify_counter}.csv)'
+            elif 'predict table finished loading' in self.data:
+                self.data += f' (logs/data/{doc_file_name}_predict_analyse_{classify_counter}.csv)'
+            elif 'train table finished loading' in self.data:
+                self.data += f' (logs/data/{doc_file_name}_train_analyse_{classify_counter}.csv)'
+
             f.write(f'{self.data}\n')
             f.close()
 
@@ -506,10 +525,12 @@ class SetupBackend(QObject):
     @Slot(str, str, str)
     def set_up(self, transcript_path, codes_dir_path, theme_code_lookup_path):
         global doc_path
+        global doc_file_name
         global codes_folder_path
         global theme_code_table_path
         global themes
         doc_path = transcript_path
+        doc_file_name = re.search(r'([^\/]+).$', doc_path).group(0).replace('.docx', '')
         codes_folder_path = codes_dir_path
         theme_code_table_path = theme_code_lookup_path
 
@@ -779,8 +800,15 @@ class AppWindow(QMainWindow):
         self.setCentralWidget(self.view)
 
 
+def log_close():
+    with open('logs/app.log', 'a') as f:
+        f.write(f'[{datetime.date.today().strftime("%d/%m/%Y")}, {datetime.datetime.now().strftime("%H:%M:%S")} ({round(time.time() * 1000)})]: app closed\n')
+        f.close()
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = AppWindow()
     w.show()
+    app.aboutToQuit.connect(log_close)
     sys.exit(app.exec_())

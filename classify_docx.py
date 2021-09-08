@@ -35,6 +35,8 @@ original_train_df = None # save train_df copy here before test split and oversam
 train_df = None
 moved_predict_df = None
 
+themes_found = []
+
 
 def get_sample_weights(Y_train):
     sample_weights = []
@@ -116,7 +118,10 @@ def generate_training_and_testing_data(oversample, many_together):
     test_cleaned_sentences = test_df['cleaned_sentence'].tolist()
     # create matrices from theme binary columns
     train_themes_binary_matrix = train_df.iloc[:, 7:].to_numpy()
+    print(f'=========================> np.shape(train_themes_binary_matrix) = {np.shape(train_themes_binary_matrix)}')
     test_themes_binary_matrix = test_df.iloc[:, 7:].to_numpy()
+    print(f'=========================> np.shape(test_themes_binary_matrix) = {np.shape(test_themes_binary_matrix)}')
+    print(f'=========================> test_themes_binary_matrix = {test_themes_binary_matrix}')
 
     return (train_embedding_matrix, test_embedding_matrix,
         train_themes_binary_matrix, test_themes_binary_matrix,
@@ -124,15 +129,14 @@ def generate_training_and_testing_data(oversample, many_together):
 
 
 def add_classification_to_csv(prediction_output, prediction_proba):
-    themes_list = list(cat_df)
-
+    print(np.shape(prediction_output))
     if isinstance(prediction_output, scipy.sparse.spmatrix):
         out_df = pd.DataFrame.sparse.from_spmatrix(data=prediction_output,
-            columns=themes_list)
+            columns=themes_found)
     else:
-        out_df = pd.DataFrame(data=prediction_output, columns=themes_list)
+        out_df = pd.DataFrame(data=prediction_output, columns=themes_found)
 
-    proba_cols = [f'{theme} probability' for theme in themes_list]
+    proba_cols = [f'{theme} probability' for theme in themes_found]
 
     if isinstance(prediction_proba, scipy.sparse.spmatrix):
         proba_df = pd.DataFrame.sparse.from_spmatrix(data=prediction_proba,
@@ -151,12 +155,12 @@ def add_classification_to_csv(prediction_output, prediction_proba):
         global train_df
         # add moved predictions so they still show up in table as predictions
         moved_predict_df = moved_predict_df.drop([
-            'file name',
+            'file_name',
             'comment_id',
             'codes',
             'themes'], axis=1)
 
-        for theme in themes_list:
+        for theme in themes_found:
             moved_predict_df[f'{theme} probability'] = moved_predict_df[theme]
 
         predict_df = predict_df.append(moved_predict_df)
@@ -330,14 +334,19 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample,
     print('fitting clf...')
     start_fit = datetime.now()
 
+    print(f'======================================> np.shape(X_train) = {np.shape(X_train)}')
+    print(f'======================================> np.shape(Y_train) = {np.shape(Y_train)}')
+
     clf.fit(X_train, Y_train)
 
+    doc_file_name = re.search(r'([^\/]+).$', doc_path).group(0).replace('.docx', '')
+
     # save xgboost model in logs
-    counter = 0
+    model_counter = 0
     while True:
-        model_path = f'logs/models/xgbmodel_{counter}.pickle'
+        model_path = f'logs/models/{doc_file_name}_xgbmodel_{model_counter}.pickle'
         if os.path.exists(model_path):
-            counter += 1
+            model_counter += 1
         else:
             with open(model_path, 'wb') as handle:
                 pickle.dump(clf, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -357,9 +366,15 @@ def classify(sentence_embedding_matrix, clf, clf_name, oversample,
         score = np.sum(equals)/equals.size
         scores.append(score)
 
+    print(f'======================================> np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
+
     prediction_output = clf.predict(sentence_embedding_matrix)
 
+    print(f'======================================> np.shape(prediction_output) 1 = {np.shape(prediction_output)}')
+
     prediction_output = prediction_output.astype(int)
+
+    print(f'======================================> np.shape(prediction_output) 2 = {np.shape(prediction_output)}')
 
     prediction_proba = clf.predict_proba(sentence_embedding_matrix)
 
@@ -455,6 +470,7 @@ def run_classifier(transcript_path, codes_folder_path, theme_code_table_path, in
     global cat_df
     global train_df
     global moved_predict_df
+    global themes_found
 
     doc_path = transcript_path
     cat_path = theme_code_table_path
@@ -474,10 +490,10 @@ def run_classifier(transcript_path, codes_folder_path, theme_code_table_path, in
 
         # if from word
         if codes_folder_path == '':
-            import_codes_from_document.import_codes(model, doc_path, cat_path, regexp)
+            themes_found = import_codes_from_document.import_codes(model, doc_path, cat_path, regexp)
         # if from nvivo
         else:
-            import_codes_from_folder.import_codes(model, doc_path, codes_folder_path, cat_path, regexp)
+            themes_found = import_codes_from_folder.import_codes(model, doc_path, codes_folder_path, cat_path, regexp)
 
 
     cat_df = pd.read_csv(cat_path, encoding='utf-8-sig')

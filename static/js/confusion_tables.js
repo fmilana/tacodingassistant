@@ -105,7 +105,9 @@ const confusionTablesLib = (function () {
 
             for (let j = 0; j < sentences.length; j++) {
               const sentence = sentences[j]
-                .replace(/\t/g, '\\\\t').replace(/\n/g, '\\\\n');
+                .replace(/\t/g, '\\\\t')
+                .replace(/\n/g, '\\\\n')
+                .replace(/"/g, "'");
               dataString += (`"${sentence}"`);
 
               if (j === (sentences.length - 1)) {
@@ -219,7 +221,7 @@ const confusionTablesLib = (function () {
                   sentences[i] = sentences[i]
                     .replace(/\\t/g, '\t')
                     .replace(/\\n/g, '\n')
-                    .replace(sentenceStopWordsRegex, '') // remove interviewer keywords
+                    .replace(regexp, '') // remove interviewer keywords
                     // to-do: encoding
                     .replace(/�/g, ' ')
                     .trim();

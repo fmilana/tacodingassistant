@@ -144,6 +144,10 @@ input[type=checkbox] {
   transform: scale(1.5);
 }
 
+input[type=radio] {
+  transform: scale(1.5);
+}
+
 .import-label {
   font-size: 25px;
 }

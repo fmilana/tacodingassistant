@@ -26,6 +26,10 @@ const textLib = (function () {
         .append('div')
           .attr('id', 'comments-box');
 
+    // if (d3.select('#comments-box').empty()) {
+    //   console.log('')
+    // }
+
     textContainerRow.select('#text-box')
       .selectAll('p')
       .data([text])
@@ -34,7 +38,9 @@ const textLib = (function () {
         .attr('id', 'text-paragraph')
         .html(d => d);
 
-    generateComments();
+    if (d3.select('#text-container').style('display') === 'block') {    
+      generateComments();
+    }
 
     const endTime = new Date().getTime();
     console.log(`Text (JavaScript) => ${((endTime - startTime) / 1000).toFixed(2)} seconds`);
@@ -114,6 +120,8 @@ const textLib = (function () {
         commentsObj.push(obj);
       });
 
+    console.log(`=============================> commentsObj.length = ${commentsObj.length}`);
+
     let lastThemes = '';
     let lastY = 0;
     let lastCanvas;
@@ -172,7 +180,6 @@ const textLib = (function () {
             return '';
           });
 
-
         lastCanvas = canvas;
         stacked = 1;
       } else {
@@ -210,9 +217,5 @@ const textLib = (function () {
     });
   };
 
-  return { loadText };
+  return { loadText, generateComments };
 }());
-
-// getText();
-
-// export { getText };

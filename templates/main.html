@@ -74,13 +74,16 @@
         <div class="import-content">
           <p id="import-word-or-nvivo-label" class="import-label">Which software did you use to code your transcript?</p>
           <div class="checkbox-group">
-            <input id="import-word-checkbox" type="checkbox">
+            <input id="import-word-checkbox" type="radio">
             <label id="import-word-checkbox-label" class="checkbox-inline" for="import-word-checkbox">Word</label>
           </div>
           <div class="checkbox-group">
-            <input id="import-nvivo-checkbox" type="checkbox">
+            <input id="import-nvivo-checkbox" type="radio">
             <label id="import-nvivo-checkbox-label" class="checkbox-inline" for="import-nvivo-checkbox">NVivo</label>
           </div>
+          <!-- <div id="separator-container">
+            <textarea id="separator-textarea" placeholder=""></textarea>
+          </div> -->
         </div>
         <div id="import-step-progress-bar">
           <div class="stepper-wrapper">
@@ -108,7 +111,7 @@
       <div id="import-theme-code-table-container">
         <div class="import-content">
           <p id="import-theme-code-table-label" class="import-label">Import a theme-code lookup table:</p>
-          <p class="import-sub-label">(themes as column headers containing codes)</p>
+          <p class="import-sub-label">(Themes as column headers containing codes)</p>
           <button id="import-theme-code-table-button" class="btn btn-secondary">Import table</button>
         </div>
         <div id="import-step-progress-bar">
@@ -165,7 +168,7 @@
       <div id="import-hierarchical-container">
         <div class="import-content">
           <p id="import-hierarchical-label" class="import-label">Were codes organised hierarchically in NVivo?</p>
-          <p class="import-sub-label">(code and sub-code documents were exported with "Hierarchical Name" property)</p>
+          <p class="import-sub-label">(Code and sub-code documents were exported with "Hierarchical Name" property)</p>
           <div class="checkbox-group">
             <input id="yes-checkbox" type="checkbox">
             <label id="yes-checkbox-label" class="checkbox-inline" for="yes-checkbox">Yes</label>
@@ -237,7 +240,8 @@
     <!--  -->
     <div id="setup-container">
       <img id="loading-gif" src="../static/res/loading.gif">
-      <p id="setup-label">Classifying sentences...</p>
+      <p id="setup-label">Extracting and classifying sentences...</p>
+      <p class="import-sub-label">(This might take a few minutes)</p>
     </div>
     <div id="text-container">
       <img id="loading-gif" src="../static/res/loading.gif">

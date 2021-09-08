@@ -225,7 +225,9 @@ const predictTableLib = (function () {
             for (let j = 0; j < predictSentences.length; j++) {
               // JSON cleaning
               const sentence = predictSentences[j]
-                .replace(/\t/g, '\\\\t').replace(/\n/g, '\\\\n');
+                .replace(/\t/g, '\\\\t')
+                .replace(/\n/g, '\\\\n')
+                .replace(/"/g, "'");
 
               dataString += (`"${sentence}"`);
 
@@ -652,6 +654,7 @@ const predictTableLib = (function () {
                     predictSentences[i] = predictSentences[i]
                       .replace(/\\t/g, '\t')
                       .replace(/\\n/g, '\n')
+                      .replace(/"/g, "'")
                       .replace(regexp, '') // remove interviewer keywords
                       // to-do: encoding
                       .replace(/�/g, ' ')
@@ -785,6 +788,7 @@ const predictTableLib = (function () {
                   .replace(/�/g, ' ')
                   .replace(/\t/g, '    ')
                   .replace(/\n/g, ' ')
+                  .replace(/"/g, "'")
                   .trim();
 
                 // to-do: check why sometimes this is never true

@@ -1,4 +1,5 @@
 import os
+import re
 import zipfile
 import csv
 import pandas as pd
@@ -61,7 +62,7 @@ def import_codes(sentence2vec_model, transcript_path, theme_code_table_path, int
 
     with zipfile.ZipFile(doc_path, 'r') as archive:
         # write header
-        header = ['file name', 'comment_id', 'original_sentence',
+        header = ['file_name', 'comment_id', 'original_sentence',
             'cleaned_sentence', 'sentence_embedding', 'codes', 'themes']
         themes_list = list(cat_df)
         header.extend(themes_list)
@@ -108,7 +109,8 @@ def import_codes(sentence2vec_model, transcript_path, theme_code_table_path, int
             themes = []
 
             if ';' in codes:
-                for code in codes.split('; '):
+                for code in codes.split(';'):
+                    code = code.strip()
                     find_code = (cat_df.values == code).any(axis=0)
                     try:
                         theme = cat_df.columns[np.where(find_code==True)[0]].item()
@@ -122,7 +124,7 @@ def import_codes(sentence2vec_model, transcript_path, theme_code_table_path, int
                 find_code = (cat_df.values == codes).any(axis=0)
                 try:
                     themes = cat_df.columns[np.where(find_code==True)[0]].item()
-                except ValueError as e:
+                except ValueError:
                     missing_codes.append(codes)
 
             if len(themes) > 0:
@@ -133,8 +135,8 @@ def import_codes(sentence2vec_model, transcript_path, theme_code_table_path, int
                             themes_binary.append(1)
                         else:
                             themes_binary.append(0)
-                    row = [doc_path, comment_id, sentence,
-                        tuple[0], tuple[1], codes, themes]
+                    row = [re.search(r'([^\/]+).$', doc_path).group(0), 
+                        comment_id, sentence, tuple[0], tuple[1], codes, themes]
                     row.extend(themes_binary)
                     writer.writerow(row)
 
@@ -144,3 +146,6 @@ def import_codes(sentence2vec_model, transcript_path, theme_code_table_path, int
         print(set(missing_codes))
 
         os.remove('tmp.xml')
+
+        # returning ALL themes from cat_df, not just those found (to-do)
+        return themes_list
