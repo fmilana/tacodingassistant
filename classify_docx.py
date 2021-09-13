@@ -566,6 +566,10 @@ def run_classifier(transcript_path, codes_folder_path, theme_code_table_path, in
                 cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence,
                     sentence_embedding]
 
+            with open('text/embeddings.pickle', 'wb') as handle:
+                pickle.dump(cleaned_sentence_embedding_dict, handle, 
+                    protocol=pickle.HIGHEST_PROTOCOL)
+
         print(f'done writing data in csv in {datetime.now() - start_emb}')
 
         predict_file.close()

@@ -155,8 +155,6 @@ def analyse(doc_path, themes, train_file_path=None):
                         row.append('')
                 writer.writerow(row)
 
-            print('starting while loop in analyse...')
-
             # copy freq data in logs
             counter = 0
             while True:
@@ -170,8 +168,6 @@ def analyse(doc_path, themes, train_file_path=None):
                 else:
                     copyfile(freq_path_list[i], freq_log_path)
                     break
-
-            print('done!')
 
     # create keywords csv's
     for i, dict in enumerate(keywords_dict_list):

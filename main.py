@@ -5,6 +5,7 @@ import json
 import time
 import pandas as pd
 import datetime
+from shutil import copyfile
 from PySide2.QtCore import QDir, QObject, QThread, QUrl, Signal, Slot
 from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
@@ -529,7 +530,15 @@ class SetupBackend(QObject):
         global codes_folder_path
         global theme_code_table_path
         global themes
-        doc_path = transcript_path
+
+        # copy transcript into text folder
+        end_path = re.search(r'([^\/]+).$', transcript_path).group(0)
+        doc_path = f'text/{end_path}'
+        try:
+            copyfile(transcript_path, doc_path)
+        except:
+            print('transcript already in text')
+
         doc_file_name = re.search(r'([^\/]+).$', doc_path).group(0).replace('.docx', '')
         codes_folder_path = codes_dir_path
         theme_code_table_path = theme_code_lookup_path
