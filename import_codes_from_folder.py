@@ -21,23 +21,30 @@ def import_themes(doc_path, codes_folder_path):
                     doc_xml = archive.read('word/document.xml')
                     doc_soup = BeautifulSoup(doc_xml, 'lxml')
 
-                    first_line = doc_soup.find('w:p').find('w:t').get_text()
-                    theme = re.match(r'Name: (.+?)\\', first_line).group(0)
+                    first_line = doc_soup.find('w:p').get_text().replace('\n', ' ').strip()
+                    print(f'-------------> first line: {first_line}')
+                    theme = re.match(r'Name: (.+?)\\', first_line).group(1).strip()
 
                     if theme not in cat_dict:
                         cat_dict[theme] = [code]
                     else:
                         cat_dict[theme].append(code)
         
-        cat_df = pd.DataFrame.from_dict(cat_dict)
-        cat_df.to_csv(doc_path.replace('.docx', '_codes.csv'), index=False)    
+        cat_df = pd.DataFrame.from_dict(cat_dict, orient='index')
+        cat_df = cat_df.transpose()
+        new_cat_path = doc_path.replace('.docx', '_codes.csv')
+        cat_df.to_csv(new_cat_path, index=False)
+
+        return new_cat_path
 
 
 def import_codes(model, doc_path, codes_folder_path, theme_code_table_path, regexp):
     start = datetime.now()
 
+    new_cat_path = ''
+
     if theme_code_table_path == '':
-        import_themes(doc_path, codes_folder_path)
+        new_cat_path = import_themes(doc_path, codes_folder_path)
         theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
@@ -138,4 +145,4 @@ def import_codes(model, doc_path, codes_folder_path, theme_code_table_path, rege
 
     print(f'------------------------------------> {themes_found}')
 
-    return themes_found
+    return themes_found, new_cat_path

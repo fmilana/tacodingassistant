@@ -1,4 +1,15 @@
+# needed for pyinstaller for MacOS
+import os
 import sys
+
+# # needed to build with pyinstaller on MacOS
+# if getattr(sys, 'frozen', False) and sys.platform == 'darwin':
+#     os.environ['QTWEBENGINEPROCESS_PATH'] = os.path.normpath(os.path.join(
+#         sys._MEIPASS, 'PySide2', 'Qt', 'lib',
+#         'QtWebEngineCore.framework', 'Helpers', 'QtWebEngineProcess.app',
+#         'Contents', 'MacOS', 'QtWebEngineProcess'
+#     ))
+
 import re
 import docx
 import json
@@ -200,10 +211,12 @@ class SetupThread(QThread):
         print(f'codes_folder_path = {codes_folder_path}')
         print(f'theme_code_table_path = {theme_code_table_path}')
 
-        run_classifier(doc_path, codes_folder_path, theme_code_table_path, regexp)
+        themes_found = run_classifier(doc_path, codes_folder_path, theme_code_table_path, regexp)
+        global themes
+        themes = themes_found
         print('done with run_classifier in setup thread')
         print('running analyse now..')
-        global themes
+        print(f'===========================> themes = {themes}')
         analyse(doc_path, themes)
         self.thread_signal.emit(themes)
 
@@ -532,19 +545,28 @@ class SetupBackend(QObject):
         global themes
 
         # copy transcript into text folder
-        end_path = re.search(r'([^\/]+).$', transcript_path).group(0)
-        doc_path = f'text/{end_path}'
+        end_doc_path = re.search(r'([^\/]+).$', transcript_path).group(0)
+        doc_path = f'text/{end_doc_path}'
         try:
             copyfile(transcript_path, doc_path)
         except:
             print('transcript already in text')
 
+        if theme_code_lookup_path != '':
+            end_theme_code_lookup_path = re.search(r'([^\/]+).$', theme_code_lookup_path).group(0)
+            cat_path = f'text/{end_theme_code_lookup_path}'
+            try:
+                copyfile(theme_code_lookup_path, cat_path)
+            except:
+                print('theme-code lookup tabe already in text')
+
         doc_file_name = re.search(r'([^\/]+).$', doc_path).group(0).replace('.docx', '')
         codes_folder_path = codes_dir_path
         theme_code_table_path = theme_code_lookup_path
 
-        cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
-        themes = list(cat_df)     
+        if theme_code_lookup_path != '':
+            cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
+            themes = list(cat_df)     
 
         self.start = time.time()
         self.thread.start()

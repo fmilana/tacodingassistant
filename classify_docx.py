@@ -6,12 +6,12 @@ import pandas as pd
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
-import seaborn as sns
+# import seaborn as sns
 import docx
 import pandas as pd
 from datetime import datetime
 from nltk import sent_tokenize, word_tokenize
-from lib.sentence2vec import Sentence2Vec
+from sentence2vec import Sentence2Vec
 from preprocess import (
     clean_sentence,
     remove_stop_words)
@@ -62,9 +62,10 @@ def get_sample_weights(Y_train):
 
 
 def generate_training_and_testing_data(oversample, many_together):
-    themes_list = list(cat_df)
+    global cat_df
     global train_df
     global original_train_df
+    themes_list = list(cat_df)
     original_train_df = train_df.copy()
     # convert embedding string to np array
     if not many_together:
@@ -172,20 +173,20 @@ def add_classification_to_csv(prediction_output, prediction_proba):
     moved_predict_df = None
 
 
-def plot_heatmaps(clf_name, Y_true, Y_predicted, sentences_dict, themes_list):
-    all_cms = multilabel_confusion_matrix(Y_true, Y_predicted.toarray())
+# def plot_heatmaps(clf_name, Y_true, Y_predicted, sentences_dict, themes_list):
+#     all_cms = multilabel_confusion_matrix(Y_true, Y_predicted.toarray())
 
-    all_label_cms = get_keyword_labels(sentences_dict, themes_list)
+#     all_label_cms = get_keyword_labels(sentences_dict, themes_list)
 
-    fig, ax = plt.subplots(2, 3, figsize=(12, 7))
-    for axes, labels, cm, theme in zip(ax.flatten(), all_label_cms, all_cms,
-        themes_list):
-        plot_multilabel_confusion_matrix(cm, labels, axes, theme, ['N', 'Y'])
+#     fig, ax = plt.subplots(2, 3, figsize=(12, 7))
+#     for axes, labels, cm, theme in zip(ax.flatten(), all_label_cms, all_cms,
+#         themes_list):
+#         plot_multilabel_confusion_matrix(cm, labels, axes, theme, ['N', 'Y'])
 
-    fig.suptitle(clf_name, fontsize=16)
-    fig.tight_layout()
+#     fig.suptitle(clf_name, fontsize=16)
+#     fig.tight_layout()
 
-    plt.show()
+#     plt.show()
 
 
 def write_cms_to_csv(sentences_dict, themes_list):
@@ -298,25 +299,25 @@ def get_keyword_labels(sentences_dict, themes_list):
     return all_cms
 
 
-def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names,
-    fontsize=14):
-    annot = (np.asarray([f'{count}\n {keyword}'
-        for keyword, count in zip(labels.flatten(), cm.flatten())])
-        ).reshape(2, 2)
+# def plot_multilabel_confusion_matrix(cm, labels, axes, theme, class_names,
+#     fontsize=14):
+#     annot = (np.asarray([f'{count}\n {keyword}'
+#         for keyword, count in zip(labels.flatten(), cm.flatten())])
+#         ).reshape(2, 2)
 
-    cmap = sns.color_palette('ch:start=.2,rot=-.3', as_cmap=True)
+#     cmap = sns.color_palette('ch:start=.2,rot=-.3', as_cmap=True)
 
-    heatmap = sns.heatmap(cm, cmap=cmap, annot=annot, fmt='', cbar=False,
-        xticklabels=class_names, yticklabels=class_names, ax=axes)
-    sns.color_palette('ch:start=.2,rot=-.3', as_cmap=True)
+#     heatmap = sns.heatmap(cm, cmap=cmap, annot=annot, fmt='', cbar=False,
+#         xticklabels=class_names, yticklabels=class_names, ax=axes)
+#     sns.color_palette('ch:start=.2,rot=-.3', as_cmap=True)
 
-    heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0,
-        ha='right', fontsize=fontsize)
-    heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45,
-        ha='right', fontsize=fontsize)
-    axes.set_ylabel('True label')
-    axes.set_xlabel('Predicted label')
-    axes.set_title(theme)
+#     heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0,
+#         ha='right', fontsize=fontsize)
+#     heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45,
+#         ha='right', fontsize=fontsize)
+#     axes.set_ylabel('True label')
+#     axes.set_xlabel('Predicted label')
+#     axes.set_title(theme)
 
 
 def classify(sentence_embedding_matrix, clf, clf_name, oversample,
@@ -493,8 +494,10 @@ def run_classifier(transcript_path, codes_folder_path, theme_code_table_path, in
             themes_found = import_codes_from_document.import_codes(model, doc_path, cat_path, regexp)
         # if from nvivo
         else:
-            themes_found = import_codes_from_folder.import_codes(model, doc_path, codes_folder_path, cat_path, regexp)
-
+            themes_found, new_cat_path = import_codes_from_folder.import_codes(model, doc_path, codes_folder_path, cat_path, regexp)
+            if new_cat_path != '':
+                # import script created new cat_path (in text folder)
+                cat_path = new_cat_path
 
     cat_df = pd.read_csv(cat_path, encoding='utf-8-sig')
     train_df = pd.read_csv(train_file_path, encoding='utf-8')
@@ -595,3 +598,5 @@ def run_classifier(transcript_path, codes_folder_path, theme_code_table_path, in
 
 
     print(f'script finished in {datetime.now() - start_script}')
+
+    return themes_found
