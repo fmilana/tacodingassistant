@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="../static/js/lib/qwebchannel.js"></script>
+    <script type="text/javascript" src="../static/js/lib/d3.js"></script>
+    <script type="text/javascript" src="../static/js/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/import.js"></script>
+    <script type="text/javascript" src="../static/js/main.js"></script>
+    <script type="text/javascript" src="../static/js/text.js"></script>
+    <script type="text/javascript" src="../static/js/codes.js"></script>
+    <script type="text/javascript" src="../static/js/all_table.js"></script>
+    <script type="text/javascript" src="../static/js/predict_table.js"></script>
+    <script type="text/javascript" src="../static/js/train_table.js"></script>
+    <script type="text/javascript" src="../static/js/confusion_tables.js"></script>
+    <link rel="stylesheet" type="text/css" href="../static/res/lib/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/res/style.css"/>
+    <title>Thematic Analysis Tool</title>
+  </head>
+  <body>
+    <div class="navbar-top">
+      <a id="text-button" class="btn-active">Text</a>
+      <a id="codes-button">Codes</a>
+      <div id="keywords-dropdown" class="dropdown">
+        <button class="dropbtn">Keywords
+          <img src="../static/res/caret-down-fill.svg", height=12px, width=12px/>
+        </button>
+        <div class="dropdown-content">
+          <a id="train-keywords-button">Train Keywords</a>
+          <a id="predict-keywords-button">Predict Keywords</a>
+          <a id="all-keywords-button">All Keywords</a>
+        </div>
+      </div>
+      <div id="cm-dropdown" class="dropdown">
+        <button class="dropbtn">Confusion Tables
+          <img src="../static/res/caret-down-fill.svg", height=12px, width=12px/>
+        </button>
+        <div id="cm-dropdown-content" class="dropdown-content">
+          <!-- links dynamically added here -->
+        </div>
+      </div>
+    </div>
+    <!-- import page -->
+    <div id="import-container">
+      <h1 id="import-title">Thematic Analysis Coding Assistant</h1>
+      <div id="import-transcript-container">
+        <div class="import-content">
+          <p id="import-transcript-label" class="import-label">Import your transcript:</p>
+          <button id="import-transcript-button" class="btn btn-secondary">Import transcript</button>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item active">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select codes folder</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">3</div>
+              <div class="step-name">Import theme-code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">4</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-transcript-next-button" class="btn btn-secondary next-button" disabled>Next</button>
+      </div>
+      <div id="import-word-or-nvivo-container">
+        <div class="import-content">
+          <p id="import-word-or-nvivo-label" class="import-label">Which software did you use to code your transcript?</p>
+          <div class="checkbox-group">
+            <input id="import-word-checkbox" type="radio">
+            <label id="import-word-checkbox-label" class="checkbox-inline" for="import-word-checkbox">Word</label>
+          </div>
+          <div class="checkbox-group">
+            <input id="import-nvivo-checkbox" type="radio">
+            <label id="import-nvivo-checkbox-label" class="checkbox-inline" for="import-nvivo-checkbox">NVivo</label>
+          </div>
+          <!-- <div id="separator-container">
+            <textarea id="separator-textarea" placeholder=""></textarea>
+          </div> -->
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item active">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select codes folder</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">3</div>
+              <div class="step-name">Import theme-code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">4</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-word-or-nvivo-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-word-or-nvivo-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+      </div>
+      <div id="import-theme-code-table-container">
+        <div class="import-content">
+          <p id="import-theme-code-table-label" class="import-label">Import a theme-code lookup table:</p>
+          <p class="import-sub-label">(Themes as column headers containing codes)</p>
+          <button id="import-theme-code-table-button" class="btn btn-secondary">Import table</button>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select codes folder</div>
+            </div>
+            <div class="stepper-item active">
+              <div class="step-counter">3</div>
+              <div class="step-name">Import theme-code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">4</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-theme-code-table-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-theme-code-table-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+      </div>
+      <div id="import-codes-folder-container">
+        <div class="import-content">
+          <p id="import-codes-folder-label" class="import-label">Select a folder containing (only) exported codes documents:</p>
+          <button id="import-codes-folder-button" class="btn btn-secondary">Select folder</button>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item active">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select codes folder</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">3</div>
+              <div class="step-name">Import theme-code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">4</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-codes-folder-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-codes-folder-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+      </div>
+      <div id="import-hierarchical-container">
+        <div class="import-content">
+          <p id="import-hierarchical-label" class="import-label">Were codes organised hierarchically in NVivo?</p>
+          <p class="import-sub-label">(Code and sub-code documents were exported with "Hierarchical Name" property)</p>
+          <div class="checkbox-group">
+            <input id="yes-checkbox" type="checkbox">
+            <label id="yes-checkbox-label" class="checkbox-inline" for="yes-checkbox">Yes</label>
+          </div>
+          <div class="checkbox-group">
+            <input id="no-checkbox" type="checkbox">
+            <label id="no-checkbox-label" class="checkbox-inline" for="no-checkbox">No</label>
+          </div>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item active">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select codes folder</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">3</div>
+              <div class="step-name">Import theme-code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">4</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-hierarchical-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-hierarchical-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+      </div>
+      <div id="import-keywords-container">
+        <div class="import-content">
+          <p id="import-keywords-label" class="import-label">Enter ";"-separated keywords to ignore or a regular expression:</p>
+          <!-- <p class="import-sub-label">(e.g. "Interviewer 1;Participant A;[unclear]" or "(^p[0-9]+.*$|\d\d:\d\d:\d\d|participant|interviewer \d)")</p> -->
+          <textarea id="filter-textarea" placeholder="Interviewer 1;Participant A;[unclear];etc...&#10;&#10;OR&#10;&#10;(?i)(^p[0-9]+.*$|\d\d:\d\d:\d\d|participant|interviewer \d|^p\d_.*$)"></textarea>
+          <div id="filter-checkbox-div">
+            <input id="regexp-checkbox" type="checkbox">
+            <label id="regexp-label" class="checkbox-inline" for="regexp-checkbox">Regular expression</label>
+            <input id="case-insensitive-checkbox" type="checkbox">
+            <label id="case-insensitive-label" class="checkbox-inline" for="case-insensitive-checkbox">Case insensitive</label>
+          </div>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select codes folder</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">3</div>
+              <div class="step-name">Import theme-code table</div>
+            </div>
+            <div class="stepper-item active">
+              <div class="step-counter">4</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-keywords-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-keywords-next-button" class="next-button btn btn-secondary">Done</button>
+      </div>
+    </div>
+    <!--  -->
+    <div id="setup-container">
+      <img id="loading-gif" src="../static/res/loading.gif">
+      <p id="setup-label">Extracting and classifying sentences...</p>
+      <p class="import-sub-label">(This might take a few minutes)</p>
+    </div>
+    <div id="text-container">
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+    <div id="codes-table-container" class="table-container">
+      <h1 id="table-title">Codes</h1>
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+    <div id="all-table-container" class="table-container">
+      <button id="re-classify-button" class="btn btn-secondary" type="button" disabled>Re-classify</button>
+      <h1 id="table-title">All Keywords</h1>
+      <div id="bin-div">
+        <h1 id="bin-title">Bin</h1>
+        <p>Drag here to remove theme</p>
+      </div>
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+    <div id="predict-table-container" class="table-container">
+      <button id="re-classify-button" class="btn btn-secondary" type="button" disabled>Re-classify</button>
+      <h1 id="table-title">Predict Keywords</h1>
+      <div id="bin-div">
+        <h1 id="bin-title">Bin</h1>
+        <p>Drag here to remove theme</p>
+      </div>
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+    <div id="train-table-container" class="table-container">
+      <button id="re-classify-button" class="btn btn-secondary" type="button" disabled>Re-classify</button>
+      <h1 id="table-title">Train Keywords</h1>
+      <div id="bin-div">
+        <h1 id="bin-title">Bin</h1>
+        <p>Drag here to remove theme</p>
+      </div>
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+    <div id="confusion-tables-container">
+      <img id="loading-gif" src="../static/res/loading.gif">
+    </div>
+  </body>
+</html>
