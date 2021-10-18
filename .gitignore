@@ -9,7 +9,6 @@ nvivo
 *.csv
 *.docx
 embeddings.pickle
-/logs/*
 classification.txt
 /models
 /embeddings/*
