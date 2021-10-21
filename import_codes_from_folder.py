@@ -23,7 +23,10 @@ def import_themes(doc_path, codes_folder_path):
 
                     first_line = doc_soup.find('w:p').get_text().replace('\n', ' ').strip()
                     print(f'-------------> first line: {first_line}')
-                    theme = re.match(r'Name: (.+?)\\', first_line).group(1).strip()
+                    try:
+                        theme = re.match(r'Name: (.+?)\\', first_line).group(1).strip()
+                    except AttributeError:
+                        theme = re.match(r'Name: Codes\\\\(.+?)\\', first_line).group(1).strip()
 
                     if theme not in cat_dict:
                         cat_dict[theme] = [code]

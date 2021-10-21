@@ -20,3 +20,4 @@ cm_data.json
 /dist
 setup.py
 /env
+logs/app.log

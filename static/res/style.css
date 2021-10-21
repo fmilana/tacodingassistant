@@ -30,7 +30,7 @@ body {
   color: #4A4A4A;
 
   @media (max-width: 768px) {
-    font-size: 12px;
+    font-size: 9px;
   }
 }
 
@@ -106,7 +106,7 @@ body {
 }
 
 #import-title {
-  font-size: 50px;
+  font-size: 40px;
   padding-top: 30px;
   font-weight: normal;
 }
@@ -149,11 +149,11 @@ input[type=radio] {
 }
 
 .import-label {
-  font-size: 25px;
+  font-size: 22px;
 }
 
 .import-sub-label {
-  font-size: 20px;
+  font-size: 15px;
   margin-top: -10px;
   margin-bottom: 20px;
 }
@@ -161,7 +161,7 @@ input[type=radio] {
 .checkbox-group {
   display: inline-block;
   margin: 0 20px 0 20px;
-  font-size: 20px;
+  font-size: 18px;
 } 
 
 .next-button {
@@ -188,7 +188,7 @@ input[type=radio] {
 }
 
 #filter-checkbox-div {
-  font-size: 20px;
+  font-size: 15px;
 }
 
 #regexp-label {
@@ -207,7 +207,7 @@ input[type=radio] {
 #setup-label {
   display: inline-block;
   margin-top: 20px;
-  font-size: 25px;
+  font-size: 20px;
 }
 
 /* #import-row {
@@ -306,7 +306,7 @@ input[type=radio] {
 
 .navbar-top a {
   float: left;
-  font-size: 16px;
+  font-size: 14px;
   text-align: center;
   color: black;
   padding: 14px 16px;
@@ -319,7 +319,7 @@ input[type=radio] {
 }
 
 .dropdown .dropbtn {
-  font-size: 16px;
+  font-size: 14px;
   border: none;
   outline: none;
   color: black;
@@ -412,7 +412,7 @@ h1 {
   display: block;
   white-space: pre-wrap;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.4;
   padding: 30px;
   margin-top: 50px;
@@ -494,7 +494,7 @@ h1 {
 
 #loading-text {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   text-align: center;
 }
 
@@ -531,7 +531,7 @@ h1 {
   color: #fff;
   content: attr(data-tooltip);
   text-align: center;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.2;
 }
 
@@ -573,7 +573,7 @@ body.words {
 #table-title {
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
-  font-size: 25px;
+  font-size: 20px;
   margin-bottom: 10px;
 }
 
@@ -588,7 +588,7 @@ table {
 
 td, th {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 th {
@@ -748,13 +748,13 @@ table.green tr:nth-child(odd) td:nth-child(even) {
 #bin-div h1 {
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 20px;
 }
 
 #bin-div p {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   text-align: center;
 }
 
@@ -766,6 +766,6 @@ table.green tr:nth-child(odd) td:nth-child(even) {
 #bin-title {
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
-  font-size: 25px;
+  font-size: 20px;
   margin-bottom: 10px;
 }

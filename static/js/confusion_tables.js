@@ -28,6 +28,7 @@ const confusionTablesLib = (function () {
   const generateTables = function () {
     for (let i = 0; i < themes.length; i++) {
       const theme = themes[i];
+      const escapedTheme = theme.replace(/([^a-zA-Z\d\s])/g, '').replace(/\s/g, '-');
       const tableData = data[i];
       const titles = data[i][0];
       // remove counts entry
@@ -36,7 +37,7 @@ const confusionTablesLib = (function () {
 
       const tableContainer = d3.select('#confusion-tables-container')
         .append('div')
-        .attr('id', `${theme.replace(/ /g, '-')}-table-container`)
+        .attr('id', `${escapedTheme}-table-container`)
         .classed('cm-container', true)
         .classed('table-container', true);
 
@@ -136,11 +137,11 @@ const confusionTablesLib = (function () {
           }
         });
 
-        generateClickEvents(themes[i]);
+        generateClickEvents(escapedTheme);
 
         const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
 
-        d3.select(`#${themes[i]}-table-container`)
+        d3.select(`#${escapedTheme}-table-container`)
           .select('#table-title')
           .style('padding-left', `${scrollBarWidth}px`);
     }
@@ -151,8 +152,8 @@ const confusionTablesLib = (function () {
   };
 
 
-  const generateClickEvents = function (theme) {
-    const tableContainer = d3.select(`#${theme.replace(/ /g, '-')}-table-container`);
+  const generateClickEvents = function (escapedTheme) {
+    const tableContainer = d3.select(`#${escapedTheme}-table-container`);
 
     tableContainer
       .selectAll('.td-with-sentences')

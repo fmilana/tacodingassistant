@@ -802,7 +802,7 @@ class WebView(QWebEngineView):
 class AppWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
-        self.resize(1500, 900)
+        self.resize(1400, 800)
         self.view = WebView(self)
         self.page = self.view.page()
         self.setup_backend = SetupBackend(self.view)

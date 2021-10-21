@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import docx
 import pandas as pd
 from datetime import datetime
-from nltk import sent_tokenize, word_tokenize
+from nltk import sent_tokenize, word_tokenize, download
 from sentence2vec import Sentence2Vec
 from preprocess import (
     clean_sentence,
@@ -488,6 +488,10 @@ def run_classifier(transcript_path, codes_folder_path, theme_code_table_path, in
     else:
         train_file_path = doc_path.replace('.docx', '_train.csv')
         predict_file_path = doc_path.replace('.docx', '_predict.csv')
+
+        # download nltk resources
+        download('punkt')
+        download('stopwords')
 
         # if from word
         if codes_folder_path == '':

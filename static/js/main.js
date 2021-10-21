@@ -113,12 +113,13 @@ const onSetup = function (extractedThemes) {
     .data(themes)
     .enter()
     .append('a')
-    .attr('id', (theme) => `${theme.replace(/ /g, '-')}-cm-button`)
+    .attr('id', (theme) => `${theme.replace(/([^a-zA-Z\d\s])/g, '').replace(/\s/g, '-')}-cm-button`)
     .classed('capitalized', true)
     .text(theme => theme);
 
     for (let i = 0; i < themes.length; i++) {
-      tabToContainerDict[`${themes[i].replace(/ /g, '-')}-cm-button`] = `${themes[i].replace(/ /g, '-')}-table-container`;
+      const escapedTheme = themes[i].replace(/([^a-zA-Z\d\s])/g, '').replace(/\s/g, '-');
+      tabToContainerDict[`${escapedTheme}-cm-button`] = `${escapedTheme}-table-container`;
     }
   
     // Navbar functionality
