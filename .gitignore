@@ -21,3 +21,4 @@ cm_data.json
 setup.py
 /env
 logs/app.log
+!reorder_exit_codes.csv
