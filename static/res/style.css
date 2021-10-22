@@ -566,6 +566,7 @@ body.words {
 
 #re-classify-button {
   position: absolute;
+  padding: 1.5px 5px 1.5px 5px;
   top: 18px;
   left: 18px;
 }

@@ -760,7 +760,7 @@ const allTableLib = (function () {
     console.log(`moving ${movingText} from ${movingColumn} to ${targetColumn}`);
 
     // TODO: move to txt?
-    const stopWords = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves',
+    const stopWords = ['yeah', 'yeah,', 'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves',
       'you', 'your', 'yours', 'yourself', 'yourselves', 'he', 'him', 'his', 'himself',
       'she', 'her', 'hers', 'herself', 'it', 'its', 'itself', 'they', 'them', 'their',
       'theirs', 'themselves', 'what', 'which', 'who', 'whom', 'this', 'that', 'these',
