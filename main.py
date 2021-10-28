@@ -276,7 +276,7 @@ class CodesTableThread(QThread):
         counts = [0 for _ in self.app_window.themes]
 
         train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'))
-        codes_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_codes.csv'))
+        codes_df = pd.read_csv(self.app_window.theme_code_table_path)
 
         for _, row in train_df.iterrows():
             if row['codes'] != '':
@@ -581,26 +581,26 @@ class SetupBackend(QObject):
         try:
             copyfile(transcript_path, self.app_window.doc_path)
         except:
-            print('transcript already in text')
+            print('transcript already in text folder')
 
+        # copy code lookup table into text folder
         if theme_code_lookup_path != '':
             end_theme_code_lookup_path = re.search(r'([^\/]+).$', theme_code_lookup_path).group(0)
-            cat_path = f'text/{end_theme_code_lookup_path}'
+            self.app_window.theme_code_table_path = f'text/{end_theme_code_lookup_path}'
             try:
-                copyfile(theme_code_lookup_path, cat_path)
+                copyfile(theme_code_lookup_path, self.app_window.theme_code_table_path)
             except:
-                print('theme-code lookup tabe already in text')
+                print('theme-code lookup tabe already in text folder')
 
         self.app_window.doc_file_name = re.search(r'([^\/]+).$', self.app_window.doc_path).group(0).replace('.docx', '')
         self.app_window.codes_folder_path = codes_dir_path
-        self.app_window.theme_code_table_path = theme_code_lookup_path
 
         if theme_code_lookup_path != '':
             cat_df = pd.read_csv(self.app_window.theme_code_table_path, encoding='utf-8-sig')
             self.app_window.themes = list(cat_df)     
 
         # set paths and regexp for classify_docx object
-        self.classify_docx.set_up(transcript_path, self.app_window.codes_folder_path, self.app_window.theme_code_table_path, interviewer_regexp)
+        self.classify_docx.set_up(self.app_window.doc_path, self.app_window.codes_folder_path, self.app_window.theme_code_table_path, interviewer_regexp)
         # pass classify_docx object to thread
         self.thread.classify_docx = self.classify_docx
         self.start = time.time()

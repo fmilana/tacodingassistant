@@ -211,11 +211,11 @@ class ClassifyDocx:
         ]
 
         for theme in themes_list:
-            start_path = re.search(r'^(.*[\\\/])', self.doc_path).group(0)
+            # start_path = re.search(r'^(.*[\\\/])', self.doc_path).group(0)
             end_path = re.search(r'([^\/]+).$', self.doc_path).group(0)
             end_path = end_path.replace('.docx', f'_{theme.replace(" ", "_")}_cm.csv')
 
-            theme_cm_path = f'{start_path}cm/{end_path}'
+            theme_cm_path = f'text/cm/{end_path}'
 
             with open(theme_cm_path, 'w', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file, delimiter=',')
