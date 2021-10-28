@@ -21,25 +21,11 @@ from PySide2.QtCore import QDir, QObject, QThread, QUrl, Signal, Slot
 from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
-from classify_docx import run_classifier
+from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
 
 
-doc_path = ''
-doc_file_name = ''
-codes_folder_path = ''
-theme_code_table_path = ''
-
-themes = []
-
-regexp = ''
-
-first_reclassify = True
-
-classify_counter = 0
-
-
-def load_table_data(table_name, reclassified):
+def load_table_data(doc_path, themes, table_name, reclassified):
     table = []
 
     minimum_proba = 0.95
@@ -203,44 +189,55 @@ class WebEnginePage(QWebEnginePage):
 
 
 class SetupThread(QThread):
+    app_window = None
     thread_signal = Signal('QVariant')
+    classify_docx = None
+
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.app_window = parent.parent().parent()
 
     def run(self):
         print('===========================> SETUP THREAD STARTED')
-        print(f'doc_path = {doc_path}')
-        print(f'codes_folder_path = {codes_folder_path}')
-        print(f'theme_code_table_path = {theme_code_table_path}')
+        print(f'doc_path = {self.app_window.doc_path}')
+        print(f'codes_folder_path = {self.app_window.codes_folder_path}')
+        print(f'theme_code_table_path = {self.app_window.theme_code_table_path}')
 
-        themes_found = run_classifier(doc_path, codes_folder_path, theme_code_table_path, regexp)
-        global themes
-        themes = themes_found
+        themes_found = self.classify_docx.run_classifier()
+        self.app_window.themes = themes_found
+
         print('done with run_classifier in setup thread')
         print('running analyse now..')
-        print(f'===========================> themes = {themes}')
-        analyse(doc_path, themes)
-        self.thread_signal.emit(themes)
+        print(f'===========================> themes = {self.app_window.themes}')
+        analyse(self.app_window.doc_path, self.app_window.themes)
+        self.thread_signal.emit(self.app_window.themes)
 
 
 class TextThread(QThread):
+    app_window = None
     thread_signal = Signal('QVariant')
     reclassified = None
+
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.app_window = parent.parent().parent()
 
     def run(self):
         print('===========================> TEXT THREAD STARTED')
         minimum_proba = 0.95
 
-        document = docx.Document(doc_path)
+        document = docx.Document(self.app_window.doc_path)
         whole_text = []
         for paragraph in document.paragraphs:
             whole_text.append(paragraph.text)
         whole_text = '\n\n'.join(whole_text)
 
         if self.reclassified:
-            train_df = pd.read_csv(doc_path.replace('.docx', '_train_1.csv'))
-            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict_1.csv'))
+            train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train_1.csv'))
+            predict_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_predict_1.csv'))
         else:
-            train_df = pd.read_csv(doc_path.replace('.docx', '_train.csv'))
-            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict.csv'))
+            train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'))
+            predict_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_predict.csv'))
 
         train_data = []
         for _, row in train_df.iterrows():
@@ -249,7 +246,7 @@ class TextThread(QThread):
         predict_data = []
         for index, row in predict_df.iterrows():
           row_themes = ''
-          for i in range(3, len(predict_df.columns) - len(themes), 1):
+          for i in range(3, len(predict_df.columns) - len(self.app_window.themes), 1):
             if (predict_df.iloc[index, i] == 1 and 
             row[f'{predict_df.columns[i]} probability'] > minimum_proba):
               if len(row_themes) == 0:
@@ -266,30 +263,35 @@ class TextThread(QThread):
 
 
 class CodesTableThread(QThread):
+    app_window = None
     thread_signal = Signal('QVariant')
+
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.app_window = parent.parent().parent()
 
     def run(self):
         print('===========================> CODES TABLE THREAD STARTED')
         data = []
-        counts = [0 for _ in themes]
+        counts = [0 for _ in self.app_window.themes]
 
-        train_df = pd.read_csv(doc_path.replace('.docx', '_train.csv'))
-        codes_df = pd.read_csv(doc_path.replace('.docx', '_codes.csv'))
+        train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'))
+        codes_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_codes.csv'))
 
         for _, row in train_df.iterrows():
             if row['codes'] != '':
-                for i, theme in enumerate(themes):
+                for i, theme in enumerate(self.app_window.themes):
                     counts[i] += int(row[theme])
 
         titles = []
-        for i, theme in enumerate(themes):
+        for i, theme in enumerate(self.app_window.themes):
             titles.append(f'{theme} ({counts[i]})')
 
         data.append(titles)
         
         for _, codes_row in codes_df.iterrows():
             table_row = {}
-            for theme in themes:
+            for theme in self.app_window.themes:
                 code = codes_row[theme]
                 if isinstance(code, str):
                     sentences = []
@@ -303,50 +305,71 @@ class CodesTableThread(QThread):
 
 
 class AllTableThread(QThread):
+    app_window = None
     thread_signal = Signal('QVariant')
     reclassified = None
 
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.app_window = parent.parent().parent()
+
     def run(self):
         print('===========================> ALL TABLE THREAD STARTED')
-        data = load_table_data('all-table', self.reclassified)
+        data = load_table_data(self.app_window.doc_path, self.app_window.themes, 'all-table', self.reclassified)
         # with open('all_table_data.json', 'w') as f:
         #     json.dump(data, f)
         self.thread_signal.emit(data)
 
 
 class PredictTableThread(QThread):
+    app_window = None
     thread_signal = Signal('QVariant')
     reclassified = None
 
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.app_window = parent.parent().parent()
+
     def run(self):
         print('===========================> PREDICT TABLE THREAD STARTED')
-        data = load_table_data('predict-table', self.reclassified)
+        data = load_table_data(self.app_window.doc_path, self.app_window.themes, 'predict-table', self.reclassified)
         self.thread_signal.emit(data)
 
 
 class TrainTableThread(QThread):
+    app_window = None
     thread_signal = Signal('QVariant')
     reclassified = None
 
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.app_window = parent.parent().parent()
+
     def run(self):
         print('===========================> TRAIN TABLE THREAD STARTED')
-        data = load_table_data('train-table', self.reclassified)
+        data = load_table_data(self.app_window.doc_path, self.app_window.themes, 'train-table', self.reclassified)
         self.thread_signal.emit(data)
 
 
 class ReclassifyThread(QThread):
+    app_window = None
     thread_signal = Signal('QVariant')
     table_changed_data = None
     first_reclassify = None
+    classify_docx = None
+
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.app_window = parent.parent().parent()
 
     def run(self):
         print('===========================> RECLASSIFY THREAD STARTED')
         if self.first_reclassify:
-            train_path = doc_path.replace('.docx', '_train.csv')
-            predict_path = doc_path.replace('.docx', '_predict.csv')
+            train_path = self.app_window.doc_path.replace('.docx', '_train.csv')
+            predict_path = self.app_window.doc_path.replace('.docx', '_predict.csv')
         else:
-            train_path = doc_path.replace('.docx', '_train_1.csv')
-            predict_path = doc_path.replace('.docx', '_predict_1.csv')
+            train_path = self.app_window.doc_path.replace('.docx', '_train_1.csv')
+            predict_path = self.app_window.doc_path.replace('.docx', '_predict_1.csv')
         
         train_df = pd.read_csv(train_path)
         predict_df = pd.read_csv(predict_path)
@@ -385,13 +408,13 @@ class ReclassifyThread(QThread):
                             all_themes = [target_column]
                         else:
                             all_themes = []
-                            for theme in themes: 
+                            for theme in self.app_window.themes: 
                                 if (theme != moving_column and theme != target_column and 
                                 str(predict_df.loc[index, theme].any()) == '1'):
                                     all_themes.append(theme)
 
                                 predict_as_train_row = {
-                                    'file_name': doc_path,
+                                    'file_name': self.app_window.doc_path,
                                     'comment_id': '',
                                     'original_sentence': sentence,
                                     'cleaned_sentence': cleaned_sentence,
@@ -400,7 +423,7 @@ class ReclassifyThread(QThread):
                                     'themes': '; '.join(sorted(all_themes))
                                 }
 
-                                for theme in themes:
+                                for theme in self.app_window.themes:
                                     if theme in all_themes:
                                         predict_as_train_row[theme] = '1'
                                     else:
@@ -409,35 +432,39 @@ class ReclassifyThread(QThread):
                                 train_df = train_df.append(predict_as_train_row, ignore_index=True)
 
 
-        new_train_path = doc_path.replace('.docx', '_train_1.csv')
+        new_train_path = self.app_window.doc_path.replace('.docx', '_train_1.csv')
         train_df.to_csv(new_train_path, index=False)
 
         print('running run_classifier...')
-        run_classifier(doc_path, codes_folder_path, theme_code_table_path, regexp, new_train_path)
+        self.classify_docx.run_classifier(new_train_path)
         print('done!')
 
         print('running analyse...')
-        analyse(doc_path, themes, new_train_path)
+        analyse(self.app_window.doc_path, self.app_window.themes, new_train_path)
         print('done!')
 
-        global classify_counter
-        classify_counter += 1
+        self.app_window.classify_counter += 1
 
         self.thread_signal.emit('done')
 
 
 class ConfusionTablesThread(QThread):
+    app_window = None
     thread_signal = Signal('QVariant')
+
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.app_window = parent.parent().parent()
 
     def run(self):
         print('===========================> CONFUSION TABLES THREAD STARTED')
         data = []
 
-        for theme in themes:
+        for theme in self.app_window.themes:
             table_data = []
 
-            start_path = re.search(r'^(.*[\\\/])', doc_path).group(0)
-            end_path = re.search(r'([^\/]+).$', doc_path).group(0)
+            start_path = re.search(r'^(.*[\\\/])', self.app_window.doc_path).group(0)
+            end_path = re.search(r'([^\/]+).$', self.app_window.doc_path).group(0)
             end_path = end_path.replace('.docx', f'_{theme.replace(" ", "_")}_cm.csv')
 
             cm_path = f'{start_path}cm/{end_path}'
@@ -478,77 +505,81 @@ class ConfusionTablesThread(QThread):
 
 
 class LogThread(QThread):
+    app_window = None
     data = None
+
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.app_window = parent.parent().parent()
     
     def run(self):
         with open('logs/app.log', 'a') as f:
-            global doc_file_name
-            global classify_counter
             if 'setup finished' in self.data or 'reclassify' in self.data:
-                self.data += f' (logs/models/{doc_file_name}_xgbmodel_{classify_counter}.pickle)'
+                self.data += f' (logs/models/{self.app_window.doc_file_name}_xgbmodel_{self.app_window.classify_counter}.pickle)'
             elif 'all table finished loading' in self.data:
-                self.data += f' (logs/data/{doc_file_name}_analyse_{classify_counter}.csv)'
+                self.data += f' (logs/data/{self.app_window.doc_file_name}_analyse_{self.app_window.classify_counter}.csv)'
             elif 'predict table finished loading' in self.data:
-                self.data += f' (logs/data/{doc_file_name}_predict_analyse_{classify_counter}.csv)'
+                self.data += f' (logs/data/{self.app_window.doc_file_name}_predict_analyse_{self.app_window.classify_counter}.csv)'
             elif 'train table finished loading' in self.data:
-                self.data += f' (logs/data/{doc_file_name}_train_analyse_{classify_counter}.csv)'
+                self.data += f' (logs/data/{self.app_window.doc_file_name}_train_analyse_{self.app_window.classify_counter}.csv)'
 
             f.write(f'{self.data}\n')
             f.close()
 
 
 class KeywordsThread(QThread):
+    app_window = None
     thread_signal = Signal('QVariant')
     input_regexp = None
     regular_expression = None
     case_insensitive = None
 
-    def run(self):
-        global regexp
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.app_window = parent.parent().parent()
 
+    def run(self):
         if self.regular_expression:
             if self.case_insensitive and not self.input_regexp.strip().startswith('(?i)'):
-                regexp = '(?i)' + self.input_regexp
+                self.app_window.regexp = '(?i)' + self.input_regexp
             else:
-                regexp = self.input_regexp
+                self.app_window.regexp = self.input_regexp
         else:
             if self.case_insensitive:
-                regexp = '(?i)(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
+                self.app_window.regexp = '(?i)(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
             else:
-                regexp = '(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
+                self.app_window.regexp = '(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
         try: 
-            re.compile(regexp)
+            re.compile(self.app_window.regexp)
             valid = True
         except re.error:
             valid = False
 
-        print(f'saved regexp =================================> {regexp}')
+        print(f'saved regexp =================================> {self.app_window.regexp}')
 
-        self.thread_signal.emit(['regexp', regexp, valid])
+        self.thread_signal.emit(['regexp', self.app_window.regexp, valid])
 
 
 class SetupBackend(QObject):
+    app_window = None
     signal = Signal('QVariant')
+    classify_docx = None
     start = None
 
-    def __init__(self, parent=None):
+    def __init__(self, classify_docx, parent=None):
         QObject.__init__(self, parent)
+        self.app_window = parent.parent()
+        self.classify_docx = classify_docx
         self.thread = SetupThread(self)
         self.thread.thread_signal.connect(self.send_data)
 
-    @Slot(str, str, str)
-    def set_up(self, transcript_path, codes_dir_path, theme_code_lookup_path):
-        global doc_path
-        global doc_file_name
-        global codes_folder_path
-        global theme_code_table_path
-        global themes
-
+    @Slot(str, str, str, str)
+    def set_up(self, transcript_path, codes_dir_path, theme_code_lookup_path, interviewer_regexp):
         # copy transcript into text folder
         end_doc_path = re.search(r'([^\/]+).$', transcript_path).group(0)
-        doc_path = f'text/{end_doc_path}'
+        self.app_window.doc_path = f'text/{end_doc_path}'
         try:
-            copyfile(transcript_path, doc_path)
+            copyfile(transcript_path, self.app_window.doc_path)
         except:
             print('transcript already in text')
 
@@ -560,14 +591,18 @@ class SetupBackend(QObject):
             except:
                 print('theme-code lookup tabe already in text')
 
-        doc_file_name = re.search(r'([^\/]+).$', doc_path).group(0).replace('.docx', '')
-        codes_folder_path = codes_dir_path
-        theme_code_table_path = theme_code_lookup_path
+        self.app_window.doc_file_name = re.search(r'([^\/]+).$', self.app_window.doc_path).group(0).replace('.docx', '')
+        self.app_window.codes_folder_path = codes_dir_path
+        self.app_window.theme_code_table_path = theme_code_lookup_path
 
         if theme_code_lookup_path != '':
-            cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
-            themes = list(cat_df)     
+            cat_df = pd.read_csv(self.app_window.theme_code_table_path, encoding='utf-8-sig')
+            self.app_window.themes = list(cat_df)     
 
+        # set paths and regexp for classify_docx object
+        self.classify_docx.set_up(transcript_path, self.app_window.codes_folder_path, self.app_window.theme_code_table_path, interviewer_regexp)
+        # pass classify_docx object to thread
+        self.thread.classify_docx = self.classify_docx
         self.start = time.time()
         self.thread.start()
         
@@ -697,11 +732,13 @@ class TrainTableBackend(QObject):
 
 
 class ReclassifyBackend(QObject):
+    classify_docx = None
     signal = Signal('QVariant')
     start = None
 
-    def __init__(self, parent=None):
+    def __init__(self, classify_docx, parent=None):
         QObject.__init__(self, parent)
+        self.classify_docx = classify_docx
         self.thread = ReclassifyThread(self) # cannot be in get_data or send_data
         self.thread.thread_signal.connect(self.send_data) # does not emit data
 
@@ -709,6 +746,9 @@ class ReclassifyBackend(QObject):
     def get_data(self, table_changed_data, first_reclassify):
         self.thread.table_changed_data = table_changed_data
         self.thread.first_reclassify = first_reclassify
+
+        # pass classify_docx object to thread
+        self.thread.classify_docx = self.classify_docx
         self.start = time.time()
         self.thread.start()
 
@@ -800,18 +840,28 @@ class WebView(QWebEngineView):
 
 
 class AppWindow(QMainWindow):
+    doc_path = ''
+    theme_code_table_path = ''
+    codes_folder_path = ''
+    doc_file_name = ''
+    regexp = ''
+    themes = []
+    classify_counter = 0
+
     def __init__(self):
         QMainWindow.__init__(self)
         self.resize(1400, 800)
         self.view = WebView(self)
         self.page = self.view.page()
-        self.setup_backend = SetupBackend(self.view)
+        # create classify_docx object to pass to setup_backend and reclassify_backend
+        classify_docx = ClassifyDocx()
+        self.setup_backend = SetupBackend(classify_docx, self.view)
         self.text_backend = TextBackend(self.view)
         self.codes_table_backend = CodesTableBackend(self.view)
         self.all_table_backend = AllTableBackend(self.view)
         self.predict_table_backend = PredictTableBackend(self.view)
         self.train_table_backend = TrainTableBackend(self.view)
-        self.reclassify_backend = ReclassifyBackend(self.view)
+        self.reclassify_backend = ReclassifyBackend(classify_docx, self.view)
         self.confusion_tables_backend = ConfusionTablesBackend(self.view)
         self.log_backend = LogBackend(self.view)
         self.import_backend = ImportBackend(self.view)
