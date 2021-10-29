@@ -1,5 +1,6 @@
 import os
 import re
+from shutil import copyfile
 import zipfile
 import numpy as np
 import pandas as pd
@@ -38,16 +39,18 @@ def import_themes(doc_path, codes_folder_path):
         new_cat_path = doc_path.replace('.docx', '_codes.csv')
         cat_df.to_csv(new_cat_path, index=False)
 
-        return new_cat_path
 
-
-def import_codes(model, doc_path, codes_folder_path, theme_code_table_path, regexp):
+# doc_path and theme_code_table_path documents already copied in text folder
+def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_table_path, regexp):
+    print(f'extracting codes from {codes_folder_path}...')
     start = datetime.now()
 
-    new_cat_path = ''
+    print(f'theme_code_table_path = {theme_code_table_path}')
+    print(f'len(theme_code_table_path) = {len(theme_code_table_path)}')
 
     if theme_code_table_path == '':
-        new_cat_path = import_themes(doc_path, codes_folder_path)
+        # create codes.csv in text folder from codes documents
+        import_themes(doc_path, codes_folder_path)
         theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
@@ -120,7 +123,7 @@ def import_codes(model, doc_path, codes_folder_path, theme_code_table_path, rege
                                         'comment_id': '0', 
                                         'original_sentence': sentence,
                                         'cleaned_sentence': cleaned_sentence,
-                                        'sentence_embedding': model.get_vector(cleaned_sentence),
+                                        'sentence_embedding': sentence2vec_model.get_vector(cleaned_sentence),
                                         'codes': code,
                                         'themes': theme
                                     }
@@ -148,4 +151,4 @@ def import_codes(model, doc_path, codes_folder_path, theme_code_table_path, rege
 
     print(f'------------------------------------> {themes_found}')
 
-    return themes_found, new_cat_path
+    return themes_found

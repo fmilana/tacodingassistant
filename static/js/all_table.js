@@ -1151,7 +1151,6 @@ const allTableLib = (function () {
           d3.select('#confusion-tables-container').select('#loading-gif').style('display', 'block');
         }
 
-
         d3.select('#all-table-container')
           .select('table').remove();
 

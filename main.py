@@ -199,10 +199,6 @@ class SetupThread(QThread):
 
     def run(self):
         print('===========================> SETUP THREAD STARTED')
-        print(f'doc_path = {self.app_window.doc_path}')
-        print(f'codes_folder_path = {self.app_window.codes_folder_path}')
-        print(f'theme_code_table_path = {self.app_window.theme_code_table_path}')
-
         themes_found = self.classify_docx.run_classifier()
         self.app_window.themes = themes_found
 
@@ -577,6 +573,7 @@ class SetupBackend(QObject):
     def set_up(self, transcript_path, codes_dir_path, theme_code_lookup_path, interviewer_regexp):
         # copy transcript into text folder
         end_doc_path = re.search(r'([^\/]+).$', transcript_path).group(0)
+        self.app_window.doc_file_name = end_doc_path.replace('.docx', '')
         self.app_window.doc_path = f'text/{end_doc_path}'
         try:
             copyfile(transcript_path, self.app_window.doc_path)
@@ -585,24 +582,23 @@ class SetupBackend(QObject):
 
         # copy code lookup table into text folder
         if theme_code_lookup_path != '':
-            end_theme_code_lookup_path = re.search(r'([^\/]+).$', theme_code_lookup_path).group(0)
-            self.app_window.theme_code_table_path = f'text/{end_theme_code_lookup_path}'
             try:
                 copyfile(theme_code_lookup_path, self.app_window.theme_code_table_path)
             except:
-                print('theme-code lookup tabe already in text folder')
-
-        self.app_window.doc_file_name = re.search(r'([^\/]+).$', self.app_window.doc_path).group(0).replace('.docx', '')
-        self.app_window.codes_folder_path = codes_dir_path
+                print('theme-code lookup table already in text folder')
 
         if theme_code_lookup_path != '':
             cat_df = pd.read_csv(self.app_window.theme_code_table_path, encoding='utf-8-sig')
             self.app_window.themes = list(cat_df)     
 
         # set paths and regexp for classify_docx object
-        self.classify_docx.set_up(self.app_window.doc_path, self.app_window.codes_folder_path, self.app_window.theme_code_table_path, interviewer_regexp)
+        self.classify_docx.set_up(self.app_window.doc_path, codes_dir_path, theme_code_lookup_path, interviewer_regexp)
         # pass classify_docx object to thread
         self.thread.classify_docx = self.classify_docx
+
+        # even if theme_code_lookup_path was '', import_codes_from_folder in classify_docx will have created text/..._codes.csv
+        self.app_window.theme_code_table_path = self.app_window.doc_path.replace('.docx', '_codes.csv')
+
         self.start = time.time()
         self.thread.start()
         

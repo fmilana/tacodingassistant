@@ -38,6 +38,9 @@ const textLib = (function () {
         .attr('id', 'text-paragraph')
         .html(d => d);
 
+    // scroll text container to top after re-classification?
+    // textContainerRow.select('#text-box').node().scrollTop = 0;
+
     if (d3.select('#text-container').style('display') === 'block') {    
       generateComments();
     }
@@ -114,13 +117,11 @@ const textLib = (function () {
       .each(function () {
         const obj = {
           themes: d3.select(this).attr('data-tooltip'),
-          y: this.getBoundingClientRect().y - 50, // navbar offset
+          y: this.getBoundingClientRect().y - 50 + d3.select('#text-container').node().scrollTop, // navbar offset (50) + scroll offset
           color: d3.select(this).style('background-color')
         };
         commentsObj.push(obj);
       });
-
-    console.log(`=============================> commentsObj.length = ${commentsObj.length}`);
 
     let lastThemes = '';
     let lastY = 0;

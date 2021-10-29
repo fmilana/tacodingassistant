@@ -12,12 +12,6 @@ from preprocess import (
     remove_stop_words)
 
 
-doc_path = ''
-cat_path = ''
-regexp = ''
-model = None
-
-
 def transverse(start, end, text):
     if start == end:
         return text
@@ -50,15 +44,11 @@ def transverse(start, end, text):
     return transverse(first_row, end, text + '\n')
 
 
-def import_codes(sentence2vec_model, transcript_path, theme_code_table_path, interviewer_regexp):
-    model = sentence2vec_model
-    doc_path = transcript_path
-    cat_path = theme_code_table_path
-    regexp = interviewer_regexp
-
+# doc_path and theme_code_table_path documents already copied in text folder
+def import_codes(sentence2vec_model, doc_path, theme_code_table_path, regexp):
     print(f'extracting comments from {doc_path}...')
     start = datetime.now()
-    cat_df = pd.read_csv(cat_path, encoding='utf-8-sig')
+    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
 
     with zipfile.ZipFile(doc_path, 'r') as archive:
         # write header
@@ -104,7 +94,7 @@ def import_codes(sentence2vec_model, transcript_path, theme_code_table_path, int
                     # remove_stop_words(remove_interview_format(sentence)))
                     clean_sentence(sentence, regexp))
                 sentence_to_cleaned_dict[sentence] = [cleaned_sentence,
-                    model.get_vector(cleaned_sentence)]
+                    sentence2vec_model.get_vector(cleaned_sentence)]
 
             themes = []
 

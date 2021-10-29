@@ -485,10 +485,7 @@ class ClassifyDocx:
                 self.themes = import_codes_from_document.import_codes(self.sentence2vec_model, self.doc_path, self.cat_path, self.regexp)
             # if from nvivo
             else:
-                self.themes, new_cat_path = import_codes_from_folder.import_codes(self.sentence2vec_model, self.doc_path, self.codes_folder_path, self.cat_path, self.regexp)
-                if new_cat_path != '':
-                    # import script created new cat_path (in text folder)
-                    self.cat_path = new_cat_path
+                self.themes = import_codes_from_folder.import_codes(self.sentence2vec_model, self.doc_path, self.codes_folder_path, self.cat_path, self.regexp)
 
         if modified_train_file_path is not None:
             self.train_file_path = modified_train_file_path
