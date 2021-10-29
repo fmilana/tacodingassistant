@@ -583,12 +583,12 @@ class SetupBackend(QObject):
         # copy code lookup table into text folder
         if theme_code_lookup_path != '':
             try:
-                copyfile(theme_code_lookup_path, self.app_window.theme_code_table_path)
+                copyfile(theme_code_lookup_path, f'text/{end_doc_path.replace(".docx", "_codes.csv")}')
             except:
                 print('theme-code lookup table already in text folder')
 
         if theme_code_lookup_path != '':
-            cat_df = pd.read_csv(self.app_window.theme_code_table_path, encoding='utf-8-sig')
+            cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig')
             self.app_window.themes = list(cat_df)     
 
         # set paths and regexp for classify_docx object

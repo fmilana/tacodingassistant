@@ -1,0 +1,33 @@
+[29/10/2021, 18:41:32 (1635529292327)]: app closed
+[29/10/2021, 18:41:42 (1635529302316)]: app launched
+[29/10/2021, 18:41:57 (1635529317423)]: import document containing codes from Word. Filtered keywords: ""
+[29/10/2021, 18:43:00 (1635529380423)]: app closed
+[29/10/2021, 18:43:08 (1635529388065)]: app launched
+[29/10/2021, 18:43:22 (1635529402849)]: import document containing codes from Word. Filtered keywords: ""
+[29/10/2021, 18:43:24 (1635529404807)]: setup finished, text finished loading (logs/models/P10exit_xgbmodel_0.pickle)
+[29/10/2021, 18:43:25 (1635529405164)]: train table finished loading (logs/data/P10exit_train_analyse_0.csv)
+[29/10/2021, 18:43:28 (1635529408701)]: predict table finished loading (logs/data/P10exit_predict_analyse_0.csv)
+[29/10/2021, 18:43:29 (1635529409147)]: all table finished loading (logs/data/P10exit_analyse_0.csv)
+[29/10/2021, 19:01:54 (1635530514623)]: app closed
+[29/10/2021, 19:02:15 (1635530535536)]: app launched
+[29/10/2021, 19:02:36 (1635530556960)]: import document containing codes from Word. Filtered keywords: ""
+[29/10/2021, 19:02:39 (1635530559036)]: setup finished, text finished loading (logs/models/P10exit_xgbmodel_0.pickle)
+[29/10/2021, 19:02:39 (1635530559440)]: train table finished loading (logs/data/P10exit_train_analyse_0.csv)
+[29/10/2021, 19:02:42 (1635530562675)]: predict table finished loading (logs/data/P10exit_predict_analyse_0.csv)
+[29/10/2021, 19:02:42 (1635530562924)]: all table finished loading (logs/data/P10exit_analyse_0.csv)
+[29/10/2021, 19:14:24 (1635531264778)]: app launched
+[29/10/2021, 19:14:51 (1635531291693)]: import document containing codes from Word. Filtered keywords: ""
+[29/10/2021, 19:14:53 (1635531293699)]: setup finished, text finished loading (logs/models/P10exit_xgbmodel_0.pickle)
+[29/10/2021, 19:14:54 (1635531294217)]: train table finished loading (logs/data/P10exit_train_analyse_0.csv)
+[29/10/2021, 19:14:54 (1635531294599)]: codes finished loading
+[29/10/2021, 19:14:56 (1635531296934)]: predict table finished loading (logs/data/P10exit_predict_analyse_0.csv)
+[29/10/2021, 19:14:57 (1635531297842)]: all table finished loading (logs/data/P10exit_analyse_0.csv)
+[29/10/2021, 19:15:19 (1635531319157)]: switched to all-keywords-button
+[29/10/2021, 19:15:21 (1635531321234)]: keyword "time (2)" (study vs product) at position 0 moved to "social"
+[29/10/2021, 19:15:22 (1635531322097)]: reclassify (logs/models/P10exit_xgbmodel_0.pickle)
+[29/10/2021, 19:15:26 (1635531326495)]: reclassified all table finished loading (logs/data/P10exit_analyse_1.csv)
+[29/10/2021, 19:15:26 (1635531326787)]: reclassified train table finished loading (logs/data/P10exit_train_analyse_1.csv)
+[29/10/2021, 19:15:28 (1635531328375)]: reclassified predict table finished loading (logs/data/P10exit_predict_analyse_1.csv)
+[29/10/2021, 19:15:28 (1635531328425)]: setup finished, text finished loading (logs/models/P10exit_xgbmodel_1.pickle)
+[29/10/2021, 19:15:35 (1635531335802)]: switched to text-button
+[29/10/2021, 19:15:37 (1635531337119)]: app closed
