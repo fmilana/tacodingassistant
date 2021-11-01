@@ -23,7 +23,7 @@ def import_themes(doc_path, codes_folder_path):
                     doc_soup = BeautifulSoup(doc_xml, 'lxml')
 
                     first_line = doc_soup.find('w:p').get_text().replace('\n', ' ').strip()
-                    print(f'-------------> first line: {first_line}')
+                    print(f'-------------> extracting code: {first_line}')
                     try:
                         theme = re.match(r'Name: (.+?)\\', first_line).group(1).strip()
                     except AttributeError:
