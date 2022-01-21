@@ -72,7 +72,15 @@ const onImportData = function (data) {
     }
   } else {
     // keywords
-    regexp = new RegExp(data[1].replace(/^\(\?i\)/, ''), 'gi');
+    if (data[1] === '') {
+      regexp = data[1];
+    } else if (data[1].startsWith('(?i)')) {
+      regexp = new RegExp(`\\b${data[1].replace(/^\(\?i\)/, '')}\\b[^A-Za-z]*`, 'gi'); // match only words (or word + punct)
+      regexp = regexp.toString();
+    } else {
+      regexp = new RegExp(`\\b${data[1].replace(/^\(\?i\)/, '')}\\b[^A-Za-z]*`, 'g'); // match only words (or word + punct)
+      regexp = regexp.toString();
+    }
     const valid = data[2];
     if (valid) {
       d3.select('#import-container')
@@ -81,7 +89,7 @@ const onImportData = function (data) {
       d3.select('#setup-container')
         .style('display', 'block');
 
-      setupBackend.set_up(transcriptPath, codesPath, themeCodeTablePath, regexp.toString());
+      setupBackend.set_up(transcriptPath, codesPath, themeCodeTablePath, regexp);
     } else {
       // error message
       alert('Please check your filtered keywords or regular expression');

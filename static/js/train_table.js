@@ -16,6 +16,8 @@ const trainTableLib = (function () {
 
   let maxZIndex = 1;
 
+  let keywordZIndex;
+
   let changedData = [];
   let reclassifyChangesDict = []; // only updated to latest classification
                                   // (for comparison/visualisation purpose)
@@ -362,6 +364,8 @@ const trainTableLib = (function () {
       .select('#table-title')
       .style('z-index', maxZIndex++);
 
+    keywordZIndex = d3.select(this).style('z-index'); // reassign after dragging (fixes bug)
+
     d3.select(this)
       .classed('dragging', true)
       .style('z-index', maxZIndex++);
@@ -446,7 +450,8 @@ const trainTableLib = (function () {
       d3.select(this)
         .classed('dragging', false)
         .style('left', '0px')
-        .style('top', '0px');
+        .style('top', '0px')
+        .style ('z-index', keywordZIndex);
 
       const tdDiv = d3.select(this);
       const movingText = tdDiv.text();

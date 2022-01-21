@@ -16,6 +16,8 @@ const allTableLib = (function () {
 
   let maxZIndex = 1;
 
+  let keywordZIndex;
+
   let changedData = [];
   let reclassifyChangesDict = []; // only updated to latest classification
                                   // (for comparison/visualisation purpose)
@@ -383,6 +385,8 @@ const allTableLib = (function () {
       .select('#table-title')
       .style('z-index', maxZIndex++);
 
+    keywordZIndex = d3.select(this).style('z-index'); // reassign after dragging (fixes bug)
+
     d3.select(this)
       .classed('dragging', true)
       .style('z-index', maxZIndex++);
@@ -467,7 +471,8 @@ const allTableLib = (function () {
       d3.select(this)
         .classed('dragging', false)
         .style('left', '0px')
-        .style('top', '0px');
+        .style('top', '0px')
+        .style ('z-index', keywordZIndex);
 
       const tdDiv = d3.select(this);
       const movingText = tdDiv.text();
@@ -644,7 +649,7 @@ const allTableLib = (function () {
                   .classed('td-clicked', false);
                 tooltip
                   .remove();
-              });
+                });
 
             tooltip
               .append('div')
@@ -723,7 +728,7 @@ const allTableLib = (function () {
 
             tooltip
               .style('top', () => {
-                if (tdRect.y + tooltipRect.height + d3.select('#all-table-container').node().scrollTop < tableRect.height) {             // fix this
+                if (tdRect.y + tooltipRect.height + d3.select('#all-table-container').node().scrollTop < tableRect.height) {        // fix this
                   return `${tdRect.height}px`;
                 }
                 const cutOff = ((tableRect.height - tdRect.y - tooltipRect.height

@@ -59,10 +59,10 @@ def analyse(doc_path, themes, train_file_path=None):
     both_theme_counts = []
 
     for theme in themes_list:
-        train_theme_df = train_df.loc[train_df[theme] == 1].dropna() # <- drop moved
-        predict_theme_df = predict_df.loc[predict_df[theme] == 1]    # predicted
-        train_theme_counts.append(train_theme_df.shape[0])           # sentences
-        predict_theme_counts.append(predict_theme_df.shape[0])       # moved in train
+        train_theme_df = train_df.loc[train_df[theme] == 1].dropna()                                  # <- drop moved
+        predict_theme_df = predict_df.loc[predict_df[f'{theme} probability'] > minimum_proba]         # predicted
+        train_theme_counts.append(train_theme_df.shape[0])                                            # sentences
+        predict_theme_counts.append(predict_theme_df.shape[0])                                        # moved in train
 
         for index, row in train_theme_df.iterrows():
             cleaned_sentence = row['cleaned_sentence']
@@ -86,6 +86,7 @@ def analyse(doc_path, themes, train_file_path=None):
                 cleaned_sentence = row['cleaned_sentence']
                 if isinstance(cleaned_sentence, str):
                     words = set(word_tokenize(cleaned_sentence))
+
                     for word in words:
                         word = word.lower()
                         if word not in more_stop_words:

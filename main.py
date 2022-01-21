@@ -389,7 +389,16 @@ class ReclassifyThread(QThread):
                         sentence = row['original_sentence'].replace(r'\\t', '\t').replace(r'\\n', '\n')
                         if sentence in train_sentences:
                             train_df.loc[index, moving_column] = '0'
-                            if target_column is not None:
+                            if target_column is None:
+                                train_df.loc[index, 'codes'] = '' # better approach would have to look up in codes csv to see which get removed (not all)
+                                new_themes = []
+
+                                for theme in self.app_window.themes:
+                                    if theme != moving_column and str(row[theme]) == '1': 
+                                        new_themes.append(theme)
+                                
+                                train_df.loc[index, 'themes'] = '; '.join(sorted(new_themes)) # update the theme cell
+                            else:
                                 train_df.loc[index, 'themes'] = row['themes'].replace(moving_column, target_column)
                                 train_df.loc[index, target_column] = '1'
 
@@ -400,33 +409,33 @@ class ReclassifyThread(QThread):
                     if sentence in predict_sentences:
                         cleaned_sentence = predict_df.loc[index, 'cleaned_sentence']
                         sentence_embedding = predict_df.loc[index, 'sentence_embedding']
-                        if target_column is not None:
-                            all_themes = [target_column]
-                        else:
+
+                        predict_as_train_row = {
+                            'file_name': self.app_window.doc_path,
+                            'comment_id': '',
+                            'original_sentence': sentence,
+                            'cleaned_sentence': cleaned_sentence,
+                            'sentence_embedding': sentence_embedding,
+                            'codes': ''
+                        }
+
+                        if target_column is None:
                             all_themes = []
-                            for theme in self.app_window.themes: 
-                                if (theme != moving_column and theme != target_column and 
-                                str(predict_df.loc[index, theme].any()) == '1'):
-                                    all_themes.append(theme)
+                        else:
+                            all_themes = [target_column]
 
-                                predict_as_train_row = {
-                                    'file_name': self.app_window.doc_path,
-                                    'comment_id': '',
-                                    'original_sentence': sentence,
-                                    'cleaned_sentence': cleaned_sentence,
-                                    'sentence_embedding': sentence_embedding,
-                                    'codes': '',
-                                    'themes': '; '.join(sorted(all_themes))
-                                }
+                        for theme in self.app_window.themes: 
+                            if theme != moving_column and theme != target_column and str(row[theme]) == '1':
+                                all_themes.append(theme)
 
-                                for theme in self.app_window.themes:
-                                    if theme in all_themes:
-                                        predict_as_train_row[theme] = '1'
-                                    else:
-                                        predict_as_train_row[theme] = '0'
+                            if theme in all_themes:
+                                predict_as_train_row[theme] = '1'
+                            else:
+                                predict_as_train_row[theme] = '0'
+                        
+                        predict_as_train_row['themes'] = '; '.join(sorted(all_themes))
 
-                                train_df = train_df.append(predict_as_train_row, ignore_index=True)
-
+                        train_df = train_df.append(predict_as_train_row, ignore_index=True)
 
         new_train_path = self.app_window.doc_path.replace('.docx', '_train_1.csv')
         train_df.to_csv(new_train_path, index=False)
@@ -523,7 +532,7 @@ class LogThread(QThread):
             f.close()
 
 
-class KeywordsThread(QThread):
+class RegexpThread(QThread):
     app_window = None
     thread_signal = Signal('QVariant')
     input_regexp = None
@@ -535,21 +544,25 @@ class KeywordsThread(QThread):
         self.app_window = parent.parent().parent()
 
     def run(self):
-        if self.regular_expression:
-            if self.case_insensitive and not self.input_regexp.strip().startswith('(?i)'):
-                self.app_window.regexp = '(?i)' + self.input_regexp
+        if self.input_regexp != '':
+            if self.regular_expression:
+                if self.case_insensitive and not self.input_regexp.strip().startswith('(?i)'):
+                    self.app_window.regexp = '(?i)' + self.input_regexp
+                else:
+                    self.app_window.regexp = self.input_regexp
             else:
-                self.app_window.regexp = self.input_regexp
+                if self.case_insensitive:
+                    self.app_window.regexp = '(?i)(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
+                else:
+                    self.app_window.regexp = '(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
+            try: 
+                re.compile(self.app_window.regexp) # check if valid regex pattern
+                valid = True
+            except re.error:
+                valid = False
         else:
-            if self.case_insensitive:
-                self.app_window.regexp = '(?i)(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
-            else:
-                self.app_window.regexp = '(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
-        try: 
-            re.compile(self.app_window.regexp)
+            self.app_window.regexp = self.input_regexp
             valid = True
-        except re.error:
-            valid = False
 
         print(f'saved regexp =================================> {self.app_window.regexp}')
 
@@ -570,7 +583,7 @@ class SetupBackend(QObject):
         self.thread.thread_signal.connect(self.send_data)
 
     @Slot(str, str, str, str)
-    def set_up(self, transcript_path, codes_dir_path, theme_code_lookup_path, interviewer_regexp):
+    def set_up(self, transcript_path, codes_dir_path, theme_code_lookup_path, filter_regexp):
         # copy transcript into text folder
         end_doc_path = re.search(r'([^\/]+).$', transcript_path).group(0)
         self.app_window.doc_file_name = end_doc_path.replace('.docx', '')
@@ -592,7 +605,7 @@ class SetupBackend(QObject):
             self.app_window.themes = list(cat_df)     
 
         # set paths and regexp for classify_docx object
-        self.classify_docx.set_up(self.app_window.doc_path, codes_dir_path, theme_code_lookup_path, interviewer_regexp)
+        self.classify_docx.set_up(self.app_window.doc_path, codes_dir_path, theme_code_lookup_path, filter_regexp)
         # pass classify_docx object to thread
         self.thread.classify_docx = self.classify_docx
 
@@ -793,7 +806,7 @@ class ImportBackend(QObject):
     def __init__(self, parent=None, main_window=None):
         QObject.__init__(self, parent)
         self._main_window = main_window
-        self.thread = KeywordsThread(self)
+        self.thread = RegexpThread(self)
         self.thread.thread_signal.connect(self.send_keywords_data)
         
     @Slot()

@@ -16,6 +16,8 @@ const predictTableLib = (function () {
 
   let maxZIndex = 1;
 
+  let keywordZIndex;
+
   let changedData = [];
   let reclassifyChangesDict = []; // only updated to latest classification
                                   // (for comparison/visualisation purpose)
@@ -362,6 +364,8 @@ const predictTableLib = (function () {
       .select('#table-title')
       .style('z-index', maxZIndex++);
 
+    keywordZIndex = d3.select(this).style('z-index'); // reassign after dragging (fixes bug)
+
     d3.select(this)
       .classed('dragging', true)
       .style('z-index', maxZIndex++);
@@ -446,7 +450,8 @@ const predictTableLib = (function () {
       d3.select(this)
         .classed('dragging', false)
         .style('left', '0px')
-        .style('top', '0px');
+        .style('top', '0px')
+        .style ('z-index', keywordZIndex);
 
       const tdDiv = d3.select(this);
       const movingText = tdDiv.text();
@@ -466,12 +471,6 @@ const predictTableLib = (function () {
         console.log('======================================> REMOVING TABLE...');
         d3.select('#predict-table-container')
           .select('table').remove();
-
-        if (d3.select('#predict-table-container').select('table').empty()) {
-          console.log('=====================================> TABLE GONE');
-        } else {
-          console.log('=====================================> TABLE STILL HERE SOMEHOW??');
-        }
 
         d3.select('#predict-table-container')
           .select('#bin-div')
