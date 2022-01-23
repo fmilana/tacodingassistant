@@ -15,7 +15,7 @@ from datetime import datetime
 class Sentence2Vec:
     # https://github.com/RaRe-Technologies/gensim-data
     model_name = 'glove-twitter-50'
-    model_file_path = ''
+    model_file_path = 'embeddings/word2vec_model.pickle'
 
     vector_sentence_dict = {}
 
