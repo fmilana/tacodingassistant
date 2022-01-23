@@ -4,12 +4,14 @@ from nltk.tokenize import word_tokenize
 
 
 def remove_stop_words(text):
-    stop_words = set(stopwords.words('english'))
+    stop_words = list(set(stopwords.words('english')))
     extra_stop_words = open('text/extra_stopwords.txt', 'r').read().split(',')
 
-    word_tokens = [word for word in word_tokenize(text)
-        if word not in stop_words and word not in extra_stop_words]
+    stop_words += extra_stop_words
+
+    word_tokens = [word for word in word_tokenize(text) if word.lower() not in stop_words]
     text = ' '.join(word_tokens)
+
     return text
 
 
