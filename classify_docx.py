@@ -11,6 +11,7 @@ import docx
 import pandas as pd
 from datetime import datetime
 from nltk import sent_tokenize, word_tokenize, download
+from path_util import get_correct_path
 from sentence2vec import Sentence2Vec
 from preprocess import (
     clean_sentence,
@@ -120,7 +121,7 @@ class ClassifyDocx:
             X_sub, Y_sub = get_minority_samples(X, Y)
             X_res, Y_res = MLSMOTE(X_sub, Y_sub, 300, 5)
 
-            Y_res.to_csv('text/augmented_samples.csv', index=False)            
+            # Y_res.to_csv(get_correct_path('text/augmented_samples.csv'), index=False)            
 
             train_embedding_matrix = X.append(X_res).to_numpy()      # append augmented samples
             train_themes_binary_matrix = Y.append(Y_res).to_numpy()  # to original dataframes
@@ -216,7 +217,7 @@ class ClassifyDocx:
             end_path = re.search(r'([^\/]+).$', self.doc_path).group(0)
             end_path = end_path.replace('.docx', f'_{theme.replace(" ", "_")}_cm.csv')
 
-            theme_cm_path = f'text/cm/{end_path}'
+            theme_cm_path = get_correct_path(f'text/cm/{end_path}')
 
             with open(theme_cm_path, 'w', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file, delimiter=',')
@@ -268,7 +269,7 @@ class ClassifyDocx:
         word_freq_dict = {}
         all_cms = []
 
-        stop_words = open('text/analysis_stopwords.txt', 'r').read().split(',')
+        stop_words = open(get_correct_path('text/analysis_stopwords.txt'), 'r').read().split(',')
 
         for category in sentences_dict:
             sentence_list = sentences_dict[category]
@@ -359,7 +360,7 @@ class ClassifyDocx:
         # save xgboost model in logs
         model_counter = 0
         while True:
-            model_path = f'logs/models/{doc_file_name}_xgbmodel_{model_counter}.pickle'
+            model_path = get_correct_path(f'logs/models/{doc_file_name}_xgbmodel_{model_counter}.pickle')
             if os.path.exists(model_path):
                 model_counter += 1
             else:
@@ -536,8 +537,8 @@ class ClassifyDocx:
 
             start_emb = datetime.now()
 
-            if os.path.exists('text/embeddings.pickle'):
-                with open('text/embeddings.pickle', 'rb') as handle:
+            if os.path.exists(get_correct_path('text/embeddings.pickle')):
+                with open(get_correct_path('text/embeddings.pickle'), 'rb') as handle:
                     dict = pickle.load(handle)
                     for sentence in uncoded_original_sentences:
                         try:
@@ -564,7 +565,7 @@ class ClassifyDocx:
 
                     cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence, sentence_embedding]
 
-                with open('text/embeddings.pickle', 'wb') as handle:
+                with open(get_correct_path('text/embeddings.pickle'), 'wb') as handle:
                     pickle.dump(cleaned_sentence_embedding_dict, handle, 
                         protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -574,7 +575,7 @@ class ClassifyDocx:
 
 
         # save sentence, cleaned_sentence, sentence_embedding dict to pickle
-        with open('text/embeddings.pickle', 'wb') as handle:
+        with open(get_correct_path('text/embeddings.pickle'), 'wb') as handle:
             pickle.dump(cleaned_sentence_embedding_dict, handle,
                 protocol=pickle.HIGHEST_PROTOCOL)
         #-------------------------------------------------------------------

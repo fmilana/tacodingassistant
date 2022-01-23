@@ -6,6 +6,8 @@ from nltk import word_tokenize
 from collections import Counter
 from shutil import copyfile
 
+from path_util import get_correct_path
+
 
 def analyse(doc_path, themes, train_file_path=None):
     # start = datetime.now()
@@ -162,7 +164,7 @@ def analyse(doc_path, themes, train_file_path=None):
                 freq_path_name = re.search(r'([^\/]+).$', freq_path_list[i]).group(0)
                 freq_path_name = re.sub(r'(_\d)*.csv', '', freq_path_name)
 
-                freq_log_path = f'logs/data/{freq_path_name}_{counter}.csv'
+                freq_log_path = get_correct_path(f'logs/data/{freq_path_name}_{counter}.csv')
 
                 if os.path.exists(freq_log_path):
                     counter += 1
@@ -181,7 +183,7 @@ def analyse(doc_path, themes, train_file_path=None):
         end_path = re.search(r'([^\/]+).$', doc_path).group(0)
         end_path = end_path.replace('.docx', f'_{theme.replace(" ", "_")}_cm.csv')
 
-        cm_path = f'{start_path}cm/{end_path}'
+        cm_path = get_correct_path(f'{start_path}cm/{end_path}')
 
         cm_df = pd.read_csv(cm_path, encoding='utf-8')
 

@@ -7,15 +7,16 @@ import pickle
 import gensim.downloader
 from numpy import dot
 from numpy.linalg import norm
-from gensim.models import Word2Vec
 from nltk import word_tokenize
 from datetime import datetime
+
+from path_util import get_correct_path
 
 
 class Sentence2Vec:
     # https://github.com/RaRe-Technologies/gensim-data
     model_name = 'glove-twitter-50'
-    model_file_path = 'embeddings/word2vec_model.pickle'
+    model_file_path = get_correct_path('embeddings/word2vec_model.pickle')
 
     vector_sentence_dict = {}
 

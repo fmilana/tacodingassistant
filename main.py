@@ -23,6 +23,7 @@ from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
 from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
+from path_util import get_correct_path
 
 
 def load_table_data(doc_path, themes, table_name, reclassified):
@@ -518,7 +519,7 @@ class LogThread(QThread):
         self.app_window = parent.parent().parent()
     
     def run(self):
-        with open('logs/app.log', 'a') as f:
+        with open(get_correct_path('logs/app.log'), 'a') as f:
             if 'setup finished' in self.data or 'reclassify' in self.data:
                 self.data += f' (logs/models/{self.app_window.doc_file_name}_xgbmodel_{self.app_window.classify_counter}.pickle)'
             elif 'all table finished loading' in self.data:
@@ -584,10 +585,16 @@ class SetupBackend(QObject):
 
     @Slot(str, str, str, str)
     def set_up(self, transcript_path, codes_dir_path, theme_code_lookup_path, filter_regexp):
+
+        if len(codes_dir_path) > 0:
+            codes_dir_path = get_correct_path(codes_dir_path)
+        if len(theme_code_lookup_path) > 0:
+            theme_code_lookup_path = get_correct_path(theme_code_lookup_path)
+
         # copy transcript into text folder
         end_doc_path = re.search(r'([^\/]+).$', transcript_path).group(0)
         self.app_window.doc_file_name = end_doc_path.replace('.docx', '')
-        self.app_window.doc_path = f'text/{end_doc_path}'
+        self.app_window.doc_path = get_correct_path(f'text/{end_doc_path}')
         try:
             copyfile(transcript_path, self.app_window.doc_path)
         except:
@@ -596,7 +603,7 @@ class SetupBackend(QObject):
         # copy code lookup table into text folder
         if theme_code_lookup_path != '':
             try:
-                copyfile(theme_code_lookup_path, f'text/{end_doc_path.replace(".docx", "_codes.csv")}')
+                copyfile(theme_code_lookup_path, get_correct_path(f'text/{end_doc_path.replace(".docx", "_codes.csv")}'))
             except:
                 print('theme-code lookup table already in text folder')
 
@@ -886,12 +893,12 @@ class AppWindow(QMainWindow):
         channel.registerObject('confusionTablesBackend', self.confusion_tables_backend)
         channel.registerObject('logBackend', self.log_backend)
         channel.registerObject('importBackend', self.import_backend)
-        self.view.load(QUrl.fromLocalFile(QDir.current().filePath('templates/main.html')))
+        self.view.load(QUrl.fromLocalFile(QDir.current().filePath(get_correct_path('templates/main.html'))))
         self.setCentralWidget(self.view)
 
 
 def log_close():
-    with open('logs/app.log', 'a') as f:
+    with open(get_correct_path('logs/app.log'), 'a') as f:
         f.write(f'[{datetime.date.today().strftime("%d/%m/%Y")}, {datetime.datetime.now().strftime("%H:%M:%S")} ({round(time.time() * 1000)})]: app closed\n')
         f.close()
 

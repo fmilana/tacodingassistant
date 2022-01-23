@@ -22,3 +22,7 @@ setup.py
 /env
 logs/app.log
 !reorder_exit_codes.csv
+/venv
+/build
+/dist
+*.spec
