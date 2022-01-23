@@ -1,3 +1,4 @@
+docx==0.2.4
 scikit_multilearn==0.2.0
 numpy==1.19.5
 scipy==1.5.4

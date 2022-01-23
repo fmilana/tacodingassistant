@@ -20,16 +20,6 @@ class Sentence2Vec:
     vector_sentence_dict = {}
 
     def __init__(self):
-        if getattr(sys, 'frozen', False):
-            # If the application is run as a bundle, the PyInstaller bootloader
-            # extends the sys module by a flag frozen=True and sets the app 
-            # path into variable _MEIPASS'.
-            application_path = sys._MEIPASS
-        else:
-            application_path = os.path.dirname(os.path.abspath(__file__))
-
-        self.model_file_path = os.path.join(application_path, 'embeddings/word2vec_model.pickle')
-
         start = datetime.now()
         if os.path.exists(self.model_file_path):
             print('loading word embeddings from disk...')
