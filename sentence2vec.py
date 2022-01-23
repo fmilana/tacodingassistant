@@ -1,3 +1,4 @@
+import sys
 import os
 import re
 import csv
@@ -14,11 +15,21 @@ from datetime import datetime
 class Sentence2Vec:
     # https://github.com/RaRe-Technologies/gensim-data
     model_name = 'glove-twitter-50'
-    model_file_path = 'embeddings/word2vec_model.pickle'
+    model_file_path = ''
 
     vector_sentence_dict = {}
 
     def __init__(self):
+        if getattr(sys, 'frozen', False):
+            # If the application is run as a bundle, the PyInstaller bootloader
+            # extends the sys module by a flag frozen=True and sets the app 
+            # path into variable _MEIPASS'.
+            application_path = sys._MEIPASS
+        else:
+            application_path = os.path.dirname(os.path.abspath(__file__))
+
+        self.model_file_path = os.path.join(application_path, 'embeddings/word2vec_model.pickle')
+
         start = datetime.now()
         if os.path.exists(self.model_file_path):
             print('loading word embeddings from disk...')
@@ -27,7 +38,7 @@ class Sentence2Vec:
         else:
             print('downloading word embeddings...')
             self.model = gensim.downloader.load(self.model_name)
-            with open('embeddings/word2vec_model.pickle', 'wb') as f:
+            with open(self.model_file_path, 'wb') as f:
                 pickle.dump(self.model, f)
         print(f'done in {datetime.now() - start}')
 
