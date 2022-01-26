@@ -8,6 +8,8 @@ __pycache__
 nvivo
 *.csv
 *.docx
+!reorder_exit_codes.csv
+!reorder_exit.docx
 embeddings.pickle
 classification.txt
 /models
@@ -21,7 +23,6 @@ cm_data.json
 setup.py
 /env
 logs/app.log
-!reorder_exit_codes.csv
 /venv
 /build
 /dist
