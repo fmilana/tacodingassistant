@@ -23,7 +23,7 @@ from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
 from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
-from path_util import get_correct_path
+from path_util import resource_path
 
 
 def load_table_data(doc_path, themes, table_name, reclassified):
@@ -519,7 +519,7 @@ class LogThread(QThread):
         self.app_window = parent.parent().parent()
     
     def run(self):
-        with open(get_correct_path('logs/app.log'), 'a') as f:
+        with open(resource_path('logs/app.log'), 'a') as f:
             if 'setup finished' in self.data or 'reclassify' in self.data:
                 self.data += f' (logs/models/{self.app_window.doc_file_name}_xgbmodel_{self.app_window.classify_counter}.pickle)'
             elif 'all table finished loading' in self.data:
@@ -587,25 +587,25 @@ class SetupBackend(QObject):
     def set_up(self, transcript_path, codes_dir_path, theme_code_lookup_path, filter_regexp):
 
         if len(codes_dir_path) > 0:
-            codes_dir_path = get_correct_path(codes_dir_path)
+            codes_dir_path = resource_path(codes_dir_path)
         if len(theme_code_lookup_path) > 0:
-            theme_code_lookup_path = get_correct_path(theme_code_lookup_path)
+            theme_code_lookup_path = resource_path(theme_code_lookup_path)
 
-        # copy transcript into text folder
+        # copy transcript into data folder
         end_doc_path = re.search(r'([^\/]+).$', transcript_path).group(0)
         self.app_window.doc_file_name = end_doc_path.replace('.docx', '')
-        self.app_window.doc_path = get_correct_path(f'text/{end_doc_path}')
+        self.app_window.doc_path = resource_path(f'data/{end_doc_path}')
         try:
             copyfile(transcript_path, self.app_window.doc_path)
         except:
-            print('transcript already in text folder')
+            print('transcript already in data folder')
 
-        # copy code lookup table into text folder
+        # copy code lookup table into data folder
         if theme_code_lookup_path != '':
             try:
-                copyfile(theme_code_lookup_path, get_correct_path(f'text/{end_doc_path.replace(".docx", "_codes.csv")}'))
+                copyfile(theme_code_lookup_path, resource_path(f'data/{end_doc_path.replace(".docx", "_codes.csv")}'))
             except:
-                print('theme-code lookup table already in text folder')
+                print('theme-code lookup table already in data folder')
 
         if theme_code_lookup_path != '':
             cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig')
@@ -616,7 +616,7 @@ class SetupBackend(QObject):
         # pass classify_docx object to thread
         self.thread.classify_docx = self.classify_docx
 
-        # even if theme_code_lookup_path was '', import_codes_from_folder in classify_docx will have created text/..._codes.csv
+        # even if theme_code_lookup_path was '', import_codes_from_folder in classify_docx will have created data/..._codes.csv
         self.app_window.theme_code_table_path = self.app_window.doc_path.replace('.docx', '_codes.csv')
 
         self.start = time.time()
@@ -893,12 +893,12 @@ class AppWindow(QMainWindow):
         channel.registerObject('confusionTablesBackend', self.confusion_tables_backend)
         channel.registerObject('logBackend', self.log_backend)
         channel.registerObject('importBackend', self.import_backend)
-        self.view.load(QUrl.fromLocalFile(QDir.current().filePath(get_correct_path('templates/main.html'))))
+        self.view.load(QUrl.fromLocalFile(QDir.current().filePath(resource_path('templates/main.html'))))
         self.setCentralWidget(self.view)
 
 
 def log_close():
-    with open(get_correct_path('logs/app.log'), 'a') as f:
+    with open(resource_path('logs/app.log'), 'a') as f:
         f.write(f'[{datetime.date.today().strftime("%d/%m/%Y")}, {datetime.datetime.now().strftime("%H:%M:%S")} ({round(time.time() * 1000)})]: app closed\n')
         f.close()
 

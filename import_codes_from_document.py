@@ -44,7 +44,7 @@ def transverse(start, end, text):
     return transverse(first_row, end, text + '\n')
 
 
-# doc_path and theme_code_table_path documents already copied in text folder
+# doc_path and theme_code_table_path documents already copied in data folder
 def import_codes(sentence2vec_model, doc_path, theme_code_table_path, regexp):
     print(f'extracting comments from {doc_path}...')
     start = datetime.now()

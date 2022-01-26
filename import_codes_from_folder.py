@@ -40,7 +40,7 @@ def import_themes(doc_path, codes_folder_path):
         cat_df.to_csv(new_cat_path, index=False)
 
 
-# doc_path and theme_code_table_path documents already copied in text folder
+# doc_path and theme_code_table_path documents already copied in data folder
 def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_table_path, regexp):
     print(f'extracting codes from {codes_folder_path}...')
     start = datetime.now()
@@ -49,7 +49,7 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     print(f'len(theme_code_table_path) = {len(theme_code_table_path)}')
 
     if theme_code_table_path == '':
-        # create codes.csv in text folder from codes documents
+        # create codes.csv in data folder from codes documents
         import_themes(doc_path, codes_folder_path)
         theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
