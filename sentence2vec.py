@@ -27,7 +27,7 @@ class Sentence2Vec:
             with open(self.model_file_path, 'rb') as f:
                 self.model = pickle.load(f)
         else:
-            print('downloading word embeddings...')
+            print('downloading word2vec model...')
             self.model = gensim.downloader.load(self.model_name)
             with open(self.model_file_path, 'wb') as f:
                 pickle.dump(self.model, f)
