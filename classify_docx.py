@@ -537,8 +537,8 @@ class ClassifyDocx:
 
             start_emb = datetime.now()
 
-            if os.path.exists(resource_path('data/embeddings.pickle')):
-                with open(resource_path('data/embeddings.pickle'), 'rb') as handle:
+            if os.path.exists(resource_path('embeddings/embeddings.pickle')):
+                with open(resource_path('embeddings/embeddings.pickle'), 'rb') as handle:
                     dict = pickle.load(handle)
                     for sentence in uncoded_original_sentences:
                         try:
@@ -565,7 +565,7 @@ class ClassifyDocx:
 
                     cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence, sentence_embedding]
 
-                with open(resource_path('data/embeddings.pickle'), 'wb') as handle:
+                with open(resource_path('embeddings/embeddings.pickle'), 'wb') as handle:
                     pickle.dump(cleaned_sentence_embedding_dict, handle, protocol=4)
 
             print(f'done writing data in csv in {datetime.now() - start_emb}')
@@ -574,7 +574,7 @@ class ClassifyDocx:
 
 
         # save sentence, cleaned_sentence, sentence_embedding dict to pickle
-        with open(resource_path('data/embeddings.pickle'), 'wb') as handle:
+        with open(resource_path('embeddings/embeddings.pickle'), 'wb') as handle:
             pickle.dump(cleaned_sentence_embedding_dict, handle, protocol=4)
         #-------------------------------------------------------------------
 
