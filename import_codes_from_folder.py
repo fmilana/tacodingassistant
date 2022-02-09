@@ -10,34 +10,34 @@ from preprocess import clean_sentence, remove_stop_words
 from datetime import datetime
 
 
-def import_themes(doc_path, codes_folder_path):
-    if os.path.exists(codes_folder_path):
-        cat_dict = {}
+# def import_themes(doc_path, codes_folder_path):
+#     if os.path.exists(codes_folder_path):
+#         cat_dict = {}
 
-        for entry in os.scandir(codes_folder_path):
-            if entry.path.endswith('.docx'):
-                code = entry.name[:-5]
+#         for entry in os.scandir(codes_folder_path):
+#             if entry.path.endswith('.docx'):
+#                 code = entry.name[:-5]
 
-                with zipfile.ZipFile(entry.path, 'r') as archive:
-                    doc_xml = archive.read('word/document.xml')
-                    doc_soup = BeautifulSoup(doc_xml, 'lxml')
+#                 with zipfile.ZipFile(entry.path, 'r') as archive:
+#                     doc_xml = archive.read('word/document.xml')
+#                     doc_soup = BeautifulSoup(doc_xml, 'lxml')
 
-                    first_line = doc_soup.find('w:p').get_text().replace('\n', ' ').strip()
-                    print(f'-------------> extracting code: {first_line}')
-                    try:
-                        theme = re.match(r'Name: (.+?)\\', first_line).group(1).strip()
-                    except AttributeError:
-                        theme = re.match(r'Name: Codes\\\\(.+?)\\', first_line).group(1).strip()
+#                     first_line = doc_soup.find('w:p').get_text().replace('\n', ' ').strip()
+#                     print(f'-------------> extracting code: {first_line}')
+#                     try:
+#                         theme = re.match(r'Name: (.+?)\\', first_line).group(1).strip()
+#                     except AttributeError:
+#                         theme = re.match(r'Name: Codes\\\\(.+?)\\', first_line).group(1).strip()
 
-                    if theme not in cat_dict:
-                        cat_dict[theme] = [code]
-                    else:
-                        cat_dict[theme].append(code)
+#                     if theme not in cat_dict:
+#                         cat_dict[theme] = [code]
+#                     else:
+#                         cat_dict[theme].append(code)
         
-        cat_df = pd.DataFrame.from_dict(cat_dict, orient='index')
-        cat_df = cat_df.transpose()
-        new_cat_path = doc_path.replace('.docx', '_codes.csv')
-        cat_df.to_csv(new_cat_path, index=False)
+#         cat_df = pd.DataFrame.from_dict(cat_dict, orient='index')
+#         cat_df = cat_df.transpose()
+#         new_cat_path = doc_path.replace('.docx', '_codes.csv')
+#         cat_df.to_csv(new_cat_path, index=False)
 
 
 # doc_path and theme_code_table_path documents already copied in data folder
@@ -48,10 +48,10 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     print(f'theme_code_table_path = {theme_code_table_path}')
     print(f'len(theme_code_table_path) = {len(theme_code_table_path)}')
 
-    if theme_code_table_path == '':
-        # create codes.csv in data folder from codes documents
-        import_themes(doc_path, codes_folder_path)
-        theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
+    # if theme_code_table_path == '':
+    #     # create codes.csv in data folder from codes documents
+    #     import_themes(doc_path, codes_folder_path)
+    #     theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
 

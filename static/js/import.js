@@ -4,8 +4,8 @@ const importLib = (function () {
   const setupImportPage = function () {
     let wordCheckboxValue = false;
     let nvivoCheckboxValue = false;
-    let yesHierarchicalCheckboxValue = false;
-    let noHierarchicalCheckboxValue = false;
+    // let yesHierarchicalCheckboxValue = false;
+    // let noHierarchicalCheckboxValue = false;
 
     const containersStack = [];
 
@@ -54,7 +54,8 @@ const importLib = (function () {
       .on('click', () => {
         d3.select('#import-codes-folder-container')
           .style('display', 'none');
-        d3.select('#import-hierarchical-container')
+        // d3.select('#import-hierarchical-container')
+        d3.select('#import-theme-code-table-container')
           .style('display', 'block');
         containersStack.push('#import-codes-folder-container');
       });
@@ -68,21 +69,21 @@ const importLib = (function () {
         containersStack.push('#import-theme-code-table-container');
       });
 
-    d3.select('#import-hierarchical-next-button')
-      .on('click', () => {
-        let divToShow = '';
-        if (yesHierarchicalCheckboxValue) {
-          divToShow = '#import-keywords-container';
-        } else {
-          divToShow = '#import-theme-code-table-container';
-        }
-        d3.select('#import-hierarchical-container')
-          .style('display', 'none');
-        d3.select(divToShow)
-          .style('display', 'block');
-        containersStack.push('#import-hierarchical-container');
-      });
-    ////////////////
+    // d3.select('#import-hierarchical-next-button')
+    //   .on('click', () => {
+    //     let divToShow = '';
+    //     if (yesHierarchicalCheckboxValue) {
+    //       divToShow = '#import-keywords-container';
+    //     } else {
+    //       divToShow = '#import-theme-code-table-container';
+    //     }
+    //     d3.select('#import-hierarchical-container')
+    //       .style('display', 'none');
+    //     d3.select(divToShow)
+    //       .style('display', 'block');
+    //     containersStack.push('#import-hierarchical-container');
+    //   });
+    // ////////////////
 
     //back-buttons//
     d3.select('#import-word-or-nvivo-back-button')
@@ -109,13 +110,13 @@ const importLib = (function () {
           .style('display', 'block');
       });
 
-    d3.select('#import-hierarchical-back-button')
-      .on('click', () => {
-        d3.select('#import-hierarchical-container')
-          .style('display', 'none');
-        d3.select(containersStack.pop())
-          .style('display', 'block');
-      });
+    // d3.select('#import-hierarchical-back-button')
+    //   .on('click', () => {
+    //     d3.select('#import-hierarchical-container')
+    //       .style('display', 'none');
+    //     d3.select(containersStack.pop())
+    //       .style('display', 'block');
+    //   });
 
     d3.select('#import-keywords-back-button')
       .on('click', () => {
@@ -150,29 +151,29 @@ const importLib = (function () {
           .property('disabled', (!wordCheckboxValue && !nvivoCheckboxValue));
       });
 
-    d3.select('#yes-checkbox')
-      .on('click', () => {
-        yesHierarchicalCheckboxValue = !yesHierarchicalCheckboxValue;
-        if (yesHierarchicalCheckboxValue && noHierarchicalCheckboxValue) {
-          d3.select('#no-checkbox')
-            .property('checked', false);
-          noHierarchicalCheckboxValue = false;
-        }
-        d3.select('#import-hierarchical-next-button')
-          .property('disabled', (!yesHierarchicalCheckboxValue && !noHierarchicalCheckboxValue));
-      });
+    // d3.select('#yes-checkbox')
+    //   .on('click', () => {
+    //     yesHierarchicalCheckboxValue = !yesHierarchicalCheckboxValue;
+    //     if (yesHierarchicalCheckboxValue && noHierarchicalCheckboxValue) {
+    //       d3.select('#no-checkbox')
+    //         .property('checked', false);
+    //       noHierarchicalCheckboxValue = false;
+    //     }
+    //     d3.select('#import-hierarchical-next-button')
+    //       .property('disabled', (!yesHierarchicalCheckboxValue && !noHierarchicalCheckboxValue));
+    //   });
 
-    d3.select('#no-checkbox')
-      .on('click', () => {
-        noHierarchicalCheckboxValue = !noHierarchicalCheckboxValue;
-        if (noHierarchicalCheckboxValue && yesHierarchicalCheckboxValue) {
-          d3.select('#yes-checkbox')
-            .property('checked', false);
-          yesHierarchicalCheckboxValue = false;
-        }
-        d3.select('#import-hierarchical-next-button')
-          .property('disabled', (!noHierarchicalCheckboxValue && !yesHierarchicalCheckboxValue));
-      });
+    // d3.select('#no-checkbox')
+    //   .on('click', () => {
+    //     noHierarchicalCheckboxValue = !noHierarchicalCheckboxValue;
+    //     if (noHierarchicalCheckboxValue && yesHierarchicalCheckboxValue) {
+    //       d3.select('#yes-checkbox')
+    //         .property('checked', false);
+    //       yesHierarchicalCheckboxValue = false;
+    //     }
+    //     d3.select('#import-hierarchical-next-button')
+    //       .property('disabled', (!noHierarchicalCheckboxValue && !yesHierarchicalCheckboxValue));
+    //   });
 
     d3.select('#import-keywords-next-button')
       .on('click', function () {
@@ -180,9 +181,11 @@ const importLib = (function () {
 
         if (wordCheckboxValue) {
           logString = 'import document containing codes from Word';
-        } else if (nvivoCheckboxValue && yesHierarchicalCheckboxValue) {
-          logString = 'import document and hierarchical codes from NVivo';
-        } else {
+        } 
+        // else if (nvivoCheckboxValue && yesHierarchicalCheckboxValue) {
+        //   logString = 'import document and hierarchical codes from NVivo';
+        // } 
+        else {
           logString = 'import document, codes from NVivo and theme-code lookup table';
         }
 
