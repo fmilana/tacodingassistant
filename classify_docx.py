@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import docx
 import pandas as pd
 from datetime import datetime
-from nltk import sent_tokenize, word_tokenize, download
+from nltk import sent_tokenize, word_tokenize, download, data
 from path_util import resource_path
 from sentence2vec import Sentence2Vec
 from preprocess import (
@@ -46,8 +46,9 @@ class ClassifyDocx:
 
     def __init__(self):
         # download nltk resources
-        download('punkt')
-        download('stopwords')
+        download('punkt', download_dir='./data/nltk/')
+        download('stopwords', download_dir='./data/nltk/')
+        data.path.append('./data/nltk/')
         self.sentence2vec_model = Sentence2Vec()
 
 
