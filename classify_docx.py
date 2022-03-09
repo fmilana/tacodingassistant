@@ -108,31 +108,31 @@ class ClassifyDocx:
         self.train_df = pd.concat(training_list)
         test_df = pd.concat(testing_list)
 
-        # oversample minority classes
-        if oversample:
-            Y_train = self.train_df.iloc[:, 7:].to_numpy()
-            class_dist = [x/Y_train.shape[0] for x in Y_train.sum(axis=0)]
-            print(f'class distribution BEFORE MLSMOTE = {class_dist}')
-            print(f'Y_train.shape[0] BEFORE MLSMOTE = {Y_train.shape[0]}')
+        # # oversample minority classes
+        # if oversample:
+        #     Y_train = self.train_df.iloc[:, 7:].to_numpy()
+        #     class_dist = [x/Y_train.shape[0] for x in Y_train.sum(axis=0)]
+        #     print(f'class distribution BEFORE MLSMOTE = {class_dist}')
+        #     print(f'Y_train.shape[0] BEFORE MLSMOTE = {Y_train.shape[0]}')
 
-            X = pd.DataFrame(np.array(self.train_df['sentence_embedding'].tolist()))
-            Y = self.train_df.iloc[:, 7:]
+        #     X = pd.DataFrame(np.array(self.train_df['sentence_embedding'].tolist()))
+        #     Y = self.train_df.iloc[:, 7:]
 
-            X_sub, Y_sub = get_minority_samples(X, Y)
-            X_res, Y_res = MLSMOTE(X_sub, Y_sub, 300, 5)
+        #     X_sub, Y_sub = get_minority_samples(X, Y)
+        #     X_res, Y_res = MLSMOTE(X_sub, Y_sub, 300, 5)
 
-            # Y_res.to_csv(resource_path('data/augmented_samples.csv'), index=False)            
+        #     # Y_res.to_csv(resource_path('data/augmented_samples.csv'), index=False)            
 
-            train_embedding_matrix = X.append(X_res).to_numpy()      # append augmented samples
-            train_themes_binary_matrix = Y.append(Y_res).to_numpy()  # to original dataframes
+        #     train_embedding_matrix = X.append(X_res).to_numpy()      # append augmented samples
+        #     train_themes_binary_matrix = Y.append(Y_res).to_numpy()  # to original dataframes
 
-            class_dist_os = [x/train_themes_binary_matrix.shape[0] for x in train_themes_binary_matrix.sum(axis=0)]
-            print(f'class distribution AFTER MLSMOTE = {class_dist_os}')
-            print(f'Y_train.shape[0] AFTER MLSMOTE = {train_themes_binary_matrix.shape[0]}')
+        #     class_dist_os = [x/train_themes_binary_matrix.shape[0] for x in train_themes_binary_matrix.sum(axis=0)]
+        #     print(f'class distribution AFTER MLSMOTE = {class_dist_os}')
+        #     print(f'Y_train.shape[0] AFTER MLSMOTE = {train_themes_binary_matrix.shape[0]}')
         
-        else:
-            train_embedding_matrix = np.array(self.train_df['sentence_embedding'].tolist())
-            train_themes_binary_matrix = self.train_df.iloc[:, 7:].to_numpy()
+        # else:
+        train_embedding_matrix = np.array(self.train_df['sentence_embedding'].tolist())
+        train_themes_binary_matrix = self.train_df.iloc[:, 7:].to_numpy()
 
         print(f'=========================> np.shape(train_embedding_matrix) = {np.shape(train_embedding_matrix)}')
         print(f'=========================> np.shape(train_themes_binary_matrix) = {np.shape(train_themes_binary_matrix)}')

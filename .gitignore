@@ -25,3 +25,4 @@ logs/app.log
 /build
 /dist
 *.spec
+.DS_Store

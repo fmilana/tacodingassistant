@@ -89,8 +89,7 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
                     doc_soup = BeautifulSoup(doc_xml, 'lxml')
 
                     for paragraph in doc_soup.find_all('w:p'):
-                        if (paragraph.find('w:shd') is None 
-                        and paragraph.find('w:t')):
+                        if (paragraph.find('w:shd') is None and paragraph.find('w:highlight') is None and paragraph.find('w:t')):
                             node = paragraph.find('w:t').get_text() 
                             for sentence in sent_tokenize(node):
                                 cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
