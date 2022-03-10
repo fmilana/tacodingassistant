@@ -46,6 +46,7 @@ class ClassifyDocx:
 
     def __init__(self):
         # download nltk resources
+        os.makedirs(os.path.dirname(resource_path('data/nltk/')), exist_ok=True)
         download('punkt', download_dir=resource_path('data/nltk/'))
         download('stopwords', download_dir=resource_path('data/nltk/'))
         data.path.append(resource_path('data/nltk/'))
