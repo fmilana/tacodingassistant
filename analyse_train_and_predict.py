@@ -169,6 +169,7 @@ def analyse(doc_path, themes, train_file_path=None):
                 if os.path.exists(freq_log_path):
                     counter += 1
                 else:
+                    os.makedirs(os.path.dirname(freq_log_path), exist_ok=True)
                     copyfile(freq_path_list[i], freq_log_path)
                     break
 

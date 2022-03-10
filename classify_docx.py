@@ -46,9 +46,9 @@ class ClassifyDocx:
 
     def __init__(self):
         # download nltk resources
-        download('punkt', download_dir='./data/nltk/')
-        download('stopwords', download_dir='./data/nltk/')
-        data.path.append('./data/nltk/')
+        download('punkt', download_dir=resource_path('data/nltk/'))
+        download('stopwords', download_dir=resource_path('data/nltk/'))
+        data.path.append(resource_path('data/nltk/'))
         self.sentence2vec_model = Sentence2Vec()
 
 
@@ -220,6 +220,7 @@ class ClassifyDocx:
 
             theme_cm_path = resource_path(f'data/cm/{end_path}')
 
+            os.makedirs(os.path.dirname(theme_cm_path), exist_ok=True)
             with open(theme_cm_path, 'w', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file, delimiter=',')
 
@@ -365,6 +366,7 @@ class ClassifyDocx:
             if os.path.exists(model_path):
                 model_counter += 1
             else:
+                os.makedirs(os.path.dirname(model_path), exist_ok=True)
                 with open(model_path, 'wb') as handle:
                     pickle.dump(clf, handle, protocol=4)
                 break
