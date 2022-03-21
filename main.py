@@ -23,7 +23,7 @@ from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
 from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
-from path_util import resource_path
+from path_util import resource_path, logs_resource_path
 
 
 def load_table_data(doc_path, themes, table_name, reclassified):
@@ -519,7 +519,7 @@ class LogThread(QThread):
         self.app_window = parent.parent().parent()
     
     def run(self):
-        with open('app.log', 'a+') as f:
+        with open(logs_resource_path(), 'a+') as f:
             if 'setup finished' in self.data or 'reclassify' in self.data:
                 self.data += f' (logs/models/{self.app_window.doc_file_name}_xgbmodel_{self.app_window.classify_counter}.pickle)'
             elif 'all table finished loading' in self.data:
@@ -898,7 +898,7 @@ class AppWindow(QMainWindow):
 
 
 def log_close():
-    with open('app.log', 'a+') as f:
+    with open(logs_resource_path(), 'a+') as f:
         f.write(f'[{datetime.date.today().strftime("%d/%m/%Y")}, {datetime.datetime.now().strftime("%H:%M:%S")} ({round(time.time() * 1000)})]: app closed\n')
         f.close()
 

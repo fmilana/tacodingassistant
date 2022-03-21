@@ -20,6 +20,24 @@ from augment import get_minority_samples, MLSMOTE
 from collections import Counter
 from skmultilearn.problem_transform import ClassifierChain
 from sklearn.metrics import multilabel_confusion_matrix
+from path_util import resource_path
+
+# if running on MacOS, copy libomp.dylib and libomp.a in /usr/local/lib
+from sys import platform
+from pathlib import Path
+from os.path import isfile
+from shutil import copy
+
+if platform == 'darwin':
+    dylib_path = Path(resource_path('/usr/local/lib/libomp.dylib'))
+    a_path = Path(resource_path('/usr/local/lib/libomp.a'))
+    if not isfile(dylib_path): # if .dylib does not already exist
+        copy(resource_path('libomp/libomp.dylib'), str(dylib_path))
+        print('copied libomp.dylib to /usr/local/lib/')
+    if not isfile(a_path): # if .a does not already exist
+        copy(resource_path('libomp/libomp.a'), str(a_path))
+        print('copied libomp.a to /usr/local/lib/')
+
 from xgboost import XGBClassifier
 import import_codes_from_document
 import import_codes_from_folder
