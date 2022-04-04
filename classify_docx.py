@@ -24,19 +24,48 @@ from path_util import resource_path
 
 # if running on MacOS, copy libomp.dylib and libomp.a in /usr/local/lib
 from sys import platform
-from pathlib import Path
-from os.path import isfile
-from shutil import copy
+from os.path import exists
+from shutil import copytree
 
 if platform == 'darwin':
-    dylib_path = Path(resource_path('/usr/local/lib/libomp.dylib'))
-    a_path = Path(resource_path('/usr/local/lib/libomp.a'))
-    if not isfile(dylib_path): # if .dylib does not already exist
-        copy(resource_path('libomp/libomp.dylib'), str(dylib_path))
-        print('copied libomp.dylib to /usr/local/lib/')
-    if not isfile(a_path): # if .a does not already exist
-        copy(resource_path('libomp/libomp.a'), str(a_path))
-        print('copied libomp.a to /usr/local/lib/')
+    # # copy libomp.dylib and libomp.a in /usr/local/lib/
+    # dylib_path = resource_path('libomp/11.1.0/lib/libomp.dylib')
+    # a_path = resource_path('libomp/11.1.0/lib/libomp.a')
+    # lib_dylib_path = resource_path('/usr/local/lib/libomp.dylib')
+    # lib_a_path = resource_path('/usr/local/lib/libomp.a')
+    # if not exists(lib_dylib_path):
+    #     copyfile(dylib_path, lib_dylib_path)
+    # if not exists(lib_a_path):
+    #     copyfile(a_path, lib_a_path)
+
+    # copy libomp folder in /usr/local/Cellar/
+    libomp_dir_path = resource_path('libomp')
+    libomp_cellar_dir_path = resource_path('/usr/local/Cellar/libomp')
+    os.makedirs(resource_path('/usr/local/Cellar'), exist_ok=True)
+    if not exists(libomp_cellar_dir_path):
+        copytree(libomp_dir_path, libomp_cellar_dir_path)
+    # create libomp symlink in /usr/local/opt/
+    libomp_opt_dir_path = resource_path('/usr/local/opt/libomp')
+    os.makedirs(resource_path('/usr/local/opt'), exist_ok=True)
+    if not exists(libomp_opt_dir_path):
+        os.symlink(os.path.join(libomp_cellar_dir_path, '11.1.0'), libomp_opt_dir_path)
+    # create libomp.dylib and libomp.a symlinks in /usr/local/lib/
+    # also copy libomp.a to avoid segfault
+    dylib_path = resource_path('/usr/local/Cellar/libomp/11.1.0/lib/libomp.dylib')
+    a_path = resource_path('/usr/local/Cellar/libomp/11.1.0/lib/libomp.a')
+    dylib_lib_path = resource_path('/usr/local/lib/libomp.dylib')
+    a_lib_path = resource_path('/usr/local/lib/libomp.a')
+    if not exists(dylib_lib_path):
+        os.symlink(dylib_path, dylib_lib_path)
+    if not exists(a_lib_path):
+        os.symlink(a_path, a_lib_path)
+    # create h symlinks in /usr/local/include/
+    h_files = ['omp-tools.h', 'omp.h', 'ompt.h']
+    h_paths = [resource_path(f'/usr/local/Cellar/libomp/11.1.0/include/{h_file}') for h_file in h_files]
+    for i, h_path in enumerate(h_paths):
+        h_include_path = resource_path(f'/usr/local/include/{h_files[i]}')
+        if not exists(h_include_path):
+            os.symlink(h_path, h_include_path)
 
 from xgboost import XGBClassifier
 import import_codes_from_document
