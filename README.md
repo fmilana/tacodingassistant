@@ -1,22 +1,22 @@
 # Thematic Analysis Coding Assistant
 
-  
-
 Using XGBoost to classify word2vec embeddings and generate coding suggestions.
 
-  
-
-1) Install Python packages:
+1) Install libraries:
 
 ```
-
-pip install -r requirements.txt
-
+conda env create -f osx_tacaenv.yml
 ```
 
-2) Run the application:
+    or:
+
+```
+conda env create -f win_tacaenv.yml
 ```
 
+3) Activate conda environment
+4) Run the application:
+
+```
 python main.py
-
 ```
