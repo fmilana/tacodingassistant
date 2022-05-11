@@ -1,10 +1,8 @@
 pyinstaller (INSTALL PYINSTALLER-HOOKS-CONTRIB AS WELL):
 
 setup libraries:
-conda env python 3.8.10
-pip install -r requirements.txt
-conda install -c conda-forge pyinstaller <- wrong?
-conda install -c conda-forge pyinstaller-hooks-contrib
+conda create --name tacaenv --file requirements.txt
+pip uninstall xgboost ?
 PATH="/Applications/CMake.app/Contents/bin":"$PATH"
 pip install xgboost==1.6.0 --no-binary xgboost -v
 
