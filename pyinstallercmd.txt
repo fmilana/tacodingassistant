@@ -1,10 +1,11 @@
 pyinstaller (INSTALL PYINSTALLER-HOOKS-CONTRIB AS WELL):
 
 setup libraries:
-conda create --name tacaenv --file osx_requirements.txt
-pip uninstall xgboost ?
-PATH="/Applications/CMake.app/Contents/bin":"$PATH"
-pip install xgboost==1.6.0 --no-binary xgboost -v
+(win) conda create --name tacaenv --file win_requirements.txt
+(mac) conda create --name tacaenv --file osx_requirements.txt
+(mac) pip uninstall xgboost ?
+(mac) PATH="/Applications/CMake.app/Contents/bin":"$PATH"
+(mac) pip install xgboost==1.6.0 --no-binary xgboost -v
 
 
 MACOS
