@@ -1,27 +1,24 @@
 pyinstaller (INSTALL PYINSTALLER-HOOKS-CONTRIB AS WELL):
 
 setup libraries:
--> https://github.com/dmlc/xgboost/issues/7761#issuecomment-1104619556
-(win) conda create --name tacaenv --file win_requirements.txt
-(mac) conda create --name tacaenv --file osx_requirements.txt
-(mac) pip uninstall xgboost ?
-(mac) PATH="/Applications/CMake.app/Contents/bin":"$PATH"
-(mac) pip install xgboost==1.6.0 --no-binary xgboost -v
+conda create --name tacaenv --file requirements.txt
+PATH="/Applications/CMake.app/Contents/bin":"$PATH"
+pip install xgboost==1.6.0 --no-binary xgboost -v
 
 
 MACOS
 
 onedir:
 
-pyinstaller main.py --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --add-data 'embeddings:embeddings' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller main.py --collect-all 'xgboost' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --add-data 'embeddings:embeddings' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 onefile:
 
-pyinstaller main.py --onefile --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --add-data 'embeddings:embeddings' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller main.py --onefile --collect-all 'xgboost' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --add-data 'embeddings:embeddings' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 windowed:
 
-pyinstaller main.py --windowed --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller main.py --windowed --collect-all 'xgboost' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 
 
@@ -94,7 +91,7 @@ xcrun altool --notarization-info <RequestUUID> -u federico.milana.18@ucl.ac.uk -
 
 
 steps:
-1. pyinstaller: package into .app using codesign flag (pyinstaller main.py --windowed --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist')
+1. pyinstaller: package into .app using codesign flag (pyinstaller main.py --windowed --collect-all 'xgboost' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist')
 2. run fix qt script (python fix_app_qt_folder_names_for_codesign.py dist/main.app)
 3. run fix rpaths script (python qt_fix_deps.py dist/main.app)
 4. run codesign script (./codesign_script)
@@ -145,16 +142,16 @@ other pxds:
 
 tacaenv:
 
-pyinstaller main.py --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller main.py --collect-all 'xgboost' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 
 tacaenv-clone:
 
-pyinstaller main.py --add-data '/opt/miniconda3/envs/tacaenv-clone/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv-clone/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv-clone/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv-clone/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller main.py --collect-all 'xgboost' --add-data '/opt/miniconda3/envs/tacaenv-clone/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv-clone/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 tacaenv2:
 
-pyinstaller main.py --add-data '/opt/miniconda3/envs/tacaenv2/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv2/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv2/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv2/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller main.py --collect-all 'xgboost' --add-data '/opt/miniconda3/envs/tacaenv2/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv2/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 
 
@@ -168,3 +165,6 @@ tacaenv2/old mac:
 
 
 why are envs different??? tacaenv -> no libomp error, tacaenv2 -> libomp error (pyinstaller??)/cannot impot xgbclassifier
+
+
+https://github.com/dmlc/xgboost/issues/7761#issuecomment-1104619556
