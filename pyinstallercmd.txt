@@ -1,6 +1,7 @@
 pyinstaller (INSTALL PYINSTALLER-HOOKS-CONTRIB AS WELL):
 
 setup libraries:
+-> https://github.com/dmlc/xgboost/issues/7761#issuecomment-1104619556
 (win) conda create --name tacaenv --file win_requirements.txt
 (mac) conda create --name tacaenv --file osx_requirements.txt
 (mac) pip uninstall xgboost ?
