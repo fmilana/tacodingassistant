@@ -1,4 +1,3 @@
-Resources/xgboost/lib/libxgboost.dylib
 Resources/sklearn/.dylibs/libomp.dylib
 MacOS/PySide2/Qt/lib/QtCore.framework/Versions/5/QtCore
 MacOS/PySide2/Qt/lib/QtGui.framework/Versions/5/QtGui
