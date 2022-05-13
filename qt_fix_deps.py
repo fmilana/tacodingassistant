@@ -40,13 +40,15 @@ def fix_qt_paths(app):
 
 
     def fix_qt_rpath(program, rpath):
-        fixed_rpath = rpath.replace("@rpath", "@executable_path/../Frameworks")
+        fixed_rpath = rpath.replace("@rpath", "@executable_path/../Resources/PySide2/Qt/lib")
         fixed.append(program)
 
         proc = Popen(["install_name_tool", "-change", rpath, fixed_rpath, program], stderr=PIPE, stdout=PIPE)
         result = proc.communicate()
         if result != (b"", b""):
             raise RuntimeError("install_name_tool error: " + result[1].decode("utf-8"))
+        else:
+            print(f'!! fixed "{rpath}" > "{fixed_rpath}"')
 
 
     allfiles = [os.path.join(dp, f) for dp, dn, filenames in os.walk(app) for f in filenames]
