@@ -65,7 +65,7 @@ def import_codes(sentence2vec_model, doc_path, theme_code_table_path, regexp):
 
         doc_xml = archive.read('word/document.xml')
         doc_soup = BeautifulSoup(doc_xml, 'lxml')
-        open('tmp.xml', 'w').write(doc_soup.prettify())
+        # open('tmp.xml', 'w').write(doc_soup.prettify())
         comments_xml = archive.read('word/comments.xml')
         comments_soup = BeautifulSoup(comments_xml, 'xml')
 
@@ -135,7 +135,7 @@ def import_codes(sentence2vec_model, doc_path, theme_code_table_path, regexp):
         print(f'{len(set(missing_codes))} missing codes ({len(missing_codes)} sentences) in themes table:')
         print(set(missing_codes))
 
-        os.remove('tmp.xml')
+        # os.remove('tmp.xml')
 
         # returning ALL themes from cat_df, not just those found (to-do)
         return themes_list

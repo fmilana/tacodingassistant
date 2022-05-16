@@ -5,15 +5,15 @@ MACOS
 
 onedir:
 
-pyinstaller -n 'taca' main.py --collect-all 'xgboost' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --add-data 'embeddings:embeddings' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'Thematic Analyisis Coding Assistant' main.py --collect-all 'xgboost' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --add-data 'embeddings:embeddings' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 onefile:
 
-pyinstaller -n 'taca' main.py --onefile --collect-all 'xgboost' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --add-data 'embeddings:embeddings' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'Thematic Analyisis Coding Assistant' main.py --onefile --collect-all 'xgboost' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --add-data 'embeddings:embeddings' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 windowed:
 
-pyinstaller -n 'taca' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'Thematic Analyisis Coding Assistant' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 
 
@@ -22,7 +22,7 @@ WINDOWS:
 
 onefile
 
-pyinstaller -n 'taca' --onefile main.py --add-data 'C:\Users\feder\anaconda3\envs\tacaenv\Lib\site-packages\xgboost\lib\xgboost.dll;xgboost\lib\' --add-data 'C:\Users\feder\anaconda3\envs\tacaenv\Lib\site-packages\xgboost\VERSION;xgboost\' --add-data '.\embeddings\word2vec_model.pickle;embeddings\' --add-data '.\data\analysis_stopwords.txt;data\' --add-data '.\data\extra_stopwords.txt;data\' --add-data '.\templates\main.html;templates\' --add-data '.\static\js\lib\*;static\js\lib\' --add-data '.\static\js\*;static\js\' --add-data '.\static\res\lib\*;static\res\lib\' --add-data '.\static\res\*;static\res\'
+pyinstaller -n 'Thematic Analyisis Coding Assistant' --onefile main.py --add-data 'C:\Users\feder\anaconda3\envs\tacaenv\Lib\site-packages\xgboost\lib\xgboost.dll;xgboost\lib\' --add-data 'C:\Users\feder\anaconda3\envs\tacaenv\Lib\site-packages\xgboost\VERSION;xgboost\' --add-data '.\embeddings\word2vec_model.pickle;embeddings\' --add-data '.\data\analysis_stopwords.txt;data\' --add-data '.\data\extra_stopwords.txt;data\' --add-data '.\templates\main.html;templates\' --add-data '.\static\js\lib\*;static\js\lib\' --add-data '.\static\js\*;static\js\' --add-data '.\static\res\lib\*;static\res\lib\' --add-data '.\static\res\*;static\res\'
 
 
 
@@ -38,7 +38,7 @@ BATCH CODESIGN SCRIPT => RUN QT FIX SCRIPT FIRST:
 
 
 MANUAL DEEP CODESIGNING:
-codesign --verbose=4 --deep --force --options runtime -s 'Developer ID Application: University College London (8UMT23UD55)' --entitlements entitlements.plist dist/taca.app
+codesign --verbose=4 --deep --force --options runtime -s 'Developer ID Application: University College London (8UMT23UD55)' --entitlements entitlements.plist 'dist/Thematic Analyisis Coding Assistant.app'
 
 
 RECIPE OSX CODESIGNING QT:
@@ -63,16 +63,16 @@ store password in keychain:
 xcrun altool --store-password-in-keychain-item "TACA_PASSWORD" -u "federico.milana.18@ucl.ac.uk" -p "pgjt-quto-bapm-fgst"
 
 zip the .app:
-ditto -c -k --sequesterRsrc --keepParent dist/taca.app dist/taca.zip
+ditto -c -k --sequesterRsrc --keepParent 'dist/Thematic Analyisis Coding Assistant.app' 'dist/Thematic Analyisis Coding Assistant.zip'
 
 notarize the .zip:
-xcrun altool --notarize-app -t osx -f dist/taca.zip --primary-bundle-id com.fmilana.tacodingassistant -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD
+xcrun altool --notarize-app -t osx -f 'dist/Thematic Analyisis Coding Assistant.zip' --primary-bundle-id com.fmilana.tacodingassistant -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD
 
 staple the .app:
-xcrun stapler staple dist/taca.app
+xcrun stapler staple 'dist/Thematic Analyisis Coding Assistant.app'
 
 verify:
-spctl --assess --type execute -vvv dist/taca.app
+spctl --assess --type execute -vvv 'dist/Thematic Analyisis Coding Assistant.app'
 
 NOTARIZATION DEBUGGING (https://wiki.freepascal.org/Notarization_for_macOS_10.14.5%2B)
 
@@ -86,18 +86,18 @@ xcrun altool --notarization-info <RequestUUID> -u federico.milana.18@ucl.ac.uk -
 
 
 steps (tacaenv2):
-1. pyinstaller: package into .app using codesign flag (pyinstaller -n 'taca' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist')
-2. run fix qt script (python fix_app_qt_folder_names_for_codesign.py dist/taca.app)
+1. pyinstaller: package into .app using codesign flag (pyinstaller -n 'Thematic Analyisis Coding Assistant' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist')
+2. run fix qt script (python fix_app_qt_folder_names_for_codesign.py 'dist/Thematic Analyisis Coding Assistant.app')
 3. run codesign script (./codesign_script)
-4. codesign main exe with force and deep flags (codesign --verbose=4 --deep --force --options runtime -s 'Developer ID Application: University College London (8UMT23UD55)' --entitlements entitlements.plist dist/taca.app)
-5. create dmg (hdiutil create -volname MyApp -srcfolder dist/taca.app -ov -format UDBZ dist/taca.dmg)
-6. codesign dmg (codesign --verbose=4 --force -s 'Developer ID Application: University College London (8UMT23UD55)' --options runtime dist/taca.dmg)
-7. notarize dmg (xcrun altool --notarize-app -t osx -f dist/taca.dmg --primary-bundle-id com.fmilana.tacodingassistant -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD)
+4. codesign main exe with force and deep flags (codesign --verbose=4 --deep --force --options runtime -s 'Developer ID Application: University College London (8UMT23UD55)' --entitlements entitlements.plist 'dist/Thematic Analyisis Coding Assistant.app')
+5. create dmg (hdiutil create -volname MyApp -srcfolder 'dist/Thematic Analyisis Coding Assistant.app' -ov -format UDBZ 'dist/Thematic Analyisis Coding Assistant.dmg')
+6. codesign dmg (codesign --verbose=4 --force -s 'Developer ID Application: University College London (8UMT23UD55)' --options runtime 'dist/Thematic Analyisis Coding Assistant.dmg')
+7. notarize dmg (xcrun altool --notarize-app -t osx -f 'dist/Thematic Analyisis Coding Assistant.dmg' --primary-bundle-id com.fmilana.tacodingassistant -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD)
 8. check progress (xcrun altool --notarization-info <RequestUUID> -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD)
-9. staple dmg (xcrun stapler staple dist/taca.dmg)
-10. staple app (xcrun stapler staple dist/taca.app)
-11. verify dmg (spctl -a -vv -t install dist/taca.dmg)
-12. verify app (spctl -a -vv -t execute dist/taca.app)
+9. staple dmg (xcrun stapler staple 'dist/Thematic Analyisis Coding Assistant.dmg')
+10. staple app (xcrun stapler staple 'dist/Thematic Analyisis Coding Assistant.app')
+11. verify dmg (spctl -a -vv -t install 'dist/Thematic Analyisis Coding Assistant.dmg')
+12. verify app (spctl -a -vv -t execute 'dist/Thematic Analyisis Coding Assistant.app')
 
 
 
@@ -136,16 +136,16 @@ other pxds:
 
 tacaenv:
 
-pyinstaller -n 'taca' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'Thematic Analyisis Coding Assistant' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 
 tacaenv-clone:
 
-pyinstaller -n 'taca' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'Thematic Analyisis Coding Assistant' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 tacaenv2:
 
-pyinstaller -n 'taca' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'Thematic Analyisis Coding Assistant' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 
 
@@ -166,4 +166,4 @@ https://github.com/dmlc/xgboost/issues/7761#issuecomment-1104619556
 
 old xgboost packaging:
 
-pyinstaller -n 'taca' main.py --windowed --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'Thematic Analyisis Coding Assistant' main.py --windowed --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
