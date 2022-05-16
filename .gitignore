@@ -21,6 +21,8 @@ cm_data.json
 setup.py
 /env
 logs/app.log
+logs/sys.log
+*.log
 /venv
 /build
 /dist
