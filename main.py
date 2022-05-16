@@ -1,15 +1,6 @@
 # needed for pyinstaller for MacOS
 import os
 import sys
-
-# # needed to build with pyinstaller on MacOS
-# if getattr(sys, 'frozen', False) and sys.platform == 'darwin':
-#     os.environ['QTWEBENGINEPROCESS_PATH'] = os.path.normpath(os.path.join(
-#         sys._MEIPASS, 'PySide2', 'Qt', 'lib',
-#         'QtWebEngineCore.framework', 'Helpers', 'QtWebEngineProcess.app',
-#         'Contents', 'MacOS', 'QtWebEngineProcess'
-#     ))
-
 import re
 import docx
 import json
@@ -24,6 +15,10 @@ from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
 from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
 from path_util import resource_path
+
+
+sys.stdout = open(resource_path('logs/app.log'), 'w')
+sys.stderr = sys.stdout
 
 
 def load_table_data(doc_path, themes, table_name, reclassified):
