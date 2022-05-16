@@ -17,7 +17,7 @@ from analyse_train_and_predict import analyse
 from path_util import resource_path
 
 
-sys.stdout = open(resource_path('logs/app.log'), 'w')
+sys.stdout = open(resource_path('logs/sys.log'), 'a+')
 sys.stderr = sys.stdout
 
 
