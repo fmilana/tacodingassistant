@@ -1,5 +1,7 @@
 # needed for pyinstaller for MacOS
 import os
+from pathlib import Path
+from sys import platform
 import sys
 import re
 import docx
@@ -17,8 +19,15 @@ from analyse_train_and_predict import analyse
 from path_util import resource_path
 
 
-sys.stdout = open(resource_path('logs/sys.log'), 'a+')
-sys.stderr = sys.stdout
+if getattr(sys, 'frozen', False):
+    # if the application is run as a bundle (--onefile):
+    if platform == 'win32':
+        # on Windows, create logs directory in the same level as the .exe
+        Path(os.path.join(os.path.abspath(os.path.dirname(sys.executable)), 'logs')).mkdir(parents=True, exist_ok=True)
+    elif platform == 'darwin':
+        # on MacOS, redirect stdout and stderr to sys.log
+        sys.stdout = open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logs/sys.log'), 'a+')
+        sys.stderr = sys.stdout
 
 
 def load_table_data(doc_path, themes, table_name, reclassified):
@@ -888,8 +897,6 @@ class AppWindow(QMainWindow):
         channel.registerObject('confusionTablesBackend', self.confusion_tables_backend)
         channel.registerObject('logBackend', self.log_backend)
         channel.registerObject('importBackend', self.import_backend)
-        print(f'looking for main.html in "{resource_path("templates/main.html")}"')
-        print(f'file exists: {os.path.exists(resource_path("templates/main.html"))}')
         self.view.load(QUrl.fromLocalFile(QDir.current().filePath(resource_path('templates/main.html'))))
         self.setCentralWidget(self.view)
 
