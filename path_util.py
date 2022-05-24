@@ -1,11 +1,11 @@
-from sys import platform, executable
+import sys
 from os import path
 
 
 def resource_path(relative_path):
-    if relative_path == 'logs/app.log' and platform == 'win32':
+    if relative_path == 'logs/app.log' and sys.platform == 'win32' and getattr(sys, 'frozen', False):
         # on Windows, find logs in the same folder as the .exe
-        base_path = path.abspath(path.dirname(executable))
+        base_path = path.abspath(path.dirname(sys.executable))
     else:
         base_path = path.abspath(path.dirname(__file__))
     

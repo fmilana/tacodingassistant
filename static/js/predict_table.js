@@ -492,7 +492,7 @@ const predictTableLib = (function () {
         //   .select('#loading-text')
         //   .text('Updating table...')
         //   .style('display', 'block');
-        log(`predict keyword "${movingText}" (${movingColumn}) at position ${d3.select(this.parentNode.parentNode).attr('position')} moved to "${targetColumn}"`);
+        log(`predict keyword at position ${d3.select(this.parentNode.parentNode).attr('position')} moved`);
         // setTimeout to avoid freezing
         setTimeout(() => {
           updateData(movingText, movingSentences, movingColumn, targetColumn);
@@ -566,7 +566,7 @@ const predictTableLib = (function () {
      
         movingSentences.predictSentences = [movingSentence];
 
-        log(`predict sentence moved to "${targetColumn}"`);
+        log('predict sentence moved');
 
         // setTimeout to avoid freezing
         setTimeout(() => {
@@ -591,7 +591,7 @@ const predictTableLib = (function () {
 
         d3.select(this)
           .on('click', function () {
-            log(`predict keyword "${d3.select(this).text()}" (${d3.select(this).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+            log(`predict keyword at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
             // remove other tooltips and change font to normal
             d3.select('#predict-table-container')
               .selectAll('.td-tooltip')

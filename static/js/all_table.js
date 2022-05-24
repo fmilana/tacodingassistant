@@ -513,7 +513,7 @@ const allTableLib = (function () {
         //   .text('Updating table...')
         //   .style('display', 'block');
 
-        log(`keyword "${movingText}" (${movingColumn}) at position ${d3.select(this.parentNode.parentNode).attr('position')} moved to "${targetColumn}"`);
+        log(`keyword at position ${d3.select(this.parentNode.parentNode).attr('position')} moved`);
 
         // setTimeout to avoid freezing
         setTimeout(() => {
@@ -591,7 +591,7 @@ const allTableLib = (function () {
           logString = 'predict';
         }
 
-        log(`${logString} sentence moved to "${targetColumn}"`);
+        log(`${logString} sentence moved`);
 
         // setTimeout to avoid freezing
         setTimeout(() => {
@@ -616,7 +616,7 @@ const allTableLib = (function () {
 
         d3.select(this)
           .on('click', function () {
-            log(`keyword "${d3.select(this).text()}" (${d3.select(this).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+            log(`keyword at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
 
             // remove other tooltips and change font to normal
             d3.select('#all-table-container')

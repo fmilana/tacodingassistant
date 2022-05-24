@@ -164,7 +164,7 @@ const confusionTablesLib = (function () {
           .on('click', function () {
             const columnName = d3.select(this.parentNode.parentNode).attr('column').replace(/ \(\d+\)$/, '');
 
-            log(`keyword "${d3.select(this).text()}" (${columnName}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+            log(`keyword at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
             // remove other tooltips and change font to normal
             tableContainer
               .selectAll('.td-tooltip')

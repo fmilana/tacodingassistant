@@ -145,7 +145,7 @@ const codesTableLib = (function () {
       .each(function () {
         d3.select(this)
           .on('click', function () {
-            log(`code "${d3.select(this).text()}" (${d3.select(this.parentNode.parentNode).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+            log(`code at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
 
             // remove other tooltips and change font to normal
             d3.select('#codes-table-container')

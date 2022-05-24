@@ -491,7 +491,7 @@ const trainTableLib = (function () {
         //   .select('#loading-text')
         //   .text('Updating table...')
         //   .style('display', 'block');
-        log(`train keyword "${movingText}" (${movingColumn}) at position ${d3.select(this.parentNode.parentNode).attr('position')} moved to "${targetColumn}"`);
+        log(`train keyword at position ${d3.select(this.parentNode.parentNode).attr('position')} moved`);
         // setTimeout to avoid freezing
         setTimeout(() => {
           updateData(movingText, movingSentences, movingColumn, targetColumn);
@@ -557,7 +557,7 @@ const trainTableLib = (function () {
      
         movingSentences.trainSentences = [movingSentence];
 
-        log(`train sentence moved to "${targetColumn}"`);
+        log('train sentence moved');
 
         // setTimeout to avoid freezing
         setTimeout(() => {
@@ -582,7 +582,7 @@ const trainTableLib = (function () {
 
         d3.select(this)
           .on('click', function () {
-            log(`train keyword "${d3.select(this).text()}" (${d3.select(this).attr('column')}) at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
+            log(`train keyword at position ${d3.select(this.parentNode.parentNode.parentNode).attr('position')} clicked`);
             // remove other tooltips and change font to normal
             d3.select('#train-table-container')
               .selectAll('.td-tooltip')

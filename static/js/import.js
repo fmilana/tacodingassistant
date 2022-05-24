@@ -193,8 +193,6 @@ const importLib = (function () {
         const regularExpression = $('#regexp-checkbox').is(':checked');
         const caseInsensitive = $('#case-insensitive-checkbox').is(':checked');
 
-        logString += `. Filtered keywords: "${filterKeywords}"`;
-
         log(logString);
 
         // console.log(`typeof transcriptFile = ${transcriptFile}`);
