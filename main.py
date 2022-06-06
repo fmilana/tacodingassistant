@@ -241,7 +241,7 @@ class TextThread(QThread):
             predict_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_predict.csv'))
 
         train_data = []
-        for _, row in train_df.iterrows():
+        for _, row in train_df.fillna('').iterrows():
           train_data.append([row['original_sentence'], re.sub(';', ',', row['themes'])])
 
         predict_data = []
