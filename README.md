@@ -8,7 +8,7 @@ Using XGBoost to classify word2vec embeddings and generate coding suggestions.
 conda env create -f osx_tacaenv.yml
 ```
 
-    or:
+or:
 
 ```
 conda env create -f win_tacaenv.yml
