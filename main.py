@@ -51,7 +51,7 @@ def log_close(from_popup=False):
 
 def show_error_popup(traceback):
     message_box = QMessageBox()
-    message_box.setWindowTitle('Error!')
+    message_box.setWindowTitle('Error')
     message_box.setIcon(QMessageBox.Critical)
     message_box.setText('Something went wrong!')
     message_box.setInformativeText('Please click "Show Details..." below and send the text to the researchers (make sure the text does not contain any extracts from your transcript).')
@@ -71,6 +71,7 @@ def load_table_data(doc_path, themes, table_name, reclassified):
     minimum_proba = 0.95
 
     if table_name == 'all-table':
+        print(no_string)
         if reclassified:
             analyse_df = pd.read_csv(doc_path.replace('.docx', '_analyse_1.csv'))
             predict_df = pd.read_csv(doc_path.replace('.docx', '_predict_1.csv'))
