@@ -41,7 +41,7 @@ const allTableLib = (function () {
 
 
   const loadReclassifiedTable = function (reclassifiedData, callback) {
-    console.log('===========================> lOADING RECLASSIFIED ALL_TABLE');
+    console.log('LOADING RECLASSIFIED ALL_TABLE');
     const startTime = new Date().getTime();
     data = reclassifiedData;
 
@@ -603,7 +603,7 @@ const allTableLib = (function () {
 
       dragging = false;
 
-      console.log(`moving "${sentenceType}" sentence "${movingSentence}" from "${movingColumn}" to "${targetColumn}"`);
+      console.log('moving sentence...');
     }
   };
 
@@ -762,7 +762,7 @@ const allTableLib = (function () {
 
 
   const updateData = function (movingText, movingSentences, movingColumn, targetColumn) {
-    console.log(`moving ${movingText} from ${movingColumn} to ${targetColumn}`);
+    console.log('moving text...');
 
     // TODO: move to txt?
     const stopWords = ['yeah', 'yeah,', 'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves',
@@ -852,7 +852,7 @@ const allTableLib = (function () {
                 if (sentence === movingSentence) {
                   // update text
                   movedText = `${word} (${movingCount - 1})`;
-                  console.log(`${movingColumn}: "${movingColumnData[i][0]}" ==> "${movedText}"`);
+                  // console.log(`${movingColumn}: "${movingColumnData[i][0]}" ==> "${movedText}"`);
                   movingColumnData[i][0] = movedText;
                   // find original sentence (to move later if needed)
                   originalSentence = movingColumnData[i][index][j];
@@ -874,7 +874,7 @@ const allTableLib = (function () {
             if (targetWord === word) {
               const targetCount = parseInt(targetColumnData[i][0].match(/\((\d+?)\)/)[1], 10);
               movedText = `${word} (${targetCount + 1})`;
-              console.log(`${targetColumn}: "${targetColumnData[i][0]}" ==> "${movedText}"`);
+              // console.log(`${targetColumn}: "${targetColumnData[i][0]}" ==> "${movedText}"`);
               targetColumnData[i][0] = movedText;
               // add sentence
               let index = 1;
@@ -897,7 +897,7 @@ const allTableLib = (function () {
               themeDataRow.push([]);
               themeDataRow.push([originalSentence]);
             }
-            console.log(`${targetColumn}: ==> "${word} (1)"`);
+            // console.log(`${targetColumn}: ==> "${word} (1)"`);
 
             targetColumnData.push(themeDataRow);
           }

@@ -41,7 +41,7 @@ const trainTableLib = (function () {
 
 
   const loadReclassifiedTable = function (reclassifiedData, callback) {
-    console.log('===========================> lOADING RECLASSIFIED TRAIN_TABLE');
+    console.log('LOADING RECLASSIFIED TRAIN_TABLE');
     const startTime = new Date().getTime();
     data = reclassifiedData;
 

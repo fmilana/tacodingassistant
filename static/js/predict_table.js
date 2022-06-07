@@ -41,7 +41,7 @@ const predictTableLib = (function () {
 
 
   const loadReclassifiedTable = function (reclassifiedData, callback) {
-    console.log('===========================> lOADING RECLASSIFIED PREDICT_TABLE');
+    console.log('LOADING RECLASSIFIED PREDICT_TABLE');
     const startTime = new Date().getTime();
     data = reclassifiedData;
 
@@ -468,7 +468,6 @@ const predictTableLib = (function () {
       }
 
       if (targetColumn !== movingColumn) {
-        console.log('======================================> REMOVING TABLE...');
         d3.select('#predict-table-container')
           .select('table').remove();
 
@@ -532,16 +531,9 @@ const predictTableLib = (function () {
       }
 
       if (targetColumn !== movingColumn) {
-        console.log('=====================================> REMOVING TABLE');
         d3.select('#predict-table-container')
           .select('table')
           .remove();
-
-        if (d3.select('#predict-table-container').select('table').empty()) {
-          console.log('=====================================> TABLE GONE');
-        } else {
-          console.log('=====================================> TABLE STILL HERE SOMEHOW??');
-        }
 
         d3.select('#predict-table-container')
           .select('#bin-div')

@@ -105,16 +105,10 @@ const onSetup = function (extractedThemes) {
   d3.select('#setup-container')
     .remove();
 
-  console.log(`===============> ${themes.length} themes: ${themes}`);
+  console.log(`${themes.length} themes`);
 
   d3.select('.navbar-top')
     .style('display', 'block');
-
-  if (d3.select('#cm-dropdown-content').empty()) {
-    console.log('cm-dropdown-content is empty');
-  } else {
-    console.log('cm-dropdown-content is not empty');
-  }
 
   d3.select('#cm-dropdown-content')
     .selectAll('a')
@@ -274,7 +268,7 @@ const onReclassified = function () {
   switch (threadStartId) {
     case 'all-keywords-button':
       console.log('=======================================================');
-      console.log('calling ALLTABLE THREAD FIRST!!');
+      console.log('calling all_table thread first');
       allTableBackend.get_table(true);
       break;
     case 'predict-keywords-button':

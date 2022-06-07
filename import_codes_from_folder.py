@@ -143,11 +143,11 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
 
     print(f'done extracting in {datetime.now() - start}')
 
-    print(f'{len(set(missing_codes))} missing codes ({len(missing_codes)} sentences) in themes table:')
-    print(set(missing_codes))
+    print(f'{len(set(missing_codes))} missing codes ({len(missing_codes)} sentences) in themes table (some counters in the codes table will be 0)')
+    # print(set(missing_codes))
 
     train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False)
 
-    print(f'------------------------------------> {themes_found}')
+    # print(f'------------------------------------> {themes_found}')
 
     return themes_found

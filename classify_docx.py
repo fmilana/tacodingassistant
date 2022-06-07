@@ -137,8 +137,8 @@ class ClassifyDocx:
         train_embedding_matrix = np.array(self.train_df['sentence_embedding'].tolist())
         train_themes_binary_matrix = self.train_df.iloc[:, 7:].to_numpy()
 
-        print(f'=========================> np.shape(train_embedding_matrix) = {np.shape(train_embedding_matrix)}')
-        print(f'=========================> np.shape(train_themes_binary_matrix) = {np.shape(train_themes_binary_matrix)}')
+        print(f'np.shape(train_embedding_matrix) = {np.shape(train_embedding_matrix)}')
+        print(f'np.shape(train_themes_binary_matrix) = {np.shape(train_themes_binary_matrix)}')
 
         test_embedding_matrix = np.array(test_df['sentence_embedding'].tolist())
         test_cleaned_sentences = test_df['cleaned_sentence'].tolist()
@@ -354,8 +354,8 @@ class ClassifyDocx:
         print('fitting clf...')
         start_fit = datetime.now()
 
-        print(f'======================================> np.shape(X_train) = {np.shape(X_train)}')
-        print(f'======================================> np.shape(Y_train) = {np.shape(Y_train)}')
+        print(f'np.shape(X_train) = {np.shape(X_train)}')
+        print(f'np.shape(Y_train) = {np.shape(Y_train)}')
 
         clf.fit(X_train, Y_train)
 
@@ -387,15 +387,15 @@ class ClassifyDocx:
             score = np.sum(equals)/equals.size
             scores.append(score)
 
-        print(f'======================================> np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
+        print(f'np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
 
         prediction_output = clf.predict(sentence_embedding_matrix)
 
-        print(f'======================================> np.shape(prediction_output) 1 = {np.shape(prediction_output)}')
+        print(f'np.shape(prediction_output) 1 = {np.shape(prediction_output)}')
 
         prediction_output = prediction_output.astype(int)
 
-        print(f'======================================> np.shape(prediction_output) 2 = {np.shape(prediction_output)}')
+        print(f'np.shape(prediction_output) 2 = {np.shape(prediction_output)}')
 
         prediction_proba = clf.predict_proba(sentence_embedding_matrix)
 

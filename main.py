@@ -203,13 +203,13 @@ class SetupThread(QThread):
         self.app_window = parent.parent().parent()
 
     def run(self):
-        print('===========================> SETUP THREAD STARTED')
+        print('=========================== SETUP THREAD STARTED ===========================')
         themes_found = self.classify_docx.run_classifier()
         self.app_window.themes = themes_found
 
         print('done with run_classifier in setup thread')
-        print('running analyse now..')
-        print(f'===========================> themes = {self.app_window.themes}')
+        print('running analyse now...')
+        # print(f'===========================> themes = {self.app_window.themes}')
         analyse(self.app_window.doc_path, self.app_window.themes)
         self.thread_signal.emit(self.app_window.themes)
 
@@ -224,7 +224,7 @@ class TextThread(QThread):
         self.app_window = parent.parent().parent()
 
     def run(self):
-        print('===========================> TEXT THREAD STARTED')
+        print('=========================== TEXT THREAD STARTED ===========================')
         minimum_proba = 0.95
 
         document = docx.Document(self.app_window.doc_path)
@@ -272,7 +272,7 @@ class CodesTableThread(QThread):
         self.app_window = parent.parent().parent()
 
     def run(self):
-        print('===========================> CODES TABLE THREAD STARTED')
+        print('=========================== CODES TABLE THREAD STARTED ===========================')
         data = []
         counts = [0 for _ in self.app_window.themes]
 
@@ -315,7 +315,7 @@ class AllTableThread(QThread):
         self.app_window = parent.parent().parent()
 
     def run(self):
-        print('===========================> ALL TABLE THREAD STARTED')
+        print('=========================== ALL TABLE THREAD STARTED ===========================')
         data = load_table_data(self.app_window.doc_path, self.app_window.themes, 'all-table', self.reclassified)
         # with open('all_table_data.json', 'w') as f:
         #     json.dump(data, f)
@@ -332,7 +332,7 @@ class PredictTableThread(QThread):
         self.app_window = parent.parent().parent()
 
     def run(self):
-        print('===========================> PREDICT TABLE THREAD STARTED')
+        print('=========================== PREDICT TABLE THREAD STARTED ===========================')
         data = load_table_data(self.app_window.doc_path, self.app_window.themes, 'predict-table', self.reclassified)
         self.thread_signal.emit(data)
 
@@ -347,7 +347,7 @@ class TrainTableThread(QThread):
         self.app_window = parent.parent().parent()
 
     def run(self):
-        print('===========================> TRAIN TABLE THREAD STARTED')
+        print('=========================== TRAIN TABLE THREAD STARTED ===========================')
         data = load_table_data(self.app_window.doc_path, self.app_window.themes, 'train-table', self.reclassified)
         self.thread_signal.emit(data)
 
@@ -364,7 +364,7 @@ class ReclassifyThread(QThread):
         self.app_window = parent.parent().parent()
 
     def run(self):
-        print('===========================> RECLASSIFY THREAD STARTED')
+        print('=========================== RECLASSIFY THREAD STARTED ===========================')
         if self.first_reclassify:
             train_path = self.app_window.doc_path.replace('.docx', '_train.csv')
             predict_path = self.app_window.doc_path.replace('.docx', '_predict.csv')
@@ -467,10 +467,10 @@ class ConfusionTablesThread(QThread):
         self.app_window = parent.parent().parent()
 
     def run(self):
-        print('===========================> CONFUSION TABLES THREAD STARTED')
+        print('=========================== CONFUSION TABLES THREAD STARTED ===========================')
         data = []
 
-        for theme in self.app_window.themes:
+        for i, theme in enumerate(self.app_window.themes):
             table_data = []
 
             start_path = re.search(r'^(.*[\\\/])', self.app_window.doc_path).group(0)
@@ -506,7 +506,7 @@ class ConfusionTablesThread(QThread):
                 table_data.append(data_row)
             
             data.append(table_data)
-            print(f'"{theme}" confusion table done')
+            print(f'confusion table {i+1} done')
 
         # with open('cm_data.json', 'w') as f:
         #     json.dump(data, f)
@@ -569,7 +569,7 @@ class RegexpThread(QThread):
             self.app_window.regexp = self.input_regexp
             valid = True
 
-        print(f'saved regexp =================================> {self.app_window.regexp}')
+        print(f'saved filter regexp => "{self.app_window.regexp}"')
 
         self.thread_signal.emit(['regexp', self.app_window.regexp, valid])
 
