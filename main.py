@@ -7,16 +7,24 @@ import re
 import docx
 import json
 import time
+import traceback
 import pandas as pd
 import datetime
+import logging
 from shutil import copyfile
 from PySide2.QtCore import QDir, QObject, QThread, QUrl, Signal, Slot
 from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
-from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QGridLayout
 from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
 from path_util import resource_path
+
+
+# needed for error popup
+log = logging.getLogger(__name__)
+handler = logging.StreamHandler(stream=sys.stdout)
+log.addHandler(handler)
 
 
 if getattr(sys, 'frozen', False):
@@ -28,6 +36,33 @@ if getattr(sys, 'frozen', False):
         # on MacOS, redirect stdout and stderr to sys.log
         sys.stdout = open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logs/sys.log'), 'a+')
         sys.stderr = sys.stdout
+
+
+def log_close(from_popup=False):
+    with open(resource_path('logs/app.log'), 'a+') as f:
+        line = f'[{datetime.date.today().strftime("%d/%m/%Y")}, {datetime.datetime.now().strftime("%H:%M:%S")} ({round(time.time() * 1000)})]: app closed'
+        if from_popup:
+            line += ' from error popup\n'
+        else:
+            line += '\n'
+        f.write(line)
+        f.close()
+
+
+def show_error_popup(traceback):
+    message_box = QMessageBox()
+    message_box.setWindowTitle('Error!')
+    message_box.setIcon(QMessageBox.Critical)
+    message_box.setText('Something went wrong!')
+    message_box.setInformativeText('Please click "Show Details..." below and send the text to the researchers (make sure the text does not contain any extracts from your transcript).')
+    message_box.setDetailedText(traceback)
+    message_box.setStandardButtons(QMessageBox.Ok)
+    message_box.findChild(QGridLayout).setColumnMinimumWidth(2, 400)
+    ret = message_box.exec_()
+    if ret == QMessageBox.Ok:
+        print('OK clicked.')
+        log_close(True)
+        sys.exit()
 
 
 def load_table_data(doc_path, themes, table_name, reclassified):
@@ -849,7 +884,34 @@ class ImportBackend(QObject):
     def send_keywords_data(self, data):
         self.signal.emit(data)
 
+
+class UncaughtHook(QObject):
+    _exception_caught = Signal(object)
     
+    def __init__(self, *args, **kwargs):
+        super(UncaughtHook, self).__init__(*args, **kwargs)
+        # this registers the exception_hook() function as hook with the Python interpreter
+        sys.excepthook = self.exception_hook
+        # connect signal to execute the message box function always on main thread
+        self._exception_caught.connect(show_error_popup)
+ 
+    def exception_hook(self, exc_type, exc_value, exc_traceback):
+        """Function handling uncaught exceptions.
+        It is triggered each time an uncaught exception occurs. 
+        """
+        if issubclass(exc_type, KeyboardInterrupt):
+            # ignore keyboard interrupt to support console applications
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        else:
+            exc_info = (exc_type, exc_value, exc_traceback)
+            log_msg = '\n'.join([''.join(traceback.format_tb(exc_traceback)),
+                                 '{0}: {1}'.format(exc_type.__name__, exc_value)])
+            log.critical("Uncaught exception:\n {0}".format(log_msg), exc_info=exc_info)
+
+            # trigger message box show
+            self._exception_caught.emit(log_msg)
+
+
 class WebView(QWebEngineView):
     def __init__(self, parent=None):
         QWebEngineView.__init__(self, parent)
@@ -873,6 +935,7 @@ class AppWindow(QMainWindow):
         self.resize(1400, 800)
         self.view = WebView(self)
         self.page = self.view.page()
+        qt_exception_hook = UncaughtHook()
         # create classify_docx object to pass to setup_backend and reclassify_backend
         classify_docx = ClassifyDocx()
         self.setup_backend = SetupBackend(classify_docx, self.view)
@@ -899,12 +962,6 @@ class AppWindow(QMainWindow):
         channel.registerObject('importBackend', self.import_backend)
         self.view.load(QUrl.fromLocalFile(QDir.current().filePath(resource_path('templates/main.html'))))
         self.setCentralWidget(self.view)
-
-
-def log_close():
-    with open(resource_path('logs/app.log'), 'a+') as f:
-        f.write(f'[{datetime.date.today().strftime("%d/%m/%Y")}, {datetime.datetime.now().strftime("%H:%M:%S")} ({round(time.time() * 1000)})]: app closed\n')
-        f.close()
 
 
 if __name__ == '__main__':
