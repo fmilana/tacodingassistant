@@ -2,13 +2,13 @@
 
 Using XGBoost to classify word2vec embeddings and generate coding suggestions.
 
-1) Install libraries:
+1) Install libraries. On MacOS:
 
 ```
 conda env create -f osx_tacaenv.yml
 ```
 
-or:
+On Windows:
 
 ```
 conda env create -f win_tacaenv.yml
