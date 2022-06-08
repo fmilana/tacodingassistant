@@ -71,7 +71,6 @@ def load_table_data(doc_path, themes, table_name, reclassified):
     minimum_proba = 0.95
 
     if table_name == 'all-table':
-        print(no_string)
         if reclassified:
             analyse_df = pd.read_csv(doc_path.replace('.docx', '_analyse_1.csv'))
             predict_df = pd.read_csv(doc_path.replace('.docx', '_predict_1.csv'))
