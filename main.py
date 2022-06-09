@@ -26,16 +26,12 @@ log = logging.getLogger(__name__)
 handler = logging.StreamHandler(stream=sys.stdout)
 log.addHandler(handler)
 
-
-if getattr(sys, 'frozen', False):
-    # if the application is run as a bundle (--onefile):
-    if platform == 'win32':
-        # on Windows, create logs directory in the same level as the .exe
-        Path(os.path.join(os.path.abspath(os.path.dirname(sys.executable)), 'logs')).mkdir(parents=True, exist_ok=True)
-    elif platform == 'darwin':
-        # on MacOS, redirect stdout and stderr to sys.log
-        sys.stdout = open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logs/sys.log'), 'a+')
-        sys.stderr = sys.stdout
+# redirect stdout to logs/sys.app
+if getattr(sys, 'frozen', False) and platform == 'win32':
+    Path(os.path.join(os.path.abspath(os.path.dirname(sys.executable)), 'logs')).mkdir(parents=True, exist_ok=True)
+    sys.stdout = open(os.path.join(os.path.abspath(os.path.dirname(sys.executable)), 'logs/sys.log'), 'a+')
+else:
+    sys.stdout = open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logs/sys.log'), 'a+')
 
 
 def log_close(from_popup=False):
@@ -53,7 +49,7 @@ def show_error_popup(traceback):
     message_box = QMessageBox()
     message_box.setWindowTitle('Error')
     message_box.setIcon(QMessageBox.Critical)
-    message_box.setText('Sorry,  something went wrong!')
+    message_box.setText('Sorry, something went wrong!')
     message_box.setInformativeText('Please click "Show Details..." below and send the text to the researchers (make sure the text does not contain any sensitive data, such as extracts from your transcripts).')
     message_box.setDetailedText(traceback)
     message_box.setStandardButtons(QMessageBox.Ok)

@@ -148,6 +148,6 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
 
     train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False)
 
-    # print(f'------------------------------------> {themes_found}')
+    print(f'------------------------------------> {themes_found}')
 
     return themes_found
