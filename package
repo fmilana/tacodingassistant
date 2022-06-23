@@ -1,0 +1,14 @@
+echo "Y Y" | pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+python fix_app_qt_folder_names_for_codesign.py dist/TACA.app
+./codesign_script
+codesign --verbose=4 --deep --force --options runtime -s 'Developer ID Application: University College London (8UMT23UD55)' --entitlements entitlements.plist dist/TACA.app
+hdiutil create -volname MyApp -srcfolder dist/TACA.app -ov -format UDBZ dist/TACA.dmg
+echo "Codesigning dmg..."
+codesign --verbose=4 --force -s 'Developer ID Application: University College London (8UMT23UD55)' --options runtime dist/TACA.dmg
+echo "Uploading dmg..."
+xcrun altool --notarize-app -t osx -f dist/TACA.dmg --primary-bundle-id com.fmilana.tacodingassistant -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD
+echo "Notarization in progress. Stapling in 15 minutes..."
+sleep 900
+xcrun stapler staple dist/TACA.dmg
+xcrun stapler staple dist/TACA.app
+echo "All done!"
