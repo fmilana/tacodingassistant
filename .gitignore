@@ -28,3 +28,4 @@ logs/sys.log
 /dist
 *.spec
 .DS_Store
+/data/robert_study_files
