@@ -64,7 +64,7 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
         'codes', 
         'themes'
         ]
-    themes_list = list(cat_df)
+    themes_list = [theme_name.lower() for theme_name in list(cat_df)]
     header.extend(themes_list)
 
     train_df = pd.DataFrame(columns=header)
@@ -75,12 +75,12 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
 
     for entry in os.scandir(codes_folder_path):
         if entry.path.endswith('.docx'):
-            code = entry.name[:-5]
-            find_code = (cat_df.values == code).any(axis=0)
+            code = entry.name[:-5].lower()
+            find_code = (cat_df.apply(lambda x: x.astype(str).str.lower()).values == code).any(axis=0)
             theme = None
 
             try:
-                theme = cat_df.columns[np.where(find_code==True)[0]].item()
+                theme = cat_df.columns[np.where(find_code==True)[0]].item().lower()
                 if theme not in themes_found:
                     themes_found.append(theme)
 
@@ -100,8 +100,8 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
 
                                     matching_row = train_df.iloc[matching_index]
                                     
-                                    matching_row_codes = matching_row['codes'].split('; ')
-                                    matching_row_themes = matching_row['themes'].split('; ')
+                                    matching_row_codes = [matching_code.lower() for matching_code in matching_row['codes'].split('; ')]
+                                    matching_row_themes = [matching_theme.lower() for matching_theme in matching_row['themes'].split('; ')]
 
                                     if code not in matching_row_codes:
                                         matching_row_codes.append(code)
