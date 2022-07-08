@@ -308,7 +308,7 @@ class CodesTableThread(QThread):
         counts = [0 for _ in self.app_window.themes]
 
         train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'))
-        codes_df = pd.read_csv(self.app_window.theme_code_table_path).apply(lambda x: x.astype(str).str.lower())
+        codes_df = pd.read_csv(self.app_window.theme_code_table_path).apply(lambda x: x.lower() if isinstance(x, str) else x)
         codes_df.columns = codes_df.columns.str.lower()
 
         for _, row in train_df.iterrows():
