@@ -622,7 +622,7 @@ class SetupBackend(QObject):
         self.thread.thread_signal.connect(self.send_data)
 
     @Slot(str, str, str, str)
-    def set_up(self, transcript_path, codes_dir_path, theme_code_lookup_path, filter_regexp):
+    def set_up(self, transcript_path, word_delimiter, codes_dir_path, theme_code_lookup_path, filter_regexp):
 
         if len(codes_dir_path) > 0:
             codes_dir_path = resource_path(codes_dir_path)
@@ -650,7 +650,7 @@ class SetupBackend(QObject):
             self.app_window.themes = list(cat_df)     
 
         # set paths and regexp for classify_docx object
-        self.classify_docx.set_up(self.app_window.doc_path, codes_dir_path, theme_code_lookup_path, filter_regexp)
+        self.classify_docx.set_up(self.app_window.doc_path, word_delimiter, codes_dir_path, theme_code_lookup_path, filter_regexp)
         # pass classify_docx object to thread
         self.thread.classify_docx = self.classify_docx
 
@@ -866,17 +866,17 @@ class ImportBackend(QObject):
         path_to_folder = path_to_folder.replace('\\', '/')
         self.signal.emit(['codes', path_to_folder])
 
-    @Slot(str)
-    def create_code_table_csv_from_document(self, transcript_path):
-        path_to_file = create_codes_csv_from_document(transcript_path)
+    @Slot(str, str)
+    def create_code_table_csv_from_document(self, transcript_path, delimiter):
+        path_to_file = create_codes_csv_from_document(transcript_path, delimiter)
         path_to_file = path_to_file.replace('\\', '/')
-        self.signal.emit(['codeThemeTable', path_to_file])
+        self.signal.emit(['codeThemeTable', path_to_file, 'fromDocument'])
 
     @Slot(str, str)
     def create_code_table_csv_from_folder(self, transcript_path, codes_folder_path):
         path_to_file = create_codes_csv_from_folder(transcript_path, codes_folder_path)
         path_to_file = path_to_file.replace('\\', '/')
-        self.signal.emit(['codeThemeTable', path_to_file])
+        self.signal.emit(['codeThemeTable', path_to_file, 'fromFolder'])
 
     # @Slot()
     # def open_theme_code_table_chooser(self):

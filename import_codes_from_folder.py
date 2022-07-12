@@ -120,8 +120,6 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
 
     print(f'------------------------------------> {themes_found}')
 
-    create_codes_csv_from_folder(doc_path, codes_folder_path)
-
     return themes_found
 
 
@@ -137,7 +135,7 @@ def create_codes_csv_from_folder(doc_path, codes_folder_path):
                 code = entry.name[:-5].lower()
                 codes.append(code)
 
-        codes_df = pd.DataFrame({'Theme 1': sorted(list(set(codes))), 'Theme 2': np.nan, 'Theme 3': np.nan, '...': np.nan})
+        codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
         codes_df.to_csv(theme_code_table_path, index=False)
 
         print(f'{doc_path.replace(".docx", "_codes.csv")} created in {codes_folder_path}')

@@ -2,6 +2,8 @@
 // eslint-disable-next-line no-unused-vars
 const importLib = (function () {
   const setupImportPage = function () {
+    let wordDelimiter = '';
+    let noWordDelimiterCheckBoxValue = false; 
     let editedCheckBoxValue = false;
     let wordCheckboxValue = false;
     let nvivoCheckboxValue = false;
@@ -39,8 +41,8 @@ const importLib = (function () {
       .on('click', () => {
         let divToShow = '';
         if (wordCheckboxValue) {
-          // divToShow = '#import-theme-code-table-container';
-          divToShow = '#import-loading-code-theme-table-container';
+          // divToShow = '#import-loading-code-theme-table-container';
+          divToShow = "#import-word-delimiter-container";
           codesPath = '';
         } else {
           divToShow = '#import-codes-folder-container';
@@ -50,10 +52,23 @@ const importLib = (function () {
         d3.select(divToShow)
           .style('display', 'block');
         containersStack.push('#import-word-or-nvivo-container');
+      });
 
-        if (wordCheckboxValue) {
-          importBackend.create_code_table_csv_from_document(transcriptPath);
+    d3.select('#import-word-delimiter-next-button')
+      .on('click', () => {
+        // save delimiter
+        if (!noWordDelimiterCheckBoxValue) {
+          wordDelimiter = d3.select('#delimiter-textarea').node().value;
         }
+
+        d3.select('#import-word-delimiter-container')
+          .style('display', 'none');
+          d3.select('#import-loading-code-theme-table-container')
+          .style('display', 'block');
+
+        importBackend.create_code_table_csv_from_document(transcriptPath, wordDelimiter);
+        
+        containersStack.push('#import-word-delimiter-container');
       });
 
     d3.select('#import-codes-folder-next-button')
@@ -93,6 +108,36 @@ const importLib = (function () {
     //   });
     // ////////////////
 
+    d3.select('#delimiter-textarea')
+      .on('input', () => {
+        if (d3.select('#delimiter-textarea').node().value.length > 0) {
+          d3.select('#import-word-delimiter-next-button')
+            .property('disabled', false);
+        } else {
+          d3.select('#import-word-delimiter-next-button')
+            .property('disabled', true);
+        }
+      });
+
+    d3.select('#no-word-delimiter-checkbox')
+      .on('click', () => {
+        noWordDelimiterCheckBoxValue = !noWordDelimiterCheckBoxValue;
+        if (noWordDelimiterCheckBoxValue) {
+          d3.select('#delimiter-textarea')
+            .property('value', '')
+            .property('disabled', true);
+          d3.select('#import-word-delimiter-next-button')
+            .property('disabled', false);
+        } else {
+          d3.select('#delimiter-textarea')
+            .property('disabled', false);
+          d3.select('#import-word-delimiter-next-button')
+            .property('disabled', true);
+        }
+        d3.select('#delimiter-textarea')
+          .property('disabled', noWordDelimiterCheckBoxValue);
+      });
+
     d3.select('#edit-code-theme-table-checkbox')
       .on('click', () => {
         editedCheckBoxValue = !editedCheckBoxValue;
@@ -106,7 +151,26 @@ const importLib = (function () {
           .style('display', 'none');
         d3.select('#import-keywords-container')
           .style('display', 'block');
-          containersStack.push('#import-edit-code-theme-table-container');
+        containersStack.push('#import-edit-code-theme-table-container');
+
+        if (containersStack.includes('#import-word-delimiter-container')) {
+          d3.select('.dynamic-stepper')
+            .text('Enter delimiter');
+        } else {
+          d3.select('.dynamic-stepper')
+            .text('Select codes folder');
+        }
+
+        // d3.select('#dynamic-stepper')
+        //   .text(function(d) {
+        //     if (containersStack.includes('#import-word-delimiter-container')) {
+        //       console.log('RETURNING Enter delimiter');
+        //       return 'Enter delimiter';
+        //     } else {
+        //       console.log('RETURNING Select codes folder');
+        //       return 'Select codes folder';
+        //     }
+        //   });
       });
 
     //back-buttons//
@@ -117,6 +181,14 @@ const importLib = (function () {
         d3.select(containersStack.pop())
           .style('display', 'block');
       });
+
+    d3.select('#import-word-delimiter-back-button')
+      .on('click', () => {
+        d3.select('#import-word-delimiter-container')
+          .style('display', 'none');
+        d3.select(containersStack.pop())
+          .style('display', 'block');  
+      })
 
     // d3.select('#import-theme-code-table-back-button')
     //   .on('click', () => {

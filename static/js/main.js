@@ -1,4 +1,4 @@
-/* global d3 window qt QWebChannel importLib textLib codesTableLib trainTableLib predictTableLib allTableLib confusionTablesLib containersStack */
+/* global d3 window qt QWebChannel importLib textLib codesTableLib trainTableLib predictTableLib allTableLib confusionTablesLib wordDelimiter */
 
 let themes = [];
 
@@ -75,6 +75,15 @@ const onImportData = function (data) {
         .style('display', 'block');
       d3.select('#import-edit-code-theme-table-path')
         .text(`${themeCodeTablePath}`);
+
+      d3.selectAll('.dynamic-stepper')
+        .text(function(d) {
+          if (data[2] === 'fromDocument') {
+            return 'Enter delimiter';
+          } else {
+            return 'Select codes folder';
+          }
+        });
     }
   } else {
     // keywords
@@ -95,7 +104,7 @@ const onImportData = function (data) {
       d3.select('#setup-container')
         .style('display', 'block');
 
-      setupBackend.set_up(transcriptPath, codesPath, themeCodeTablePath, regexp);
+      setupBackend.set_up(transcriptPath, wordDelimiter, codesPath, themeCodeTablePath, regexp);
     } else {
       // error message
       alert('Please check your filtered keywords or regular expression');

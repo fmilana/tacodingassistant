@@ -33,6 +33,7 @@ class ClassifyDocx:
     doc_path = ''
     cat_path = ''
     codes_folder_path = ''
+    delimiter = ''
     regexp = ''
 
     train_file_path = ''
@@ -54,8 +55,9 @@ class ClassifyDocx:
         self.sentence2vec_model = Sentence2Vec()
 
 
-    def set_up(self, transcript_path, codes_folder_path, theme_code_table_path, filter_regexp):
+    def set_up(self, transcript_path, word_delimiter, codes_folder_path, theme_code_table_path, filter_regexp):
         self.doc_path = transcript_path
+        self.delimiter = word_delimiter
         self.codes_folder_path = codes_folder_path
         self.cat_path = theme_code_table_path
         self.regexp = filter_regexp
@@ -489,7 +491,7 @@ class ClassifyDocx:
         if self.themes is None:
             # if from word
             if self.codes_folder_path == '':
-                self.themes = import_codes_from_document.import_codes(self.sentence2vec_model, self.doc_path, self.cat_path, self.regexp)
+                self.themes = import_codes_from_document.import_codes(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
             # if from nvivo
             else:
                 self.themes = import_codes_from_folder.import_codes(self.sentence2vec_model, self.doc_path, self.codes_folder_path, self.cat_path, self.regexp)

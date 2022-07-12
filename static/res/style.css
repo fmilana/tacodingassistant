@@ -124,6 +124,10 @@ body {
   display: none;
 }
 
+#import-word-delimiter-container {
+  display: none;
+}
+
 #import-loading-code-theme-table-container {
   display: none;
 }
@@ -171,6 +175,22 @@ input[type=radio] {
   margin: 0 20px 0 20px;
   font-size: 18px;
 } 
+
+#delimiter-textarea {
+  height: 50px;
+  width: 50px;
+  border: solid 1px black;
+  text-align: center;
+  line-height: 40px;
+  font-size: 22px;
+  resize: none;
+}
+
+#no-word-delimiter-checkbox-group {
+  display: block;
+  margin-top: 50px;
+  font-size: 18px;
+}
 
 #import-edit-code-theme-table-path {
   font-weight: bold;

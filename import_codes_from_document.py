@@ -46,7 +46,7 @@ def transverse(start, end, text):
 
 
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes(sentence2vec_model, doc_path, theme_code_table_path, regexp):
+def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path, regexp):
     print(f'extracting comments from {doc_path}...')
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
@@ -99,8 +99,8 @@ def import_codes(sentence2vec_model, doc_path, theme_code_table_path, regexp):
 
             themes = []
 
-            if ';' in codes:
-                for code in codes.split(';'):
+            if delimiter != '' and delimiter in codes:
+                for code in codes.split(delimiter):
                     code = code.strip()
                     find_code = (cat_df.values == code).any(axis=0)
                     try:
@@ -138,13 +138,11 @@ def import_codes(sentence2vec_model, doc_path, theme_code_table_path, regexp):
 
         # os.remove('tmp.xml')
 
-        create_codes_csv_from_document(doc_path)
-
         # returning ALL themes from cat_df, not just those found (to-do)
         return themes_list
 
 
-def create_codes_csv_from_document(doc_path):
+def create_codes_csv_from_document(doc_path, delimiter):
     theme_code_table_path = os.path.join(Path(doc_path).parent.absolute(), doc_path.replace('.docx', '_codes.csv'))
 
     if not os.path.isfile(theme_code_table_path):
@@ -160,8 +158,8 @@ def create_codes_csv_from_document(doc_path):
                 codes = ''.join([x.text for x in codes])
                 codes = codes.strip().rstrip().lower()
 
-                if ';' in codes:
-                    for code in codes.split(';'):
+                if delimiter != '' and delimiter in codes:
+                    for code in codes.split(delimiter):
                         code = code.strip()
                         if len(code) > 0:
                             all_codes.append(code)
@@ -169,7 +167,7 @@ def create_codes_csv_from_document(doc_path):
                     if len(codes) > 0:
                         all_codes.append(codes)
 
-        codes_df = pd.DataFrame({'Theme 1': sorted(list(set(all_codes))), 'Theme 2': np.nan, 'Theme 3': np.nan, '...': np.nan})
+        codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(all_codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
         codes_df.to_csv(theme_code_table_path, index=False)
 
         print(f'{doc_path.replace(".docx", "_codes.csv")} created in {Path(doc_path).parent.absolute()}')

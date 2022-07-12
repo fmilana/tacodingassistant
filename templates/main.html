@@ -43,6 +43,7 @@
     <!-- import page -->
     <div id="import-container">
       <h1 id="import-title">Thematic Analysis Coding Assistant</h1>
+
       <div id="import-transcript-container">
         <div class="import-content">
           <p id="import-transcript-label" class="import-label">Import your transcript:</p>
@@ -56,20 +57,25 @@
             </div>
             <div class="stepper-item">
               <div class="step-counter">2</div>
-              <div class="step-name">Select codes folder</div>
+              <div class="step-name">Select software</div>
             </div>
             <div class="stepper-item">
               <div class="step-counter">3</div>
-              <div class="step-name">Edit code table</div>
+              <div class="step-name">Additional info</div>
             </div>
             <div class="stepper-item">
               <div class="step-counter">4</div>
+              <div class="step-name">Edit code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">5</div>
               <div class="step-name">Enter keyword filter</div>
             </div>
           </div>
         </div>
         <button id="import-transcript-next-button" class="btn btn-secondary next-button" disabled>Next</button>
       </div>
+
       <div id="import-word-or-nvivo-container">
         <div class="import-content">
           <p id="import-word-or-nvivo-label" class="import-label">Which software did you use to code your transcript?</p>
@@ -87,20 +93,24 @@
         </div>
         <div id="import-step-progress-bar">
           <div class="stepper-wrapper">
-            <div class="stepper-item active">
+            <div class="stepper-item completed">
               <div class="step-counter">1</div>
               <div class="step-name">Import transcript</div>
             </div>
-            <div class="stepper-item">
+            <div class="stepper-item active">
               <div class="step-counter">2</div>
-              <div class="step-name">Select codes folder</div>
+              <div class="step-name">Select software</div>
             </div>
             <div class="stepper-item">
               <div class="step-counter">3</div>
-              <div class="step-name">Edit code table</div>
+              <div class="step-name">Additional info</div>
             </div>
             <div class="stepper-item">
               <div class="step-counter">4</div>
+              <div class="step-name">Edit code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">5</div>
               <div class="step-name">Enter keyword filter</div>
             </div>
           </div>
@@ -108,12 +118,87 @@
         <button id="import-word-or-nvivo-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-word-or-nvivo-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
+
+      <div id="import-word-delimiter-container">
+        <div class="import-content">
+          <p id="import-word-or-nvivo-label" class="import-label">Which character was used as a delimiter in your comments?</p>
+          <p class="import-sub-label">Some of your comments in Word might contain more than one code.</p>
+          <p class="import-sub-label">Enter the character used to separate the codes below (e.g. , or ;)</p>
+          <textarea id="delimiter-textarea" maxlength="1"></textarea>
+          <div id="no-word-delimiter-checkbox-group">
+            <input type="checkbox" id="no-word-delimiter-checkbox">
+            <label for="no-word-delimiter-checkbox">I don't use delimiters (each comment contains only one code)</label>
+          </div>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select software</div>
+            </div>
+            <div class="stepper-item active">
+              <div class="step-counter">3</div>
+              <div class="step-name">Enter delimiter</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">4</div>
+              <div class="step-name">Edit code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">5</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-word-delimiter-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-word-delimiter-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+      </div>
+
+      <div id="import-codes-folder-container">
+        <div class="import-content">
+          <p id="import-codes-folder-label" class="import-label">Select a folder containing only exported code documents:</p>
+          <p class="import-sub-label">(Code documents must be docx files exported checking "Name" under "Properties" in NVivo)</p>
+          <button id="import-codes-folder-button" class="btn btn-secondary">Select folder</button>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select software</div>
+            </div>
+            <div class="stepper-item active">
+              <div class="step-counter">3</div>
+              <div class="step-name">Select codes folder</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">4</div>
+              <div class="step-name">Edit code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">5</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-codes-folder-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-codes-folder-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+      </div>
+
       <div id="import-loading-code-theme-table-container">
         <div class="import-content">
           <img id="code-theme-table-loading-gif" src="../static/res/loading.gif">
           <p id="setup-label">Extracting codes...</p>
         </div>
       </div>
+
       <div id="import-edit-code-theme-table-container">
         <div class="import-content">
           <p id="import-edit-code-theme-table-label" class="import-label">Edit your code table</p>
@@ -135,14 +220,18 @@
             </div>
             <div class="stepper-item completed">
               <div class="step-counter">2</div>
-              <div class="step-name">Select codes folder</div>
+              <div class="step-name">Select software</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">3</div>
+              <div class="step-name dynamic-stepper"></div>
             </div>
             <div class="stepper-item active">
-              <div class="step-counter">3</div>
+              <div class="step-counter">4</div>
               <div class="step-name">Edit code table</div>
             </div>
             <div class="stepper-item">
-              <div class="step-counter">4</div>
+              <div class="step-counter">5</div>
               <div class="step-name">Enter keyword filter</div>
             </div>
           </div>
@@ -150,100 +239,7 @@
         <button id="import-edit-code-theme-table-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-edit-code-theme-table-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
-      <!-- <div id="import-theme-code-table-container">
-        <div class="import-content">
-          <p id="import-theme-code-table-label" class="import-label">Import a code lookup table:</p>
-          <p class="import-sub-label">(Themes as column headers containing rows of codes)</p>
-          <button id="import-theme-code-table-button" class="btn btn-secondary">Import table</button>
-        </div>
-        <div id="import-step-progress-bar">
-          <div class="stepper-wrapper">
-            <div class="stepper-item completed">
-              <div class="step-counter">1</div>
-              <div class="step-name">Import transcript</div>
-            </div>
-            <div class="stepper-item completed">
-              <div class="step-counter">2</div>
-              <div class="step-name">Select codes folder</div>
-            </div>
-            <div class="stepper-item active">
-              <div class="step-counter">3</div>
-              <div class="step-name">Edit code table</div>
-            </div>
-            <div class="stepper-item">
-              <div class="step-counter">4</div>
-              <div class="step-name">Enter keyword filter</div>
-            </div>
-          </div>
-        </div>
-        <button id="import-theme-code-table-back-button" class="back-button btn btn-secondary">Back</button>
-        <button id="import-theme-code-table-next-button" class="next-button btn btn-secondary" disabled>Next</button>
-      </div> -->
-      <div id="import-codes-folder-container">
-        <div class="import-content">
-          <p id="import-codes-folder-label" class="import-label">Select a folder containing only exported code documents:</p>
-          <p class="import-sub-label">(Code documents must be docx files exported checking "Name" under "Properties" in NVivo)</p>
-          <button id="import-codes-folder-button" class="btn btn-secondary">Select folder</button>
-        </div>
-        <div id="import-step-progress-bar">
-          <div class="stepper-wrapper">
-            <div class="stepper-item completed">
-              <div class="step-counter">1</div>
-              <div class="step-name">Import transcript</div>
-            </div>
-            <div class="stepper-item active">
-              <div class="step-counter">2</div>
-              <div class="step-name">Select codes folder</div>
-            </div>
-            <div class="stepper-item">
-              <div class="step-counter">3</div>
-              <div class="step-name">Edit code table</div>
-            </div>
-            <div class="stepper-item">
-              <div class="step-counter">4</div>
-              <div class="step-name">Enter keyword filter</div>
-            </div>
-          </div>
-        </div>
-        <button id="import-codes-folder-back-button" class="back-button btn btn-secondary">Back</button>
-        <button id="import-codes-folder-next-button" class="next-button btn btn-secondary" disabled>Next</button>
-      </div>
-      <!-- <div id="import-hierarchical-container">
-        <div class="import-content">
-          <p id="import-hierarchical-label" class="import-label">Were codes organised hierarchically in NVivo?</p>
-          <p class="import-sub-label">(Code and sub-code documents were exported with "Hierarchical Name" property)</p>
-          <div class="checkbox-group">
-            <input id="yes-checkbox" type="checkbox">
-            <label id="yes-checkbox-label" class="checkbox-inline" for="yes-checkbox">Yes</label>
-          </div>
-          <div class="checkbox-group">
-            <input id="no-checkbox" type="checkbox">
-            <label id="no-checkbox-label" class="checkbox-inline" for="no-checkbox">No</label>
-          </div>
-        </div>
-        <div id="import-step-progress-bar">
-          <div class="stepper-wrapper">
-            <div class="stepper-item completed">
-              <div class="step-counter">1</div>
-              <div class="step-name">Import transcript</div>
-            </div>
-            <div class="stepper-item active">
-              <div class="step-counter">2</div>
-              <div class="step-name">Select codes folder</div>
-            </div>
-            <div class="stepper-item">
-              <div class="step-counter">3</div>
-              <div class="step-name">Edit code table</div>
-            </div>
-            <div class="stepper-item">
-              <div class="step-counter">4</div>
-              <div class="step-name">Enter keyword filter</div>
-            </div>
-          </div>
-        </div>
-        <button id="import-hierarchical-back-button" class="back-button btn btn-secondary">Back</button>
-        <button id="import-hierarchical-next-button" class="next-button btn btn-secondary" disabled>Next</button>
-      </div> -->
+
       <div id="import-keywords-container">
         <div class="import-content">
           <p id="import-keywords-label" class="import-label">Enter ";"-separated keywords to ignore or a regular expression:</p>
@@ -264,14 +260,18 @@
             </div>
             <div class="stepper-item completed">
               <div class="step-counter">2</div>
-              <div class="step-name">Select codes folder</div>
+              <div class="step-name">Select software</div>
             </div>
             <div class="stepper-item completed">
               <div class="step-counter">3</div>
+              <div class="step-name dynamic-stepper"></div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">4</div>
               <div class="step-name">Edit code table</div>
             </div>
             <div class="stepper-item active">
-              <div class="step-counter">4</div>
+              <div class="step-counter">5</div>
               <div class="step-name">Enter keyword filter</div>
             </div>
           </div>
@@ -279,6 +279,7 @@
         <button id="import-keywords-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-keywords-next-button" class="next-button btn btn-secondary">Done</button>
       </div>
+
     </div>
     <!--  -->
     <div id="setup-container">
