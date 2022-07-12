@@ -1,7 +1,8 @@
-/* global d3 document $ textBackend log writeFileBackend importBackend codesPath */
+/* global d3 document $ textBackend log writeFileBackend importBackend transcriptPath codesPath */
 // eslint-disable-next-line no-unused-vars
 const importLib = (function () {
   const setupImportPage = function () {
+    let editedCheckBoxValue = false;
     let wordCheckboxValue = false;
     let nvivoCheckboxValue = false;
     // let yesHierarchicalCheckboxValue = false;
@@ -38,7 +39,8 @@ const importLib = (function () {
       .on('click', () => {
         let divToShow = '';
         if (wordCheckboxValue) {
-          divToShow = '#import-theme-code-table-container';
+          // divToShow = '#import-theme-code-table-container';
+          divToShow = '#import-loading-code-theme-table-container';
           codesPath = '';
         } else {
           divToShow = '#import-codes-folder-container';
@@ -48,26 +50,32 @@ const importLib = (function () {
         d3.select(divToShow)
           .style('display', 'block');
         containersStack.push('#import-word-or-nvivo-container');
+
+        if (wordCheckboxValue) {
+          importBackend.create_code_table_csv_from_document(transcriptPath);
+        }
       });
 
     d3.select('#import-codes-folder-next-button')
       .on('click', () => {
         d3.select('#import-codes-folder-container')
           .style('display', 'none');
-        // d3.select('#import-hierarchical-container')
-        d3.select('#import-theme-code-table-container')
+        d3.select('#import-loading-code-theme-table-container')
           .style('display', 'block');
+
+        importBackend.create_code_table_csv_from_folder(transcriptPath, codesPath);
+        
         containersStack.push('#import-codes-folder-container');
       });
 
-    d3.select('#import-theme-code-table-next-button')
-      .on('click', () => {
-        d3.select('#import-theme-code-table-container')
-          .style('display', 'none');
-        d3.select('#import-keywords-container')
-          .style('display', 'block');
-        containersStack.push('#import-theme-code-table-container');
-      });
+    // d3.select('#import-theme-code-table-next-button')
+    //   .on('click', () => {
+    //     d3.select('#import-theme-code-table-container')
+    //       .style('display', 'none');
+    //     d3.select('#import-keywords-container')
+    //       .style('display', 'block');
+    //     containersStack.push('#import-theme-code-table-container');
+    //   });
 
     // d3.select('#import-hierarchical-next-button')
     //   .on('click', () => {
@@ -85,6 +93,22 @@ const importLib = (function () {
     //   });
     // ////////////////
 
+    d3.select('#edit-code-theme-table-checkbox')
+      .on('click', () => {
+        editedCheckBoxValue = !editedCheckBoxValue;
+        d3.select('#import-edit-code-theme-table-next-button')
+          .property('disabled', !editedCheckBoxValue);
+      });
+
+    d3.select('#import-edit-code-theme-table-next-button')
+      .on('click', () => {
+        d3.select('#import-edit-code-theme-table-container')
+          .style('display', 'none');
+        d3.select('#import-keywords-container')
+          .style('display', 'block');
+          containersStack.push('#import-edit-code-theme-table-container');
+      });
+
     //back-buttons//
     d3.select('#import-word-or-nvivo-back-button')
       .on('click', () => {
@@ -94,9 +118,17 @@ const importLib = (function () {
           .style('display', 'block');
       });
 
-    d3.select('#import-theme-code-table-back-button')
+    // d3.select('#import-theme-code-table-back-button')
+    //   .on('click', () => {
+    //     d3.select('#import-theme-code-table-container')
+    //       .style('display', 'none');
+    //     d3.select(containersStack.pop())
+    //       .style('display', 'block');
+    //   });
+
+    d3.select('#import-edit-code-theme-table-back-button')
       .on('click', () => {
-        d3.select('#import-theme-code-table-container')
+        d3.select('#import-edit-code-theme-table-container')
           .style('display', 'none');
         d3.select(containersStack.pop())
           .style('display', 'block');

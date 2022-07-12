@@ -4,6 +4,7 @@ import zipfile
 import csv
 import pandas as pd
 import numpy as np
+from pathlib import Path
 from datetime import datetime
 from nltk import sent_tokenize
 from bs4 import BeautifulSoup
@@ -137,5 +138,42 @@ def import_codes(sentence2vec_model, doc_path, theme_code_table_path, regexp):
 
         # os.remove('tmp.xml')
 
+        create_codes_csv_from_document(doc_path)
+
         # returning ALL themes from cat_df, not just those found (to-do)
         return themes_list
+
+
+def create_codes_csv_from_document(doc_path):
+    theme_code_table_path = os.path.join(Path(doc_path).parent.absolute(), doc_path.replace('.docx', '_codes.csv'))
+
+    if not os.path.isfile(theme_code_table_path):
+        print(f'extracting codes from {doc_path}...')
+        all_codes = []
+
+        with zipfile.ZipFile(doc_path, 'r') as archive:
+            comments_xml = archive.read('word/comments.xml')
+            comments_soup = BeautifulSoup(comments_xml, 'xml')
+
+            for comment in comments_soup.find_all('w:comment'):
+                codes = comment.find_all('w:t')
+                codes = ''.join([x.text for x in codes])
+                codes = codes.strip().rstrip().lower()
+
+                if ';' in codes:
+                    for code in codes.split(';'):
+                        code = code.strip()
+                        if len(code) > 0:
+                            all_codes.append(code)
+                else:
+                    if len(codes) > 0:
+                        all_codes.append(codes)
+
+        codes_df = pd.DataFrame({'Theme 1': sorted(list(set(all_codes))), 'Theme 2': np.nan, 'Theme 3': np.nan, '...': np.nan})
+        codes_df.to_csv(theme_code_table_path, index=False)
+
+        print(f'{doc_path.replace(".docx", "_codes.csv")} created in {Path(doc_path).parent.absolute()}')
+    else:
+        print(f'code table already exists in {theme_code_table_path}"')
+
+    return theme_code_table_path

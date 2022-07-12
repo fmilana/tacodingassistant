@@ -1,4 +1,4 @@
-/* global d3 window qt QWebChannel importLib textLib codesTableLib trainTableLib predictTableLib allTableLib confusionTablesLib */
+/* global d3 window qt QWebChannel importLib textLib codesTableLib trainTableLib predictTableLib allTableLib confusionTablesLib containersStack */
 
 let themes = [];
 
@@ -65,10 +65,16 @@ const onImportData = function (data) {
     // code theme table
     themeCodeTablePath = data[1];
     if (themeCodeTablePath !== '') { 
-      d3.select('#import-theme-code-table-button')
-        .text(/[^/]*$/.exec(themeCodeTablePath)[0]);
-      d3.select('#import-theme-code-table-next-button')
-        .property('disabled', false);
+      // d3.select('#import-theme-code-table-button')
+      //   .text(/[^/]*$/.exec(themeCodeTablePath)[0]);
+      // d3.select('#import-theme-code-table-next-button')
+      //   .property('disabled', false);
+      d3.select('#import-loading-code-theme-table-container')
+        .style('display', 'none');
+      d3.select('#import-edit-code-theme-table-container')
+        .style('display', 'block');
+      d3.select('#import-edit-code-theme-table-path')
+        .text(`${themeCodeTablePath}`);
     }
   } else {
     // keywords

@@ -16,6 +16,8 @@ from PySide2.QtCore import QDir, QObject, QThread, QUrl, Signal, Slot
 from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QGridLayout
+from import_codes_from_document import create_codes_csv_from_document
+from import_codes_from_folder import create_codes_csv_from_folder
 from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
 from path_util import resource_path
@@ -864,11 +866,23 @@ class ImportBackend(QObject):
         path_to_folder = path_to_folder.replace('\\', '/')
         self.signal.emit(['codes', path_to_folder])
 
-    @Slot()
-    def open_theme_code_table_chooser(self):
-        path_to_file, _ = QFileDialog.getOpenFileName(self._main_window, self.tr('Import Table'), self.tr('~/Desktop/'), self.tr('Table (*.csv)'))
+    @Slot(str)
+    def create_code_table_csv_from_document(self, transcript_path):
+        path_to_file = create_codes_csv_from_document(transcript_path)
         path_to_file = path_to_file.replace('\\', '/')
         self.signal.emit(['codeThemeTable', path_to_file])
+
+    @Slot(str, str)
+    def create_code_table_csv_from_folder(self, transcript_path, codes_folder_path):
+        path_to_file = create_codes_csv_from_folder(transcript_path, codes_folder_path)
+        path_to_file = path_to_file.replace('\\', '/')
+        self.signal.emit(['codeThemeTable', path_to_file])
+
+    # @Slot()
+    # def open_theme_code_table_chooser(self):
+    #     path_to_file, _ = QFileDialog.getOpenFileName(self._main_window, self.tr('Import Table'), self.tr('~/Desktop/'), self.tr('Table (*.csv)'))
+    #     path_to_file = path_to_file.replace('\\', '/')
+    #     self.signal.emit(['codeThemeTable', path_to_file])
 
     @Slot(str, bool, bool)
     def save_regexp(self, input_regexp, regular_expression, case_insensitive):

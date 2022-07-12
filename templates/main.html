@@ -60,7 +60,7 @@
             </div>
             <div class="stepper-item">
               <div class="step-counter">3</div>
-              <div class="step-name">Import theme-code table</div>
+              <div class="step-name">Edit code table</div>
             </div>
             <div class="stepper-item">
               <div class="step-counter">4</div>
@@ -97,7 +97,7 @@
             </div>
             <div class="stepper-item">
               <div class="step-counter">3</div>
-              <div class="step-name">Import theme-code table</div>
+              <div class="step-name">Edit code table</div>
             </div>
             <div class="stepper-item">
               <div class="step-counter">4</div>
@@ -108,9 +108,51 @@
         <button id="import-word-or-nvivo-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-word-or-nvivo-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
-      <div id="import-theme-code-table-container">
+      <div id="import-loading-code-theme-table-container">
         <div class="import-content">
-          <p id="import-theme-code-table-label" class="import-label">Import a theme-code lookup table:</p>
+          <img id="code-theme-table-loading-gif" src="../static/res/loading.gif">
+          <p id="setup-label">Extracting codes...</p>
+        </div>
+      </div>
+      <div id="import-edit-code-theme-table-container">
+        <div class="import-content">
+          <p id="import-edit-code-theme-table-label" class="import-label">Edit your code table</p>
+          <p class="import-sub-label">A code table has been created in:</p>
+          <p id="import-edit-code-theme-table-path"class="import-sub-label"></p>
+          <p class="import-sub-label">Edit this table so each column header is the name of a theme, and the respective codes are listed below.</p>
+          <p class="import-sub-label">For example:</p>
+          <img id="code-theme-table-example-png" src="../static/res/code-table-example.png">
+          <div id="edit-code-theme-table-checkbox-group">
+            <input type="checkbox" id="edit-code-theme-table-checkbox">
+            <label for="edit-code-theme-table-checkbox">I have edited and saved the code table</label>
+          </div>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select codes folder</div>
+            </div>
+            <div class="stepper-item active">
+              <div class="step-counter">3</div>
+              <div class="step-name">Edit code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">4</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-edit-code-theme-table-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-edit-code-theme-table-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+      </div>
+      <!-- <div id="import-theme-code-table-container">
+        <div class="import-content">
+          <p id="import-theme-code-table-label" class="import-label">Import a code lookup table:</p>
           <p class="import-sub-label">(Themes as column headers containing rows of codes)</p>
           <button id="import-theme-code-table-button" class="btn btn-secondary">Import table</button>
         </div>
@@ -126,7 +168,7 @@
             </div>
             <div class="stepper-item active">
               <div class="step-counter">3</div>
-              <div class="step-name">Import theme-code table</div>
+              <div class="step-name">Edit code table</div>
             </div>
             <div class="stepper-item">
               <div class="step-counter">4</div>
@@ -136,7 +178,7 @@
         </div>
         <button id="import-theme-code-table-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-theme-code-table-next-button" class="next-button btn btn-secondary" disabled>Next</button>
-      </div>
+      </div> -->
       <div id="import-codes-folder-container">
         <div class="import-content">
           <p id="import-codes-folder-label" class="import-label">Select a folder containing only exported code documents:</p>
@@ -155,7 +197,7 @@
             </div>
             <div class="stepper-item">
               <div class="step-counter">3</div>
-              <div class="step-name">Import theme-code table</div>
+              <div class="step-name">Edit code table</div>
             </div>
             <div class="stepper-item">
               <div class="step-counter">4</div>
@@ -191,7 +233,7 @@
             </div>
             <div class="stepper-item">
               <div class="step-counter">3</div>
-              <div class="step-name">Import theme-code table</div>
+              <div class="step-name">Edit code table</div>
             </div>
             <div class="stepper-item">
               <div class="step-counter">4</div>
@@ -226,7 +268,7 @@
             </div>
             <div class="stepper-item completed">
               <div class="step-counter">3</div>
-              <div class="step-name">Import theme-code table</div>
+              <div class="step-name">Edit code table</div>
             </div>
             <div class="stepper-item active">
               <div class="step-counter">4</div>

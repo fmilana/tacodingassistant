@@ -8,8 +8,8 @@ __pycache__
 nvivo
 *.csv
 *.docx
-!reorder_exit_codes.csv
-!reorder_exit.docx
+reorder_exit_codes.csv
+reorder_exit.docx
 embeddings.pickle
 classification.txt
 /models
