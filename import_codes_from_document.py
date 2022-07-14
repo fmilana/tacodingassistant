@@ -47,7 +47,7 @@ def transverse(start, end, text):
 
 # doc_path and theme_code_table_path documents already copied in data folder
 def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path, regexp):
-    print(f'extracting comments from {doc_path}...')
+    print(f'extracting comments from {doc_path} with delimiter "{delimiter}"...')
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
 
@@ -146,7 +146,7 @@ def create_codes_csv_from_document(doc_path, delimiter):
     theme_code_table_path = os.path.join(Path(doc_path).parent.absolute(), doc_path.replace('.docx', '_codes.csv'))
 
     if not os.path.isfile(theme_code_table_path):
-        print(f'extracting codes from {doc_path}...')
+        print(f'extracting codes from {doc_path} with delimiter "{delimiter}"...')
         all_codes = []
 
         with zipfile.ZipFile(doc_path, 'r') as archive:

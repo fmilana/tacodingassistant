@@ -621,7 +621,7 @@ class SetupBackend(QObject):
         self.thread = SetupThread(self)
         self.thread.thread_signal.connect(self.send_data)
 
-    @Slot(str, str, str, str)
+    @Slot(str, str, str, str, str)
     def set_up(self, transcript_path, word_delimiter, codes_dir_path, theme_code_lookup_path, filter_regexp):
 
         if len(codes_dir_path) > 0:

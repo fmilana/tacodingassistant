@@ -1,8 +1,10 @@
 /* global d3 document $ textBackend log writeFileBackend importBackend transcriptPath codesPath */
 // eslint-disable-next-line no-unused-vars
+
+let wordDelimiter = '';
+
 const importLib = (function () {
   const setupImportPage = function () {
-    let wordDelimiter = '';
     let noWordDelimiterCheckBoxValue = false; 
     let editedCheckBoxValue = false;
     let wordCheckboxValue = false;
@@ -58,7 +60,9 @@ const importLib = (function () {
       .on('click', () => {
         // save delimiter
         if (!noWordDelimiterCheckBoxValue) {
-          wordDelimiter = d3.select('#delimiter-textarea').node().value;
+          window.wordDelimiter = d3.select('#delimiter-textarea').node().value;
+        } else {
+          window.wordDelimiter = '';
         }
 
         d3.select('#import-word-delimiter-container')
@@ -66,7 +70,7 @@ const importLib = (function () {
           d3.select('#import-loading-code-theme-table-container')
           .style('display', 'block');
 
-        importBackend.create_code_table_csv_from_document(transcriptPath, wordDelimiter);
+        importBackend.create_code_table_csv_from_document(transcriptPath, window.wordDelimiter);
         
         containersStack.push('#import-word-delimiter-container');
       });
