@@ -76,9 +76,9 @@
         <button id="import-transcript-next-button" class="btn btn-secondary next-button" disabled>Next</button>
       </div>
 
-      <div id="import-word-or-nvivo-container">
+      <div id="import-software-container">
         <div class="import-content">
-          <p id="import-word-or-nvivo-label" class="import-label">Which software did you use to code your transcript?</p>
+          <p id="import-software-label" class="import-label">Which software did you use to code your transcript?</p>
           <div class="checkbox-group">
             <input id="import-word-checkbox" type="radio">
             <label id="import-word-checkbox-label" class="checkbox-inline" for="import-word-checkbox">Word</label>
@@ -86,6 +86,14 @@
           <div class="checkbox-group">
             <input id="import-nvivo-checkbox" type="radio">
             <label id="import-nvivo-checkbox-label" class="checkbox-inline" for="import-nvivo-checkbox">NVivo</label>
+          </div>
+          <div class="checkbox-group">
+            <input id="import-maxqda-checkbox" type="radio">
+            <label id="import-maxqda-checkbox-label" class="checkbox-inline" for="import-maxqda-checkbox">MAXQDA</label>
+          </div>
+          <div class="checkbox-group">
+            <input id="import-dedoose-checkbox" type="radio" disabled="disabled">
+            <label id="import-dedoose-checkbox-label" class="checkbox-inline" for="import-dedoose-checkbox">Dedoose</label>
           </div>
           <!-- <div id="separator-container">
             <textarea id="separator-textarea" placeholder=""></textarea>
@@ -115,13 +123,13 @@
             </div>
           </div>
         </div>
-        <button id="import-word-or-nvivo-back-button" class="back-button btn btn-secondary">Back</button>
-        <button id="import-word-or-nvivo-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+        <button id="import-software-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-software-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
 
       <div id="import-word-delimiter-container">
         <div class="import-content">
-          <p id="import-word-or-nvivo-label" class="import-label">Which character was used as a delimiter in your comments?</p>
+          <p id="import-software-label" class="import-label">Which character was used as a delimiter in your comments?</p>
           <p class="import-sub-label">Some of your comments in Word might contain more than one code.</p>
           <p class="import-sub-label">Enter the character used to separate the codes below (e.g. , or ;)</p>
           <textarea id="delimiter-textarea" maxlength="1"></textarea>
@@ -158,11 +166,11 @@
         <button id="import-word-delimiter-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
 
-      <div id="import-codes-folder-container">
+      <div id="import-nvivo-codes-folder-container">
         <div class="import-content">
-          <p id="import-codes-folder-label" class="import-label">Select a folder containing only exported code documents:</p>
+          <p id="import-nvivo-codes-folder-label" class="import-label">Select a folder containing only exported code documents:</p>
           <p class="import-sub-label">(Code documents must be docx files exported checking "Name" under "Properties" in NVivo)</p>
-          <button id="import-codes-folder-button" class="btn btn-secondary">Select folder</button>
+          <button id="import-nvivo-codes-folder-button" class="btn btn-secondary">Select folder</button>
         </div>
         <div id="import-step-progress-bar">
           <div class="stepper-wrapper">
@@ -188,8 +196,42 @@
             </div>
           </div>
         </div>
-        <button id="import-codes-folder-back-button" class="back-button btn btn-secondary">Back</button>
-        <button id="import-codes-folder-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+        <button id="import-nvivo-codes-folder-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-nvivo-codes-folder-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+      </div>
+
+      <div id="import-maxqda-document-container">
+        <div class="import-content">
+          <p id="import-maxqda-document-label" class="import-label">Import your Coded Segments:</p>
+          <p class="import-sub-label">(Coded Segments must be a single docx file exported from MAXQDA)</p>
+          <button id="import-maxqda-document-button" class="btn btn-secondary">Select document</button>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select software</div>
+            </div>
+            <div class="stepper-item active">
+              <div class="step-counter">3</div>
+              <div class="step-name">Import coded segments</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">4</div>
+              <div class="step-name">Edit code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">5</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-maxqda-document-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-maxqda-document-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
 
       <div id="import-loading-code-theme-table-container">

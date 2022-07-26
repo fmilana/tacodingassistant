@@ -1,4 +1,4 @@
-/* global d3 document $ textBackend log writeFileBackend importBackend transcriptPath codesPath */
+/* global d3 document $ textBackend log writeFileBackend importBackend transcriptPath nvivoCodesPath */
 // eslint-disable-next-line no-unused-vars
 
 let wordDelimiter = '';
@@ -9,8 +9,8 @@ const importLib = (function () {
     let editedCheckBoxValue = false;
     let wordCheckboxValue = false;
     let nvivoCheckboxValue = false;
-    // let yesHierarchicalCheckboxValue = false;
-    // let noHierarchicalCheckboxValue = false;
+    let maxqdaCheckboxValue = false;
+    let dedooseCheckboxValue = false;
 
     const containersStack = [];
 
@@ -24,36 +24,43 @@ const importLib = (function () {
         importBackend.open_theme_code_table_chooser();
       });
 
-    d3.select('#import-codes-folder-button')
+    d3.select('#import-nvivo-codes-folder-button')
       .on('click', () => {
-        importBackend.open_codes_chooser();
+        importBackend.open_nvivo_codes_chooser();
       });
+
+    d3.select('#import-maxqda-document-button')
+      .on('click', () => {
+        importBackend.open_maxqda_document_chooser();
+      })
 
     //next-buttons//
     d3.select('#import-transcript-next-button')
       .on('click', () => {
         d3.select('#import-transcript-container')
           .style('display', 'none');
-        d3.select('#import-word-or-nvivo-container')
+        d3.select('#import-software-container')
           .style('display', 'block');
         containersStack.push('#import-transcript-container');
       });
 
-    d3.select('#import-word-or-nvivo-next-button')
+    d3.select('#import-software-next-button')
       .on('click', () => {
         let divToShow = '';
         if (wordCheckboxValue) {
           // divToShow = '#import-loading-code-theme-table-container';
           divToShow = "#import-word-delimiter-container";
-          codesPath = '';
-        } else {
-          divToShow = '#import-codes-folder-container';
+          nvivoCodesPath = '';
+        } else if (nvivoCheckboxValue) {
+          divToShow = '#import-nvivo-codes-folder-container';
+        } else if (maxqdaCheckboxValue) {
+          divToShow = '#import-maxqda-document-container';
         }
-        d3.select('#import-word-or-nvivo-container')
+        d3.select('#import-software-container')
           .style('display', 'none');
         d3.select(divToShow)
           .style('display', 'block');
-        containersStack.push('#import-word-or-nvivo-container');
+        containersStack.push('#import-software-container');
       });
 
     d3.select('#import-word-delimiter-next-button')
@@ -70,23 +77,40 @@ const importLib = (function () {
           d3.select('#import-loading-code-theme-table-container')
           .style('display', 'block');
 
-        importBackend.create_code_table_csv_from_document(transcriptPath, window.wordDelimiter);
+        importBackend.create_code_table_csv_from_word(transcriptPath, window.wordDelimiter);
+
+        software = 'Word';
         
         containersStack.push('#import-word-delimiter-container');
       });
 
-    d3.select('#import-codes-folder-next-button')
+    d3.select('#import-nvivo-codes-folder-next-button')
       .on('click', () => {
-        d3.select('#import-codes-folder-container')
+        d3.select('#import-nvivo-codes-folder-container')
           .style('display', 'none');
         d3.select('#import-loading-code-theme-table-container')
           .style('display', 'block');
 
-        importBackend.create_code_table_csv_from_folder(transcriptPath, codesPath);
+        importBackend.create_code_table_csv_from_nvivo(transcriptPath, nvivoCodesPath);
+
+        software = 'NVivo';
         
-        containersStack.push('#import-codes-folder-container');
+        containersStack.push('#import-nvivo-codes-folder-container');
       });
 
+    d3.select('#import-maxqda-document-next-button')
+      .on('click', () => {
+        d3.select('#import-maxqda-document-container')
+          .style('display', 'none');
+        d3.select('#import-loading-code-theme-table-container')
+          .style('display', 'block');
+
+        importBackend.create_code_table_csv_from_maxqda(transcriptPath, MAXQDADocumentPath);
+
+        software = 'MAXQDA';
+        
+        containersStack.push('#import-maxqda-document-container');
+      });
     // d3.select('#import-theme-code-table-next-button')
     //   .on('click', () => {
     //     d3.select('#import-theme-code-table-container')
@@ -160,27 +184,19 @@ const importLib = (function () {
         if (containersStack.includes('#import-word-delimiter-container')) {
           d3.select('.dynamic-stepper')
             .text('Enter delimiter');
-        } else {
+        } else if (containersStack.includes('#import-nvivo-codes-folder-container')) {
           d3.select('.dynamic-stepper')
             .text('Select codes folder');
+        } else if (containersStack.includes('#import-maxqda-document-container')) {
+          d3.select('.dynamic-stepper')
+            .text('Import coded segments');
         }
-
-        // d3.select('#dynamic-stepper')
-        //   .text(function(d) {
-        //     if (containersStack.includes('#import-word-delimiter-container')) {
-        //       console.log('RETURNING Enter delimiter');
-        //       return 'Enter delimiter';
-        //     } else {
-        //       console.log('RETURNING Select codes folder');
-        //       return 'Select codes folder';
-        //     }
-        //   });
       });
 
     //back-buttons//
-    d3.select('#import-word-or-nvivo-back-button')
+    d3.select('#import-software-back-button')
       .on('click', () => {
-        d3.select('#import-word-or-nvivo-container')
+        d3.select('#import-software-container')
           .style('display', 'none');
         d3.select(containersStack.pop())
           .style('display', 'block');
@@ -210,14 +226,22 @@ const importLib = (function () {
           .style('display', 'block');
       });
 
-    d3.select('#import-codes-folder-back-button')
+    d3.select('#import-nvivo-codes-folder-back-button')
       .on('click', () => {
-        d3.select('#import-codes-folder-container')
+        d3.select('#import-nvivo-codes-folder-container')
           .style('display', 'none');
         d3.select(containersStack.pop())
           .style('display', 'block');
       });
 
+    d3.select('#import-maxqda-document-back-button')
+      .on('click', () => {
+        d3.select('#import-maxqda-document-container')
+          .style('display', 'none');
+        d3.select(containersStack.pop())
+          .style('display', 'block');
+      }); 
+    
     // d3.select('#import-hierarchical-back-button')
     //   .on('click', () => {
     //     d3.select('#import-hierarchical-container')
@@ -238,50 +262,110 @@ const importLib = (function () {
     d3.select('#import-word-checkbox')
       .on('click', () => {
         wordCheckboxValue = !wordCheckboxValue;
-        if (wordCheckboxValue && nvivoCheckboxValue) {
-          d3.select('#import-nvivo-checkbox')
+
+        if (wordCheckboxValue) {
+          if (nvivoCheckboxValue) {
+            d3.select('#import-nvivo-checkbox')
+              .property('checked', false);
+            nvivoCheckboxValue = false;
+          } else if (maxqdaCheckboxValue) {
+            d3.select('#import-maxqda-checkbox')
+              .property('checked', false);
+            maxqdaCheckboxValue = false;
+          } else if (dedooseCheckboxValue) {
+            d3.select('#import-dedoose-checkbox')
+              .property('checked', false);
+            dedooseCheckboxValue = false;
+          }
+        } else {
+          d3.select('#import-word-checkbox')
             .property('checked', false);
-          nvivoCheckboxValue = false;
         }
-        d3.select('#import-word-or-nvivo-next-button')
-          .property('disabled', (!wordCheckboxValue && !nvivoCheckboxValue));
+
+        d3.select('#import-software-next-button')
+          .property('disabled', (!wordCheckboxValue && !nvivoCheckboxValue && !maxqdaCheckboxValue && !dedooseCheckboxValue));
       });
 
     d3.select('#import-nvivo-checkbox')
       .on('click', () => {
         nvivoCheckboxValue = !nvivoCheckboxValue;
-        if (nvivoCheckboxValue && wordCheckboxValue) {
-          d3.select('#import-word-checkbox')
+
+        if (nvivoCheckboxValue) {
+          if (wordCheckboxValue) {
+            d3.select('#import-word-checkbox')
+              .property('checked', false);
+            wordCheckboxValue = false;
+          } else if (maxqdaCheckboxValue) {
+            d3.select('#import-maxqda-checkbox')
+              .property('checked', false);
+            maxqdaCheckboxValue = false;
+          } else if (dedooseCheckboxValue) {
+            d3.select('#import-dedoose-checkbox')
+              .property('checked', false);
+            dedooseCheckboxValue = false;
+          }
+        } else {
+          d3.select('#import-nvivo-checkbox')
             .property('checked', false);
-          wordCheckboxValue = false;
         }
-        d3.select('#import-word-or-nvivo-next-button')
-          .property('disabled', (!wordCheckboxValue && !nvivoCheckboxValue));
+
+        d3.select('#import-software-next-button')
+          .property('disabled', (!wordCheckboxValue && !nvivoCheckboxValue && !maxqdaCheckboxValue && !dedooseCheckboxValue));
       });
 
-    // d3.select('#yes-checkbox')
-    //   .on('click', () => {
-    //     yesHierarchicalCheckboxValue = !yesHierarchicalCheckboxValue;
-    //     if (yesHierarchicalCheckboxValue && noHierarchicalCheckboxValue) {
-    //       d3.select('#no-checkbox')
-    //         .property('checked', false);
-    //       noHierarchicalCheckboxValue = false;
-    //     }
-    //     d3.select('#import-hierarchical-next-button')
-    //       .property('disabled', (!yesHierarchicalCheckboxValue && !noHierarchicalCheckboxValue));
-    //   });
+    d3.select('#import-maxqda-checkbox')
+      .on('click', () => {
+        maxqdaCheckboxValue = !maxqdaCheckboxValue;
 
-    // d3.select('#no-checkbox')
-    //   .on('click', () => {
-    //     noHierarchicalCheckboxValue = !noHierarchicalCheckboxValue;
-    //     if (noHierarchicalCheckboxValue && yesHierarchicalCheckboxValue) {
-    //       d3.select('#yes-checkbox')
-    //         .property('checked', false);
-    //       yesHierarchicalCheckboxValue = false;
-    //     }
-    //     d3.select('#import-hierarchical-next-button')
-    //       .property('disabled', (!noHierarchicalCheckboxValue && !yesHierarchicalCheckboxValue));
-    //   });
+        if (maxqdaCheckboxValue) {
+          if (wordCheckboxValue) {
+            d3.select('#import-word-checkbox')
+              .property('checked', false);
+            wordCheckboxValue = false;
+          } else if (nvivoCheckboxValue) {
+            d3.select('#import-nvivo-checkbox')
+              .property('checked', false);
+            nvivoCheckboxValue = false;
+          } else if (dedooseCheckboxValue) {
+            d3.select('#import-dedoose-checkbox')
+              .property('checked', false);
+            dedooseCheckboxValue = false;
+          }
+        } else {
+          d3.select('#import-maxqda-checkbox')
+            .property('checked', false);
+        }
+
+        d3.select('#import-software-next-button')
+          .property('disabled', (!wordCheckboxValue && !nvivoCheckboxValue && !maxqdaCheckboxValue && !dedooseCheckboxValue));
+      });
+
+    d3.select('#import-dedoose-checkbox')
+      .on('click', () => {
+        dedooseCheckboxValue = !dedooseCheckboxValue;
+
+        if (dedooseCheckboxValue) {
+          if (wordCheckboxValue) {
+            d3.select('#import-word-checkbox')
+              .property('checked', false);
+            wordCheckboxValue = false;
+          } else if (nvivoCheckboxValue) {
+            d3.select('#import-nvivo-checkbox')
+              .property('checked', false);
+            nvivoCheckboxValue = false;
+          } else if (maxqdaCheckboxValue) {
+            d3.select('#import-maxqda-checkbox')
+              .property('checked', false);
+            maxqdaCheckboxValue = false;
+          }
+        } else {
+          d3.select('#import-dedoose-checkbox')
+            .property('checked', false);
+        }
+
+        d3.select('#import-software-next-button')
+          .property('disabled', (!wordCheckboxValue && !nvivoCheckboxValue && !maxqdaCheckboxValue && !dedooseCheckboxValue));
+      });
 
     d3.select('#import-keywords-next-button')
       .on('click', function () {

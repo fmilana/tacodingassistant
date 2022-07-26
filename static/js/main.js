@@ -30,8 +30,11 @@ let currentTabId = 'text-button';
 // eslint-disable-next-line no-unused-vars
 let regexp = null;
 
+let software = null;
+
 let transcriptPath = null;
-let codesPath = null;
+let nvivoCodesPath = null;
+let MAXQDADocumentPath = null;
 let themeCodeTablePath = null;
 
 
@@ -52,13 +55,21 @@ const onImportData = function (data) {
       d3.select('#import-transcript-next-button')
         .property('disabled', false);
     }
-  } else if (data[0] === 'codes') {
-    // codes files
-    codesPath = data[1];
-    if (codesPath !== '') {
-      d3.select('#import-codes-folder-button')
-        .text(/[^/]*$/.exec(codesPath)[0]);
-      d3.select('#import-codes-folder-next-button')
+  } else if (data[0] === 'NVivoCodesFolder') {
+    // nvivo code folder
+    nvivoCodesPath = data[1];
+    if (nvivoCodesPath !== '') {
+      d3.select('#import-nvivo-codes-folder-button')
+        .text(/[^/]*$/.exec(nvivoCodesPath)[0]);
+      d3.select('#import-nvivo-codes-folder-next-button')
+        .property('disabled', false);
+    }
+  } else if (data[0] === 'MAXQDADocument') {
+    MAXQDADocumentPath = data[1];
+    if (MAXQDADocumentPath !== '') {
+      d3.select('#import-maxqda-document-button')
+        .text(/[^/]*$/.exec(MAXQDADocumentPath)[0]);
+      d3.select('#import-maxqda-document-next-button')
         .property('disabled', false);
     }
   } else if (data[0] === 'codeThemeTable') {
@@ -78,10 +89,12 @@ const onImportData = function (data) {
 
       d3.selectAll('.dynamic-stepper')
         .text(function(d) {
-          if (data[2] === 'fromDocument') {
+          if (data[2] === 'fromWord') {
             return 'Enter delimiter';
-          } else {
+          } else if (data[2] === 'fromNVivo') {
             return 'Select codes folder';
+          } else if (data[2] === 'fromMAXQDA') {
+            return 'Import coded segments';
           }
         });
     }
@@ -104,7 +117,7 @@ const onImportData = function (data) {
       d3.select('#setup-container')
         .style('display', 'block');
 
-      setupBackend.set_up(transcriptPath, wordDelimiter, codesPath, themeCodeTablePath, regexp);
+      setupBackend.set_up(transcriptPath, software, wordDelimiter, nvivoCodesPath, MAXQDADocumentPath, themeCodeTablePath, regexp);
     } else {
       // error message
       alert('Please check your filtered keywords or regular expression');

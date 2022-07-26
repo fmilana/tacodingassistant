@@ -16,8 +16,9 @@ from PySide2.QtCore import QDir, QObject, QThread, QUrl, Signal, Slot
 from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QGridLayout
-from import_codes_from_document import create_codes_csv_from_document
-from import_codes_from_folder import create_codes_csv_from_folder
+from import_codes_from_word import create_codes_csv_from_word
+from import_codes_from_nvivo import create_codes_csv_from_nvivo
+from import_codes_from_maxqda import create_codes_csv_from_maxqda
 from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
 from path_util import resource_path
@@ -621,11 +622,13 @@ class SetupBackend(QObject):
         self.thread = SetupThread(self)
         self.thread.thread_signal.connect(self.send_data)
 
-    @Slot(str, str, str, str, str)
-    def set_up(self, transcript_path, word_delimiter, codes_dir_path, theme_code_lookup_path, filter_regexp):
+    @Slot(str, str, str, str, str, str, str)
+    def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_path, maxqda_document_path, theme_code_lookup_path, filter_regexp):
 
-        if len(codes_dir_path) > 0:
-            codes_dir_path = resource_path(codes_dir_path)
+        if len(nvivo_codes_path) > 0:
+            nvivo_codes_path = resource_path(nvivo_codes_path)
+        if len(maxqda_document_path) > 0:
+            maxqda_document_path = resource_path(maxqda_document_path)
         if len(theme_code_lookup_path) > 0:
             theme_code_lookup_path = resource_path(theme_code_lookup_path)
 
@@ -650,11 +653,11 @@ class SetupBackend(QObject):
             self.app_window.themes = list(cat_df)     
 
         # set paths and regexp for classify_docx object
-        self.classify_docx.set_up(self.app_window.doc_path, word_delimiter, codes_dir_path, theme_code_lookup_path, filter_regexp)
+        self.classify_docx.set_up(self.app_window.doc_path, software, word_delimiter, nvivo_codes_path, maxqda_document_path, theme_code_lookup_path, filter_regexp)
         # pass classify_docx object to thread
         self.thread.classify_docx = self.classify_docx
 
-        # even if theme_code_lookup_path was '', import_codes_from_folder in classify_docx will have created data/..._codes.csv
+        # even if theme_code_lookup_path was '', import_codes_from_nvivo in classify_docx will have created data/..._codes.csv
         self.app_window.theme_code_table_path = self.app_window.doc_path.replace('.docx', '_codes.csv')
 
         self.start = time.time()
@@ -861,22 +864,34 @@ class ImportBackend(QObject):
         self.signal.emit(['transcript', path_to_file])
 
     @Slot()
-    def open_codes_chooser(self):
+    def open_nvivo_codes_chooser(self):
         path_to_folder = QFileDialog.getExistingDirectory(self._main_window, self.tr('Choose Directory'), self.tr('~/Desktop/'), QFileDialog.ShowDirsOnly)
         path_to_folder = path_to_folder.replace('\\', '/')
-        self.signal.emit(['codes', path_to_folder])
+        self.signal.emit(['NVivoCodesFolder', path_to_folder])
+    
+    @Slot()
+    def open_maxqda_document_chooser(self):
+        path_to_file, _ = QFileDialog.getOpenFileName(self._main_window, self.tr('Import Document'), self.tr('~/Desktop/'), self.tr('Document (*.docx)'))
+        path_to_file = path_to_file.replace('\\', '/')
+        self.signal.emit(['MAXQDADocument', path_to_file])
 
     @Slot(str, str)
-    def create_code_table_csv_from_document(self, transcript_path, delimiter):
-        path_to_file = create_codes_csv_from_document(transcript_path, delimiter)
+    def create_code_table_csv_from_word(self, transcript_path, delimiter):
+        path_to_file = create_codes_csv_from_word(transcript_path, delimiter)
         path_to_file = path_to_file.replace('\\', '/')
-        self.signal.emit(['codeThemeTable', path_to_file, 'fromDocument'])
+        self.signal.emit(['codeThemeTable', path_to_file, 'fromWord'])
 
     @Slot(str, str)
-    def create_code_table_csv_from_folder(self, transcript_path, codes_folder_path):
-        path_to_file = create_codes_csv_from_folder(transcript_path, codes_folder_path)
+    def create_code_table_csv_from_nvivo(self, transcript_path, codes_folder_path):
+        path_to_file = create_codes_csv_from_nvivo(transcript_path, codes_folder_path)
         path_to_file = path_to_file.replace('\\', '/')
-        self.signal.emit(['codeThemeTable', path_to_file, 'fromFolder'])
+        self.signal.emit(['codeThemeTable', path_to_file, 'fromNVivo'])
+
+    @Slot(str, str)
+    def create_code_table_csv_from_maxqda(self, transcript_path, maxqda_document_path):
+        path_to_file = create_codes_csv_from_maxqda(transcript_path, maxqda_document_path)
+        path_to_file = path_to_file.replace('\\', '/')
+        self.signal.emit(['codeThemeTable', path_to_file, 'fromMAXQDA'])
 
     # @Slot()
     # def open_theme_code_table_chooser(self):
@@ -935,7 +950,7 @@ class WebView(QWebEngineView):
 class AppWindow(QMainWindow):
     doc_path = ''
     theme_code_table_path = ''
-    codes_folder_path = ''
+    nvivo_codes_folder_path = ''
     doc_file_name = ''
     regexp = ''
     themes = []

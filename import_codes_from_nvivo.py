@@ -1,6 +1,4 @@
 import os
-import re
-from shutil import copyfile
 import zipfile
 import numpy as np
 import pandas as pd
@@ -123,7 +121,7 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     return themes_found
 
 
-def create_codes_csv_from_folder(doc_path, codes_folder_path):
+def create_codes_csv_from_nvivo(doc_path, codes_folder_path):
     theme_code_table_path = os.path.join(codes_folder_path, doc_path.replace('.docx', '_codes.csv'))
 
     if not os.path.isfile(theme_code_table_path):
@@ -140,7 +138,7 @@ def create_codes_csv_from_folder(doc_path, codes_folder_path):
 
         print(f'{doc_path.replace(".docx", "_codes.csv")} created in {codes_folder_path}')
     else:
-        print(f'code table already exists in {theme_code_table_path}"')
+        print(f'code table already exists in {theme_code_table_path}')
 
     return theme_code_table_path
 

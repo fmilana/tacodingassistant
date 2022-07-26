@@ -120,7 +120,7 @@ body {
   transform: translate(-50%, -50%);
 }
 
-#import-word-or-nvivo-container {
+#import-software-container {
   display: none;
 }
 
@@ -140,7 +140,11 @@ body {
   display: none;
 }
 
-#import-codes-folder-container {
+#import-nvivo-codes-folder-container {
+  display: none;
+}
+
+#import-maxqda-document-container {
   display: none;
 }
 

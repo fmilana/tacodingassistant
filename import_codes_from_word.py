@@ -142,7 +142,7 @@ def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path,
         return themes_list
 
 
-def create_codes_csv_from_document(doc_path, delimiter):
+def create_codes_csv_from_word(doc_path, delimiter):
     theme_code_table_path = os.path.join(Path(doc_path).parent.absolute(), doc_path.replace('.docx', '_codes.csv'))
 
     if not os.path.isfile(theme_code_table_path):
@@ -172,6 +172,6 @@ def create_codes_csv_from_document(doc_path, delimiter):
 
         print(f'{doc_path.replace(".docx", "_codes.csv")} created in {Path(doc_path).parent.absolute()}')
     else:
-        print(f'code table already exists in {theme_code_table_path}"')
+        print(f'code table already exists in {theme_code_table_path}')
 
     return theme_code_table_path
