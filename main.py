@@ -314,6 +314,16 @@ class CodesTableThread(QThread):
         codes_df = pd.read_csv(self.app_window.theme_code_table_path).apply(lambda x: x.lower() if isinstance(x, str) else x)
         codes_df.columns = codes_df.columns.str.lower()
 
+        print('=========================================================================')
+        print('=========================================================================')
+        print('=========================================================================')
+        print('=========================================================================')
+        print(codes_df.head())
+        print('=========================================================================')
+        print('=========================================================================')
+        print('=========================================================================')
+        print('=========================================================================')
+
         for _, row in train_df.iterrows():
             if row['codes'] != '':
                 for i, theme in enumerate(self.app_window.themes):
@@ -649,7 +659,8 @@ class SetupBackend(QObject):
                 print('theme-code lookup table already in data folder')
 
         if theme_code_lookup_path != '':
-            cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig')
+            cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig').apply(lambda x: x.astype(str).str.lower())
+            cat_df.columns = cat_df.columns.str.lower()
             self.app_window.themes = list(cat_df)     
 
         # set paths and regexp for classify_docx object

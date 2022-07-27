@@ -18,7 +18,8 @@ from preprocess import (
 def import_codes(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_table_path, regexp):
     print(f'extracting sentences...')
     start = datetime.now()
-    cat_df = pd.read_csv(theme_code_table_path,  encoding='utf-8-sig')
+    cat_df = pd.read_csv(theme_code_table_path,  encoding='utf-8-sig').apply(lambda x: x.astype(str).str.lower())
+    cat_df.columns = cat_df.columns.str.lower()
     themes_found = []
 
     with zipfile.ZipFile(retrieved_codes_doc, 'r') as archive:
@@ -46,7 +47,7 @@ def import_codes(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_t
             else:
                 for run in paragraph.runs:
                     if next_is_code:
-                        code = run.text
+                        code = run.text.lower()
                         if '>' in code:
                             code = re.search(r'>(.*)', code).group(1).strip()
                         find_code = (cat_df.values == code).any(axis=0)
@@ -79,11 +80,12 @@ def import_codes(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_t
                                     train_df.loc[matching_index, current_theme] = 1
                                 # sentence not already in table, need to write row
                                 else:
+                                    cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
                                     row = {
                                         'file_name': re.search(r'([^\/]+).$', doc_path).group(0),
                                         'comment_id': '0', 
                                         'original_sentence': sentence, 
-                                        'cleaned_sentence': remove_stop_words(clean_sentence(sentence, regexp)), 
+                                        'cleaned_sentence': cleaned_sentence, 
                                         'sentence_embedding': sentence2vec_model.get_vector(cleaned_sentence),
                                         'codes': code,
                                         'themes': current_theme
@@ -106,7 +108,8 @@ def import_codes(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_t
                         next_is_code = False
                         sentences_batch = []
                         break
-                    elif run.text == '●':
+                    # char is '●'
+                    elif '●' in run.text.strip():
                         next_is_code = True
     
     print(f'done extracting in {datetime.now() - start}')
@@ -114,7 +117,7 @@ def import_codes(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_t
 
     train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False)
     
-    print(f'------------------------------------> {themes_found}')
+    print(f'themes found = {themes_found}')
 
     return themes_found
 

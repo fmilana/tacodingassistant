@@ -21,7 +21,8 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     #     import_themes(doc_path, codes_folder_path)
     #     theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
-    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
+    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig').apply(lambda x: x.astype(str).str.lower())
+    cat_df.columns = cat_df.columns.str.lower()
 
     header = [
         'file_name', 
@@ -44,7 +45,7 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     for entry in os.scandir(codes_folder_path):
         if entry.path.endswith('.docx'):
             code = entry.name[:-5].lower()
-            find_code = (cat_df.apply(lambda x: x.astype(str).str.lower()).values == code).any(axis=0)
+            find_code = (cat_df.values == code).any(axis=0)
             theme = None
 
             try:

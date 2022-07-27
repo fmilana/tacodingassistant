@@ -49,7 +49,8 @@ def transverse(start, end, text):
 def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path, regexp):
     print(f'extracting comments from {doc_path} with delimiter "{delimiter}"...')
     start = datetime.now()
-    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
+    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig').apply(lambda x: x.astype(str).str.lower())
+    cat_df.columns = cat_df.columns.str.lower()
 
     with zipfile.ZipFile(doc_path, 'r') as archive:
         # write header

@@ -513,7 +513,8 @@ class ClassifyDocx:
             self.predict_file_path = self.doc_path.replace('.docx', '_predict.csv')
 
         if self.cat_path != '':
-            self.cat_df = pd.read_csv(self.cat_path, encoding='utf-8-sig')
+            self.cat_df = pd.read_csv(self.cat_path, encoding='utf-8-sig').apply(lambda x: x.astype(str).str.lower())
+            self.cat_df.columns = self.cat_df.columns.str.lower()
 
         self.train_df = pd.read_csv(self.train_file_path, encoding='utf-8')
 
