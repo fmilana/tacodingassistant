@@ -16,6 +16,7 @@ from PySide2.QtCore import QDir, QObject, QThread, QUrl, Signal, Slot
 from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QGridLayout
+from PySide2.QtGui import QScreen
 from import_codes_from_word import create_codes_csv_from_word
 from import_codes_from_nvivo import create_codes_csv_from_nvivo
 from import_codes_from_maxqda import create_codes_csv_from_maxqda
@@ -311,18 +312,8 @@ class CodesTableThread(QThread):
         counts = [0 for _ in self.app_window.themes]
 
         train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'))
-        codes_df = pd.read_csv(self.app_window.theme_code_table_path).apply(lambda x: x.lower() if isinstance(x, str) else x)
+        codes_df = pd.read_csv(self.app_window.theme_code_table_path).applymap(lambda x: x.lower() if type(x) == str else x)
         codes_df.columns = codes_df.columns.str.lower()
-
-        print('=========================================================================')
-        print('=========================================================================')
-        print('=========================================================================')
-        print('=========================================================================')
-        print(codes_df.head())
-        print('=========================================================================')
-        print('=========================================================================')
-        print('=========================================================================')
-        print('=========================================================================')
 
         for _, row in train_df.iterrows():
             if row['codes'] != '':
@@ -659,7 +650,7 @@ class SetupBackend(QObject):
                 print('theme-code lookup table already in data folder')
 
         if theme_code_lookup_path != '':
-            cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig').apply(lambda x: x.astype(str).str.lower())
+            cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig').applymap(lambda x: x.lower() if type(x) == str else x)
             cat_df.columns = cat_df.columns.str.lower()
             self.app_window.themes = list(cat_df)     
 
@@ -934,7 +925,7 @@ class UncaughtHook(QObject):
  
     def exception_hook(self, exc_type, exc_value, exc_traceback):
         """Function handling uncaught exceptions.
-        It is triggered each time an uncaught exception occurs. 
+        Triggered each time an uncaught exception occurs. 
         """
         if issubclass(exc_type, KeyboardInterrupt):
             # ignore keyboard interrupt to support console applications
@@ -970,6 +961,10 @@ class AppWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.resize(1400, 800)
+        center = QScreen.availableGeometry(QApplication.primaryScreen()).center()
+        geo = self.frameGeometry()
+        geo.moveCenter(center)
+        self.move(geo.topLeft())
         self.view = WebView(self)
         self.page = self.view.page()
         qt_exception_hook = UncaughtHook()

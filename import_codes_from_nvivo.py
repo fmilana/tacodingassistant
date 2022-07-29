@@ -21,7 +21,7 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     #     import_themes(doc_path, codes_folder_path)
     #     theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
-    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig').apply(lambda x: x.astype(str).str.lower())
+    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig').applymap(lambda x: x.lower() if type(x) == str else x)
     cat_df.columns = cat_df.columns.str.lower()
 
     header = [

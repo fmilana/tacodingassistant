@@ -117,7 +117,7 @@ const onImportData = function (data) {
       d3.select('#setup-container')
         .style('display', 'block');
 
-      setupBackend.set_up(transcriptPath, software, wordDelimiter, nvivoCodesPath, MAXQDADocumentPath, themeCodeTablePath, regexp);
+      setupBackend.set_up(transcriptPath, software, window.wordDelimiter, nvivoCodesPath, MAXQDADocumentPath, themeCodeTablePath, regexp);
     } else {
       // error message
       alert('Please check your filtered keywords or regular expression');

@@ -18,7 +18,7 @@ from preprocess import (
 def import_codes(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_table_path, regexp):
     print(f'extracting sentences...')
     start = datetime.now()
-    cat_df = pd.read_csv(theme_code_table_path,  encoding='utf-8-sig').apply(lambda x: x.astype(str).str.lower())
+    cat_df = pd.read_csv(theme_code_table_path,  encoding='utf-8-sig').applymap(lambda x: x.lower() if type(x) == str else x)
     cat_df.columns = cat_df.columns.str.lower()
     themes_found = []
 
