@@ -104,7 +104,7 @@ const onImportData = function (data) {
       d3.select('#setup-container')
         .style('display', 'block');
 
-      setupBackend.set_up(transcriptPath, wordDelimiter, codesPath, themeCodeTablePath, regexp);
+      setupBackend.set_up(transcriptPath, window.wordDelimiter, codesPath, themeCodeTablePath, regexp);
     } else {
       // error message
       alert('Please check your filtered keywords or regular expression');

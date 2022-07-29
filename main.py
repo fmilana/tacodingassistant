@@ -16,6 +16,7 @@ from PySide2.QtCore import QDir, QObject, QThread, QUrl, Signal, Slot
 from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QGridLayout
+from PySide2.QtGui import QScreen
 from import_codes_from_document import create_codes_csv_from_document
 from import_codes_from_folder import create_codes_csv_from_folder
 from classify_docx import ClassifyDocx
@@ -944,6 +945,10 @@ class AppWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.resize(1400, 800)
+        center = QScreen.availableGeometry(QApplication.primaryScreen()).center()
+        geo = self.frameGeometry()
+        geo.moveCenter(center)
+        self.move(geo.topLeft())
         self.view = WebView(self)
         self.page = self.view.page()
         qt_exception_hook = UncaughtHook()
