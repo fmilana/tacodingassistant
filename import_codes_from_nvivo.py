@@ -1,6 +1,4 @@
 import os
-import re
-from shutil import copyfile
 import zipfile
 import numpy as np
 import pandas as pd
@@ -23,7 +21,8 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     #     import_themes(doc_path, codes_folder_path)
     #     theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
-    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
+    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig').applymap(lambda x: x.lower() if type(x) == str else x)
+    cat_df.columns = cat_df.columns.str.lower()
 
     header = [
         'file_name', 
@@ -46,7 +45,7 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     for entry in os.scandir(codes_folder_path):
         if entry.path.endswith('.docx'):
             code = entry.name[:-5].lower()
-            find_code = (cat_df.apply(lambda x: x.astype(str).str.lower()).values == code).any(axis=0)
+            find_code = (cat_df.values == code).any(axis=0)
             theme = None
 
             try:
@@ -60,8 +59,13 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
 
                     for paragraph in doc_soup.find_all('w:p'):
                         if (paragraph.find('w:shd') is None and paragraph.find('w:highlight') is None and paragraph.find('w:t')):
-                            node = paragraph.find('w:t').get_text() 
-                            for sentence in sent_tokenize(node):
+                            text = paragraph.find('w:t').get_text() 
+                            text = text.replace('"', "'")
+                            text = text.replace('’', "'")
+                            text = text.replace("´", "'")
+                            text = text.replace("…", "...")
+                            text = text.replace("\\", "\\\\")
+                            for sentence in sent_tokenize(text):
                                 cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
                             
                                 if train_df['original_sentence'].eq(sentence).any():
@@ -123,7 +127,7 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     return themes_found
 
 
-def create_codes_csv_from_folder(doc_path, codes_folder_path):
+def create_codes_csv_from_nvivo(doc_path, codes_folder_path):
     theme_code_table_path = os.path.join(codes_folder_path, doc_path.replace('.docx', '_codes.csv'))
 
     if not os.path.isfile(theme_code_table_path):
@@ -140,7 +144,7 @@ def create_codes_csv_from_folder(doc_path, codes_folder_path):
 
         print(f'{doc_path.replace(".docx", "_codes.csv")} created in {codes_folder_path}')
     else:
-        print(f'code table already exists in {theme_code_table_path}"')
+        print(f'code table already exists in {theme_code_table_path}')
 
     return theme_code_table_path
 

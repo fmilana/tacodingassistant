@@ -47,9 +47,9 @@ def transverse(start, end, text):
 
 # doc_path and theme_code_table_path documents already copied in data folder
 def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path, regexp):
-    print(f'extracting comments from {doc_path} with delimiter "{delimiter}"...')
     start = datetime.now()
-    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig')
+    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig').applymap(lambda x: x.lower() if type(x) == str else x)
+    cat_df.columns = cat_df.columns.str.lower()
 
     with zipfile.ZipFile(doc_path, 'r') as archive:
         # write header
@@ -87,6 +87,9 @@ def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path,
             text = transverse(range_start, range_end, '')
             text = text.replace('"', "'")
             text = text.replace("’", "'")
+            text = text.replace("´", "'")
+            text = text.replace("…", "...")
+            text = text.replace("\\", "\\\\")
 
             sentence_to_cleaned_dict = {}
             # split text into sentences
@@ -142,7 +145,7 @@ def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path,
         return themes_list
 
 
-def create_codes_csv_from_document(doc_path, delimiter):
+def create_codes_csv_from_word(doc_path, delimiter):
     theme_code_table_path = os.path.join(Path(doc_path).parent.absolute(), doc_path.replace('.docx', '_codes.csv'))
 
     if not os.path.isfile(theme_code_table_path):
@@ -159,8 +162,12 @@ def create_codes_csv_from_document(doc_path, delimiter):
                 codes = codes.strip().rstrip().lower()
 
                 if delimiter != '' and delimiter in codes:
+                    print(f'codes ===> {codes}')
+                    print('after splitting:')
                     for code in codes.split(delimiter):
+                        print(code)
                         code = code.strip()
+                        print(f'stripped: {code}')
                         if len(code) > 0:
                             all_codes.append(code)
                 else:
@@ -172,6 +179,6 @@ def create_codes_csv_from_document(doc_path, delimiter):
 
         print(f'{doc_path.replace(".docx", "_codes.csv")} created in {Path(doc_path).parent.absolute()}')
     else:
-        print(f'code table already exists in {theme_code_table_path}"')
+        print(f'code table already exists in {theme_code_table_path}')
 
     return theme_code_table_path

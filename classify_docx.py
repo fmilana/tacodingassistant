@@ -22,17 +22,21 @@ from skmultilearn.problem_transform import ClassifierChain
 from sklearn.metrics import multilabel_confusion_matrix
 from path_util import resource_path
 from xgboost import XGBClassifier
-import import_codes_from_document
-import import_codes_from_folder
+import import_codes_from_word
+import import_codes_from_nvivo
+import import_codes_from_maxqda
 
 
 class ClassifyDocx:
 
     sentence2vec_model = None
 
+    software_used = ''
+
     doc_path = ''
     cat_path = ''
-    codes_folder_path = ''
+    nvivo_codes_folder_path = ''
+    maxqda_document_path = ''
     delimiter = ''
     regexp = ''
 
@@ -55,10 +59,12 @@ class ClassifyDocx:
         self.sentence2vec_model = Sentence2Vec()
 
 
-    def set_up(self, transcript_path, word_delimiter, codes_folder_path, theme_code_table_path, filter_regexp):
+    def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_folder_path, maxqda_doc_path, theme_code_table_path, filter_regexp):
         self.doc_path = transcript_path
+        self.software_used = software
         self.delimiter = word_delimiter
-        self.codes_folder_path = codes_folder_path
+        self.nvivo_codes_folder_path = nvivo_codes_folder_path
+        self.maxqda_document_path = maxqda_doc_path
         self.cat_path = theme_code_table_path
         self.regexp = filter_regexp
 
@@ -489,12 +495,15 @@ class ClassifyDocx:
         start_script = datetime.now()
 
         if self.themes is None:
-            # if from word
-            if self.codes_folder_path == '':
-                self.themes = import_codes_from_document.import_codes(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
-            # if from nvivo
-            else:
-                self.themes = import_codes_from_folder.import_codes(self.sentence2vec_model, self.doc_path, self.codes_folder_path, self.cat_path, self.regexp)
+            # if from Word
+            if self.software_used == 'Word':
+                self.themes = import_codes_from_word.import_codes(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
+            # if from NVivo
+            elif self.software_used == 'NVivo':
+                self.themes = import_codes_from_nvivo.import_codes(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path, self.regexp)
+            # if from MAXQDA
+            elif self.software_used == 'MAXQDA':
+                self.themes = import_codes_from_maxqda.import_codes(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
 
         if modified_train_file_path is not None:
             self.train_file_path = modified_train_file_path
@@ -504,7 +513,8 @@ class ClassifyDocx:
             self.predict_file_path = self.doc_path.replace('.docx', '_predict.csv')
 
         if self.cat_path != '':
-            self.cat_df = pd.read_csv(self.cat_path, encoding='utf-8-sig')
+            self.cat_df = pd.read_csv(self.cat_path, encoding='utf-8-sig').applymap(lambda x: x.lower() if type(x) == str else x)
+            self.cat_df.columns = self.cat_df.columns.str.lower()
 
         self.train_df = pd.read_csv(self.train_file_path, encoding='utf-8')
 
