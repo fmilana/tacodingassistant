@@ -40,7 +40,9 @@ def import_codes(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_t
                 text = paragraph.runs[0].text
                 text = text.replace('"', "'")
                 text = text.replace('’', "'")
-
+                text = text.replace("´", "'")
+                text = text.replace("…", "...")
+                text = text.replace("\\", "\\\\")
                 for sentence in sent_tokenize(text):
                     sentences_batch.append(sentence)
             # paragraph runs is text from MAXQDA

@@ -87,6 +87,9 @@ def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path,
             text = transverse(range_start, range_end, '')
             text = text.replace('"', "'")
             text = text.replace("’", "'")
+            text = text.replace("´", "'")
+            text = text.replace("…", "...")
+            text = text.replace("\\", "\\\\")
 
             sentence_to_cleaned_dict = {}
             # split text into sentences
