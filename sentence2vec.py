@@ -26,12 +26,14 @@ class Sentence2Vec:
             print('loading word embeddings from disk...')
             with open(self.model_file_path, 'rb') as f:
                 self.model = pickle.load(f)
+                f.close()
         else:
             print('downloading word2vec model...')
             self.model = gensim.downloader.load(self.model_name)
             os.makedirs(os.path.dirname(self.model_file_path), exist_ok=True)
             with open(self.model_file_path, 'wb') as f:
                 pickle.dump(self.model, f)
+                f.close()
         print(f'done in {datetime.now() - start}')
 
 

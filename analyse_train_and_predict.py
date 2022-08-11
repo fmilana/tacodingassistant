@@ -172,6 +172,7 @@ def analyse(doc_path, themes, train_file_path=None):
                     os.makedirs(os.path.dirname(freq_log_path), exist_ok=True)
                     copyfile(freq_path_list[i], freq_log_path)
                     break
+            file.close()
 
     # create keywords csv's
     for i, dict in enumerate(keywords_dict_list):
@@ -237,6 +238,7 @@ def analyse(doc_path, themes, train_file_path=None):
                     except IndexError:
                         row.append('')
                 writer.writerow(row)
+            file.close()
 
         # keyword mathcing file:
         cm_keywords_df = pd.DataFrame(cm_keywords_dict.items(), 

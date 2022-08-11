@@ -8,6 +8,28 @@ from preprocess import clean_sentence, remove_stop_words
 from datetime import datetime
 
 
+def create_codes_csv_from_nvivo(doc_path, codes_folder_path):
+    theme_code_table_path = os.path.join(codes_folder_path, doc_path.replace('.docx', '_codes.csv'))
+
+    if not os.path.isfile(theme_code_table_path):
+        print(f'extracting codes from {codes_folder_path}...')
+        codes = []
+
+        for entry in os.scandir(codes_folder_path):
+            if entry.path.endswith('.docx'):
+                code = entry.name[:-5].lower()
+                codes.append(code)
+
+        codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
+        codes_df.to_csv(theme_code_table_path, index=False)
+
+        print(f'{doc_path.replace(".docx", "_codes.csv")} created in {codes_folder_path}')
+    else:
+        print(f'code table already exists in {theme_code_table_path}')
+
+    return theme_code_table_path
+
+
 # doc_path and theme_code_table_path documents already copied in data folder
 def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_table_path, regexp):
     print(f'extracting codes from {codes_folder_path}...')
@@ -125,26 +147,4 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     print(f'------------------------------------> {themes_found}')
 
     return themes_found
-
-
-def create_codes_csv_from_nvivo(doc_path, codes_folder_path):
-    theme_code_table_path = os.path.join(codes_folder_path, doc_path.replace('.docx', '_codes.csv'))
-
-    if not os.path.isfile(theme_code_table_path):
-        print(f'extracting codes from {codes_folder_path}...')
-        codes = []
-
-        for entry in os.scandir(codes_folder_path):
-            if entry.path.endswith('.docx'):
-                code = entry.name[:-5].lower()
-                codes.append(code)
-
-        codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
-        codes_df.to_csv(theme_code_table_path, index=False)
-
-        print(f'{doc_path.replace(".docx", "_codes.csv")} created in {codes_folder_path}')
-    else:
-        print(f'code table already exists in {theme_code_table_path}')
-
-    return theme_code_table_path
 

@@ -31,8 +31,13 @@ const importLib = (function () {
 
     d3.select('#import-maxqda-document-button')
       .on('click', () => {
-        importBackend.open_maxqda_document_chooser();
-      })
+        importBackend.open_maxqda_segments_chooser();
+      });
+    
+    d3.select('#import-dedoose-excerpts-button')
+      .on('click', () => {
+        importBackend.open_dedoose_excerpts_chooser();
+      });
 
     //next-buttons//
     d3.select('#import-transcript-next-button')
@@ -55,6 +60,8 @@ const importLib = (function () {
           divToShow = '#import-nvivo-codes-folder-container';
         } else if (maxqdaCheckboxValue) {
           divToShow = '#import-maxqda-document-container';
+        } else if (dedooseCheckboxValue) {
+          divToShow = '#import-dedoose-excerpts-container';
         }
         d3.select('#import-software-container')
           .style('display', 'none');
@@ -105,12 +112,27 @@ const importLib = (function () {
         d3.select('#import-loading-code-theme-table-container')
           .style('display', 'block');
 
-        importBackend.create_code_table_csv_from_maxqda(transcriptPath, MAXQDADocumentPath);
+        importBackend.create_code_table_csv_from_maxqda(transcriptPath, MAXQDASegmentsPath);
 
         software = 'MAXQDA';
         
         containersStack.push('#import-maxqda-document-container');
       });
+
+      d3.select('#import-dedoose-excerpts-next-button')
+        .on('click', () => {
+          d3.select('#import-dedoose-excerpts-container')
+            .style('display', 'none');
+          d3.select('#import-loading-code-theme-table-container')
+            .style('display', 'block');
+
+          importBackend.create_code_table_csv_from_dedoose(transcriptPath, dedooseExcerptsPath);
+
+          software = 'Dedoose';
+          
+          containersStack.push('#import-dedoose-excerpts-container');
+        });
+
     // d3.select('#import-theme-code-table-next-button')
     //   .on('click', () => {
     //     d3.select('#import-theme-code-table-container')
@@ -181,16 +203,18 @@ const importLib = (function () {
           .style('display', 'block');
         containersStack.push('#import-edit-code-theme-table-container');
 
-        if (containersStack.includes('#import-word-delimiter-container')) {
-          d3.select('.dynamic-stepper')
-            .text('Enter delimiter');
-        } else if (containersStack.includes('#import-nvivo-codes-folder-container')) {
-          d3.select('.dynamic-stepper')
-            .text('Select codes folder');
-        } else if (containersStack.includes('#import-maxqda-document-container')) {
-          d3.select('.dynamic-stepper')
-            .text('Import coded segments');
-        }
+        d3.select('.dynamic-stepper')
+          .text(function(d) {
+            if (containersStack.includes('#import-word-delimiter-container')) {
+              return 'Enter delimiter';
+            } else if (containersStack.includes('#import-nvivo-codes-folder-container')) {
+              return 'Select codes folder';
+            } else if (containersStack.includes('#import-maxqda-document-container')) {
+              return 'Import coded segments';
+            } else if (containersStack.includes('#import-dedoose-excerpts-container')) {
+              return 'Import excerpts';
+            }
+          });
       });
 
     //back-buttons//
@@ -241,6 +265,14 @@ const importLib = (function () {
         d3.select(containersStack.pop())
           .style('display', 'block');
       }); 
+
+    d3.select('#import-dedoose-excerpts-back-button')
+      .on('click', () => {
+        d3.select('#import-dedoose-excerpts-container')
+          .style('display', 'none');
+        d3.select(containersStack.pop())
+          .style('display', 'block');
+      });
     
     // d3.select('#import-hierarchical-back-button')
     //   .on('click', () => {
@@ -311,6 +343,30 @@ const importLib = (function () {
 
         d3.select('#import-software-next-button')
           .property('disabled', (!wordCheckboxValue && !nvivoCheckboxValue && !maxqdaCheckboxValue && !dedooseCheckboxValue));
+      });
+
+    d3.select('#import-maxqda-checkbox')
+      .on('click', () => {
+        maxqdaCheckboxValue = !maxqdaCheckboxValue;
+
+        if (maxqdaCheckboxValue) {
+          if (wordCheckboxValue) {
+            d3.select('#import-word-checkbox')
+              .property('checked', false);
+            wordCheckboxValue = false;
+          } else if (nvivoCheckboxValue) {
+            d3.select('#import-nvivo-checkbox')
+              .property('checked', false);
+            nvivoCheckboxValue = false;
+          } else if (dedooseCheckboxValue) {
+            d3.select('#import-dedoose-checkbox')
+              .property('checked', false);
+            dedooseCheckboxValue = false;
+          }
+        } else {
+          d3.select('#import-maxqda-checkbox')
+            .property('checked', false);
+        }
       });
 
     d3.select('#import-maxqda-checkbox')

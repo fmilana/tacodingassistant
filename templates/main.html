@@ -43,7 +43,7 @@
     <!-- import page -->
     <div id="import-container">
       <h1 id="import-title">Thematic Analysis Coding Assistant</h1>
-
+      <!-- import transcript docx -->
       <div id="import-transcript-container">
         <div class="import-content">
           <p id="import-transcript-label" class="import-label">Import your transcript:</p>
@@ -75,7 +75,7 @@
         </div>
         <button id="import-transcript-next-button" class="btn btn-secondary next-button" disabled>Next</button>
       </div>
-
+      <!-- select software used -->
       <div id="import-software-container">
         <div class="import-content">
           <p id="import-software-label" class="import-label">Which software did you use to code your transcript?</p>
@@ -92,7 +92,7 @@
             <label id="import-maxqda-checkbox-label" class="checkbox-inline" for="import-maxqda-checkbox">MAXQDA</label>
           </div>
           <div class="checkbox-group">
-            <input id="import-dedoose-checkbox" type="radio" disabled="disabled">
+            <input id="import-dedoose-checkbox" type="radio">
             <label id="import-dedoose-checkbox-label" class="checkbox-inline" for="import-dedoose-checkbox">Dedoose</label>
           </div>
           <!-- <div id="separator-container">
@@ -126,10 +126,10 @@
         <button id="import-software-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-software-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
-
+      <!-- select word delimiter -->
       <div id="import-word-delimiter-container">
         <div class="import-content">
-          <p id="import-software-label" class="import-label">Which character was used as a delimiter in your comments?</p>
+          <p id="import-word-delimiter-label" class="import-label">Which character was used as a delimiter in your comments?</p>
           <p class="import-sub-label">Some of your comments in Word might contain more than one code.</p>
           <p class="import-sub-label">Enter the character used to separate the codes below (e.g. , or ;)</p>
           <textarea id="delimiter-textarea" maxlength="1"></textarea>
@@ -165,7 +165,7 @@
         <button id="import-word-delimiter-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-word-delimiter-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
-
+      <!-- select nvivo codes folder -->
       <div id="import-nvivo-codes-folder-container">
         <div class="import-content">
           <p id="import-nvivo-codes-folder-label" class="import-label">Select a folder containing only exported code documents:</p>
@@ -199,7 +199,7 @@
         <button id="import-nvivo-codes-folder-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-nvivo-codes-folder-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
-
+      <!-- import MAXQDA coded segments -->
       <div id="import-maxqda-document-container">
         <div class="import-content">
           <p id="import-maxqda-document-label" class="import-label">Import your Coded Segments:</p>
@@ -233,14 +233,48 @@
         <button id="import-maxqda-document-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-maxqda-document-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
-
+      <!-- import dedoose excerpts -->
+      <div id="import-dedoose-excerpts-container">
+        <div class="import-content">
+          <p id="import-dedoose-excerpts-label" class="import-label">Import your Excerpts:</p>
+          <p class="import-sub-label">(Excerpts must be a single txt file exported from Dedoose)</p>
+          <button id="import-dedoose-excerpts-button" class="btn btn-secondary">Select document</button>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select software</div>
+            </div>
+            <div class="stepper-item active">
+              <div class="step-counter">3</div>
+              <div class="step-name">Import excerpts</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">4</div>
+              <div class="step-name">Edit code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">5</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-dedoose-excerpts-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-dedoose-excerpts-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+      </div>
+      <!-- code-theme table loading -->
       <div id="import-loading-code-theme-table-container">
         <div class="import-content">
           <img id="code-theme-table-loading-gif" src="../static/res/loading.gif">
           <p id="setup-label">Extracting codes...</p>
         </div>
       </div>
-
+      <!-- edit code theme table -->
       <div id="import-edit-code-theme-table-container">
         <div class="import-content">
           <p id="import-edit-code-theme-table-label" class="import-label">Edit your code table</p>
@@ -281,7 +315,7 @@
         <button id="import-edit-code-theme-table-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-edit-code-theme-table-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
-
+      <!-- enter filter keywords -->
       <div id="import-keywords-container">
         <div class="import-content">
           <p id="import-keywords-label" class="import-label">Enter ";"-separated keywords to ignore or a regular expression:</p>

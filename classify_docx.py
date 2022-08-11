@@ -25,6 +25,7 @@ from xgboost import XGBClassifier
 import import_codes_from_word
 import import_codes_from_nvivo
 import import_codes_from_maxqda
+import import_codes_from_dedoose
 
 
 class ClassifyDocx:
@@ -37,6 +38,7 @@ class ClassifyDocx:
     cat_path = ''
     nvivo_codes_folder_path = ''
     maxqda_document_path = ''
+    dedoose_excerpts_path = ''
     delimiter = ''
     regexp = ''
 
@@ -59,12 +61,13 @@ class ClassifyDocx:
         self.sentence2vec_model = Sentence2Vec()
 
 
-    def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_folder_path, maxqda_doc_path, theme_code_table_path, filter_regexp):
+    def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_folder_path, maxqda_doc_path, dedoose_excerpts_path, theme_code_table_path, filter_regexp):
         self.doc_path = transcript_path
         self.software_used = software
         self.delimiter = word_delimiter
         self.nvivo_codes_folder_path = nvivo_codes_folder_path
         self.maxqda_document_path = maxqda_doc_path
+        self.dedoose_excerpts_path = dedoose_excerpts_path
         self.cat_path = theme_code_table_path
         self.regexp = filter_regexp
 
@@ -275,6 +278,7 @@ class ClassifyDocx:
 
                 for row in zipped:
                     writer.writerow(row)
+                file.close()
 
 
     def get_keyword_labels(self, sentences_dict, themes_list):
@@ -379,6 +383,7 @@ class ClassifyDocx:
                 os.makedirs(os.path.dirname(model_path), exist_ok=True)
                 with open(model_path, 'wb') as handle:
                     pickle.dump(clf, handle, protocol=4)
+                    handle.close()
                 break
 
         print(f'done fitting clf in {datetime.now() - start_fit}')
@@ -504,6 +509,9 @@ class ClassifyDocx:
             # if from MAXQDA
             elif self.software_used == 'MAXQDA':
                 self.themes = import_codes_from_maxqda.import_codes(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
+            # if from Dedoose
+            elif self.software_used == 'Dedoose':
+                self.themes = import_codes_from_dedoose.import_codes(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path, self.regexp)            
 
         if modified_train_file_path is not None:
             self.train_file_path = modified_train_file_path
@@ -571,6 +579,8 @@ class ClassifyDocx:
                         sentence_embedding_list.append(sentence_embedding)
 
                         cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence, sentence_embedding]
+
+                        handle.close()
             else:
                 for sentence in uncoded_original_sentences:
                     cleaned_sentence = remove_stop_words(clean_sentence(sentence, self.regexp))
@@ -584,6 +594,7 @@ class ClassifyDocx:
 
                 with open(resource_path('embeddings/embeddings.pickle'), 'wb') as handle:
                     pickle.dump(cleaned_sentence_embedding_dict, handle, protocol=4)
+                    handle.close()
 
             print(f'done writing data in csv in {datetime.now() - start_emb}')
 
@@ -593,6 +604,7 @@ class ClassifyDocx:
         # save sentence, cleaned_sentence, sentence_embedding dict to pickle
         with open(resource_path('embeddings/embeddings.pickle'), 'wb') as handle:
             pickle.dump(cleaned_sentence_embedding_dict, handle, protocol=4)
+            handle.close()
         #-------------------------------------------------------------------
 
         sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)

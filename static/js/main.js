@@ -34,7 +34,8 @@ let software = null;
 
 let transcriptPath = null;
 let nvivoCodesPath = null;
-let MAXQDADocumentPath = null;
+let MAXQDASegmentsPath = null;
+let dedooseExcerptsPath = null;
 let themeCodeTablePath = null;
 
 
@@ -46,83 +47,101 @@ const log = function (message) {
 
 
 const onImportData = function (data) {
-  if (data[0] === 'transcript') {
-    // transcript file
-    transcriptPath = data[1];
-    if (transcriptPath !== '') {
-      d3.select('#import-transcript-button')
-        .text(/[^/]*$/.exec(transcriptPath)[0]);
-      d3.select('#import-transcript-next-button')
-        .property('disabled', false);
-    }
-  } else if (data[0] === 'NVivoCodesFolder') {
-    // nvivo code folder
-    nvivoCodesPath = data[1];
-    if (nvivoCodesPath !== '') {
-      d3.select('#import-nvivo-codes-folder-button')
-        .text(/[^/]*$/.exec(nvivoCodesPath)[0]);
-      d3.select('#import-nvivo-codes-folder-next-button')
-        .property('disabled', false);
-    }
-  } else if (data[0] === 'MAXQDADocument') {
-    MAXQDADocumentPath = data[1];
-    if (MAXQDADocumentPath !== '') {
-      d3.select('#import-maxqda-document-button')
-        .text(/[^/]*$/.exec(MAXQDADocumentPath)[0]);
-      d3.select('#import-maxqda-document-next-button')
-        .property('disabled', false);
-    }
-  } else if (data[0] === 'codeThemeTable') {
-    // code theme table
-    themeCodeTablePath = data[1];
-    if (themeCodeTablePath !== '') { 
-      // d3.select('#import-theme-code-table-button')
-      //   .text(/[^/]*$/.exec(themeCodeTablePath)[0]);
-      // d3.select('#import-theme-code-table-next-button')
-      //   .property('disabled', false);
-      d3.select('#import-loading-code-theme-table-container')
-        .style('display', 'none');
-      d3.select('#import-edit-code-theme-table-container')
-        .style('display', 'block');
-      d3.select('#import-edit-code-theme-table-path')
-        .text(`${themeCodeTablePath}`);
+  switch (data[0]) {
+    case 'transcript':
+      // transcript file
+      transcriptPath = data[1];
+      if (transcriptPath !== '') {
+        d3.select('#import-transcript-button')
+          .text(/[^/]*$/.exec(transcriptPath)[0]);
+        d3.select('#import-transcript-next-button')
+          .property('disabled', false);
+      }
+      break;
+    case 'NVivoCodesFolder':
+      // nvivo code folder
+      nvivoCodesPath = data[1];
+      if (nvivoCodesPath !== '') {
+        d3.select('#import-nvivo-codes-folder-button')
+          .text(/[^/]*$/.exec(nvivoCodesPath)[0]);
+        d3.select('#import-nvivo-codes-folder-next-button')
+          .property('disabled', false);
+      }
+      break;
+    case 'MAXQDASegments':
+      // maxqda segments
+      MAXQDASegmentsPath = data[1];
+      if (MAXQDASegmentsPath !== '') {
+        d3.select('#import-maxqda-document-button')
+          .text(/[^/]*$/.exec(MAXQDASegmentsPath)[0]);
+        d3.select('#import-maxqda-document-next-button')
+          .property('disabled', false);
+      }
+      break;
+    case 'DedooseExcerpts':
+      // dedoose excerpts
+      dedooseExcerptsPath = data[1];
+      if (dedooseExcerptsPath !== '') {
+        d3.select('#import-dedoose-excerpts-button')
+          .text(/[^/]*$/.exec(dedooseExcerptsPath)[0]);
+        d3.select('#import-dedoose-excerpts-next-button')
+          .property('disabled', false);
+      }
+      break;
+    case 'codeThemeTable':
+      // code table
+      themeCodeTablePath = data[1];
+      if (themeCodeTablePath !== '') { 
+        // d3.select('#import-theme-code-table-button')
+        //   .text(/[^/]*$/.exec(themeCodeTablePath)[0]);
+        // d3.select('#import-theme-code-table-next-button')
+        //   .property('disabled', false);
+        d3.select('#import-loading-code-theme-table-container')
+          .style('display', 'none');
+        d3.select('#import-edit-code-theme-table-container')
+          .style('display', 'block');
+        d3.select('#import-edit-code-theme-table-path')
+          .text(`${themeCodeTablePath}`);
 
-      d3.selectAll('.dynamic-stepper')
-        .text(function(d) {
-          if (data[2] === 'fromWord') {
-            return 'Enter delimiter';
-          } else if (data[2] === 'fromNVivo') {
-            return 'Select codes folder';
-          } else if (data[2] === 'fromMAXQDA') {
-            return 'Import coded segments';
-          }
-        });
-    }
-  } else {
-    // keywords
-    if (data[1] === '') {
-      regexp = data[1];
-    } else if (data[1].startsWith('(?i)')) {
-      regexp = new RegExp(`\\b${data[1].replace(/^\(\?i\)/, '')}\\b[^A-Za-z]*`, 'gi'); // match only words (or word + punct)
-      regexp = regexp.toString();
-    } else {
-      regexp = new RegExp(`\\b${data[1].replace(/^\(\?i\)/, '')}\\b[^A-Za-z]*`, 'g'); // match only words (or word + punct)
-      regexp = regexp.toString();
-    }
-    const valid = data[2];
-    if (valid) {
-      d3.select('#import-container')
-        .remove();
+        d3.selectAll('.dynamic-stepper')
+          .text(function(d) {
+            if (data[2] === 'fromWord') {
+              return 'Enter delimiter';
+            } else if (data[2] === 'fromNVivo') {
+              return 'Select codes folder';
+            } else if (data[2] === 'fromMAXQDA') {
+              return 'Import coded segments';
+            } else if (data[2] === 'fromDedoose') {
+              return 'Import excerpts';
+            }
+          });
+      }
+      break;
+    default:
+      // keywords
+      if (data[1] === '') {
+        regexp = data[1];
+      } else if (data[1].startsWith('(?i)')) {
+        regexp = new RegExp(`\\b${data[1].replace(/^\(\?i\)/, '')}\\b[^A-Za-z]*`, 'gi'); // match only words (or word + punct)
+        regexp = regexp.toString();
+      } else {
+        regexp = new RegExp(`\\b${data[1].replace(/^\(\?i\)/, '')}\\b[^A-Za-z]*`, 'g'); // match only words (or word + punct)
+        regexp = regexp.toString();
+      }
+      const valid = data[2];
+      if (valid) {
+        d3.select('#import-container')
+          .remove();
 
-      d3.select('#setup-container')
-        .style('display', 'block');
+        d3.select('#setup-container')
+          .style('display', 'block');
 
-      setupBackend.set_up(transcriptPath, software, window.wordDelimiter, nvivoCodesPath, MAXQDADocumentPath, themeCodeTablePath, regexp);
-    } else {
-      // error message
-      alert('Please check your filtered keywords or regular expression');
-      log('import error');
-    }
+        setupBackend.set_up(transcriptPath, software, window.wordDelimiter, nvivoCodesPath, MAXQDASegmentsPath, dedooseExcerptsPath, themeCodeTablePath, regexp);
+      } else {
+        // error message
+        alert('Please check your filtered keywords or regular expression');
+        log('import error');
+      }
   }
 };
 

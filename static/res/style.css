@@ -148,6 +148,10 @@ body {
   display: none;
 }
 
+#import-dedoose-excerpts-container {
+  display: none;
+}
+
 #import-hierarchical-container {
   display: none;
 }
@@ -156,13 +160,13 @@ body {
   display: none;
 }
 
-input[type=checkbox] {
+/* input[type=checkbox] {
   transform: scale(1.5);
 }
 
 input[type=radio] {
   transform: scale(1.5);
-}
+} */
 
 .import-label {
   font-size: 22px;
