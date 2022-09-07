@@ -135,7 +135,7 @@ class ClassifyDocx:
         #     X_sub, Y_sub = get_minority_samples(X, Y)
         #     X_res, Y_res = MLSMOTE(X_sub, Y_sub, 300, 5)
 
-        #     # Y_res.to_csv(resource_path('data/augmented_samples.csv'), index=False)            
+        #     # Y_res.to_csv(resource_path('data/augmented_samples.csv'), index=False, encoding='utf-8-sig')            
 
         #     train_embedding_matrix = X.append(X_res).to_numpy()      # append augmented samples
         #     train_themes_binary_matrix = Y.append(Y_res).to_numpy()  # to original dataframes

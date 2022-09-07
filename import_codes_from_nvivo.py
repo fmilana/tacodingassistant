@@ -21,7 +21,7 @@ def create_codes_csv_from_nvivo(doc_path, codes_folder_path):
                 codes.append(code)
 
         codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
-        codes_df.to_csv(theme_code_table_path, index=False)
+        codes_df.to_csv(theme_code_table_path, index=False, encoding='utf-8-sig')
 
         print(f'{doc_path.replace(".docx", "_codes.csv")} created in {codes_folder_path}')
     else:
@@ -142,9 +142,8 @@ def import_codes(sentence2vec_model, doc_path, codes_folder_path, theme_code_tab
     print(f'{len(set(missing_codes))} missing codes ({len(missing_codes)} sentences) in themes table (some counters in the codes table will be 0)')
     # print(set(missing_codes))
 
-    train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False)
+    train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False, encoding='utf-8-sig')
 
-    print(f'------------------------------------> {themes_found}')
 
     return themes_found
 

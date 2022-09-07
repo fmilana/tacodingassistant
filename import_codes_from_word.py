@@ -149,7 +149,7 @@ def create_codes_csv_from_word(doc_path, delimiter):
     theme_code_table_path = os.path.join(Path(doc_path).parent.absolute(), doc_path.replace('.docx', '_codes.csv'))
 
     if not os.path.isfile(theme_code_table_path):
-        print(f'extracting codes from {doc_path} with delimiter "{delimiter}"...')
+        print(f'extracting codes from {doc_path}...')
         all_codes = []
 
         with zipfile.ZipFile(doc_path, 'r') as archive:
@@ -162,12 +162,8 @@ def create_codes_csv_from_word(doc_path, delimiter):
                 codes = codes.strip().rstrip().lower()
 
                 if delimiter != '' and delimiter in codes:
-                    print(f'codes ===> {codes}')
-                    print('after splitting:')
                     for code in codes.split(delimiter):
-                        print(code)
                         code = code.strip()
-                        print(f'stripped: {code}')
                         if len(code) > 0:
                             all_codes.append(code)
                 else:
@@ -175,7 +171,7 @@ def create_codes_csv_from_word(doc_path, delimiter):
                         all_codes.append(codes)
 
         codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(all_codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
-        codes_df.to_csv(theme_code_table_path, index=False)
+        codes_df.to_csv(theme_code_table_path, index=False, encoding='utf-8-sig')
 
         print(f'{doc_path.replace(".docx", "_codes.csv")} created in {Path(doc_path).parent.absolute()}')
     else:
