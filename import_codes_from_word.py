@@ -60,8 +60,7 @@ def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path,
 
         out_filename = doc_path.replace('.docx', '_train.csv')
 
-        writer = csv.writer(open(out_filename, 'w', newline='',
-            encoding='utf-8'))
+        writer = csv.writer(open(out_filename, 'w', newline='', encoding='utf-8'))
         writer.writerow(header)
 
         doc_xml = archive.read('word/document.xml')

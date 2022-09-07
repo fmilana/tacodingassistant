@@ -139,7 +139,7 @@ def analyse(doc_path, themes, train_file_path=None):
             counter = Counter(dict[theme])
             dict[theme] = counter.most_common()
 
-        with open(freq_path_list[i], 'w', newline='') as file:
+        with open(freq_path_list[i], 'w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file, delimiter=',')
             writer.writerow(themes_list)
             writer.writerow(freq_counts_list[i])
@@ -220,7 +220,7 @@ def analyse(doc_path, themes, train_file_path=None):
 
         cm_analyse_path = cm_path.replace('.csv', '_analyse.csv')
 
-        with open(cm_analyse_path, 'w', newline='') as file:
+        with open(cm_analyse_path, 'w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file, delimiter=',')
             writer.writerow(col_names)
 

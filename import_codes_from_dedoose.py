@@ -17,7 +17,7 @@ def create_codes_csv_from_dedoose(doc_path, excerpts_txt_path):
         print(f'extracting codes from {excerpts_txt_path}...')
         all_codes = []
 
-        with open(excerpts_txt_path, encoding='utf-8', errors='ignore') as f:
+        with open(excerpts_txt_path, errors='ignore', encoding='utf-8') as f:
             for line in f.readlines():
                 codes_search = re.search(r'Codes Applied:\s(.*)\(\d+ of \d+-\d+\)', line)
                 if codes_search:
@@ -56,7 +56,7 @@ def import_codes(sentence2vec_model, doc_path, excerpts_txt_path, theme_code_tab
 
     train_df = pd.DataFrame(columns=train_columns)
 
-    with open(excerpts_txt_path, encoding='utf-8', errors='ignore') as f:
+    with open(excerpts_txt_path, errors='ignore', encoding='utf-8') as f:
         lines = f.readlines()
         lines_length = len(lines)
         current_codes = []

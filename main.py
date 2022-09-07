@@ -26,9 +26,6 @@ from analyse_train_and_predict import analyse
 from path_util import resource_path
 
 
-# reconfigure stdout encoding to utf-8
-sys.stdout.reconfigure(encoding='utf-8')
-
 # needed for error popup
 log = logging.getLogger(__name__)
 handler = logging.StreamHandler(stream=sys.stdout)
@@ -37,13 +34,15 @@ log.addHandler(handler)
 # redirect stdout to logs/sys.app
 if getattr(sys, 'frozen', False) and platform == 'win32':
     Path(os.path.join(os.path.abspath(os.path.dirname(sys.executable)), 'logs')).mkdir(parents=True, exist_ok=True)
-    sys.stdout = open(os.path.join(os.path.abspath(os.path.dirname(sys.executable)), 'logs/sys.log'), 'a+')
+    sys.stdout = open(os.path.join(os.path.abspath(os.path.dirname(sys.executable)), 'logs/sys.log'), 'a+', encoding='utf-8')
 else:
-    sys.stdout = open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logs/sys.log'), 'a+')
+    sys.stdout = open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logs/sys.log'), 'a+', encoding='utf-8')
 
+# reconfigure stdout encoding to utf-8
+sys.stdout.reconfigure(encoding='utf-8')
 
 def log_close(from_popup=False):
-    with open(resource_path('logs/app.log'), 'a+') as f:
+    with open(resource_path('logs/app.log'), 'a+', encoding='utf-8') as f:
         line = f'[{datetime.date.today().strftime("%d/%m/%Y")}, {datetime.datetime.now().strftime("%H:%M:%S")} ({round(time.time() * 1000)})]: app closed'
         if from_popup:
             line += ' from error popup\n'
@@ -563,7 +562,7 @@ class LogThread(QThread):
         self.app_window = parent.parent().parent()
     
     def run(self):
-        with open(resource_path('logs/app.log'), 'a+') as f:
+        with open(resource_path('logs/app.log'), 'a+', encoding='utf-8') as f:
             if 'setup finished' in self.data or 'reclassify' in self.data:
                 self.data += f' (logs/models/{self.app_window.doc_file_name}_xgbmodel_{self.app_window.classify_counter}.pickle)'
             elif 'all table finished loading' in self.data:
