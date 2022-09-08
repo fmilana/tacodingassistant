@@ -135,7 +135,7 @@ class ClassifyDocx:
         #     X_sub, Y_sub = get_minority_samples(X, Y)
         #     X_res, Y_res = MLSMOTE(X_sub, Y_sub, 300, 5)
 
-        #     # Y_res.to_csv(resource_path('data/augmented_samples.csv'), index=False, encoding='utf-8-sig')            
+        #     # Y_res.to_csv(resource_path('data/augmented_samples.csv'), index=False, encoding='utf-8-sig', errors='replace')            
 
         #     train_embedding_matrix = X.append(X_res).to_numpy()      # append augmented samples
         #     train_themes_binary_matrix = Y.append(Y_res).to_numpy()  # to original dataframes
@@ -198,7 +198,7 @@ class ClassifyDocx:
             # remove moved predictions from train
             self.train_df = self.train_df[self.train_df['codes'].notna()]
 
-        predict_df.to_csv(self.predict_file_path, index=False, encoding='utf-8-sig')
+        predict_df.to_csv(self.predict_file_path, index=False, encoding='utf-8-sig', errors='replace')
         self.moved_predict_df = None
 
 

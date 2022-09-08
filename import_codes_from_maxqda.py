@@ -26,7 +26,7 @@ def create_codes_csv_from_maxqda(doc_path, retrieved_codes_doc):
                 all_codes.append(code_line)
 
         codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(all_codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
-        codes_df.to_csv(theme_code_table_path, index=False, encoding='utf-8-sig')
+        codes_df.to_csv(theme_code_table_path, index=False, encoding='utf-8-sig', errors='replace')
 
         print(f'{doc_path.replace(".docx", "_codes.csv")} created in {Path(doc_path).parent.absolute()}')
     else:
@@ -136,7 +136,7 @@ def import_codes(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_t
     print(f'done extracting in {datetime.now() - start}')
     print(f'{len(set(missing_codes))} missing codes ({len(missing_codes)} sentences) in themes table')
 
-    train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False, encoding='utf-8-sig')
+    train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False, encoding='utf-8-sig', errors='replace')
     
     # print(f'themes found = {themes_found}')
 

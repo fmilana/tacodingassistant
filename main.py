@@ -482,7 +482,7 @@ class ReclassifyThread(QThread):
                         train_df = train_df.append(predict_as_train_row, ignore_index=True)
 
         new_train_path = self.app_window.doc_path.replace('.docx', '_train_1.csv')
-        train_df.to_csv(new_train_path, index=False, encoding='utf-8-sig')
+        train_df.to_csv(new_train_path, index=False, encoding='utf-8-sig', errors='replace')
 
         print('running run_classifier...')
         self.classify_docx.run_classifier(new_train_path)

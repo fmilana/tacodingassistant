@@ -177,7 +177,7 @@ def analyse(doc_path, themes, train_file_path=None):
     # create keywords csv's
     for i, dict in enumerate(keywords_dict_list):
         keywords_df = pd.DataFrame(dict.items(), columns=['word', 'sentences'])
-        keywords_df.to_csv(keywords_path_list[i], index=False, encoding='utf-8-sig')
+        keywords_df.to_csv(keywords_path_list[i], index=False, encoding='utf-8-sig', errors='replace')
 
     # cm analysis
     for theme in themes_list:
@@ -246,6 +246,6 @@ def analyse(doc_path, themes, train_file_path=None):
 
         cm_keywords_path = cm_path.replace('.csv', '_keywords.csv')
 
-        cm_keywords_df.to_csv(cm_keywords_path, index=False, encoding='utf-8-sig')
+        cm_keywords_df.to_csv(cm_keywords_path, index=False, encoding='utf-8-sig', errors='replace')
 
     # print(f'done analysing in {datetime.now() - start}')
