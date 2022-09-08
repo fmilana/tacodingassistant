@@ -75,17 +75,17 @@ def load_table_data(doc_path, themes, table_name, reclassified):
 
     if table_name == 'all-table':
         if reclassified:
-            analyse_df = pd.read_csv(doc_path.replace('.docx', '_analyse_1.csv'))
-            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict_1.csv'))
-            train_df = pd.read_csv(doc_path.replace('.docx', '_train_1.csv'))
-            predict_keywords_df = pd.read_csv(doc_path.replace('.docx', '_predict_keywords_1.csv'))
-            train_keywords_df = pd.read_csv(doc_path.replace('.docx', '_train_keywords_1.csv'))
+            analyse_df = pd.read_csv(doc_path.replace('.docx', '_analyse_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            train_df = pd.read_csv(doc_path.replace('.docx', '_train_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            predict_keywords_df = pd.read_csv(doc_path.replace('.docx', '_predict_keywords_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            train_keywords_df = pd.read_csv(doc_path.replace('.docx', '_train_keywords_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
         else:
-            analyse_df = pd.read_csv(doc_path.replace('.docx', '_analyse.csv'))
-            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict.csv'))
-            train_df = pd.read_csv(doc_path.replace('.docx', '_train.csv'))
-            predict_keywords_df = pd.read_csv(doc_path.replace('.docx', '_predict_keywords.csv'))
-            train_keywords_df = pd.read_csv(doc_path.replace('.docx', '_train_keywords.csv'))
+            analyse_df = pd.read_csv(doc_path.replace('.docx', '_analyse.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            train_df = pd.read_csv(doc_path.replace('.docx', '_train.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            predict_keywords_df = pd.read_csv(doc_path.replace('.docx', '_predict_keywords.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            train_keywords_df = pd.read_csv(doc_path.replace('.docx', '_train_keywords.csv'), encoding='utf-8-sig', encoding_errors='replace')
 
         for index, row in analyse_df.iterrows():
             if index == 0:
@@ -134,13 +134,13 @@ def load_table_data(doc_path, themes, table_name, reclassified):
 
     elif table_name == 'predict-table':
         if reclassified:
-            predict_analyse_df = pd.read_csv(doc_path.replace('.docx', '_predict_analyse_1.csv'))
-            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict_1.csv'))
-            predict_keywords_df = pd.read_csv(doc_path.replace('.docx', '_predict_keywords_1.csv'))
+            predict_analyse_df = pd.read_csv(doc_path.replace('.docx', '_predict_analyse_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            predict_keywords_df = pd.read_csv(doc_path.replace('.docx', '_predict_keywords_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
         else:
-            predict_analyse_df = pd.read_csv(doc_path.replace('.docx', '_predict_analyse.csv'))
-            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict.csv'))
-            predict_keywords_df = pd.read_csv(doc_path.replace('.docx', '_predict_keywords.csv'))
+            predict_analyse_df = pd.read_csv(doc_path.replace('.docx', '_predict_analyse.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            predict_df = pd.read_csv(doc_path.replace('.docx', '_predict.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            predict_keywords_df = pd.read_csv(doc_path.replace('.docx', '_predict_keywords.csv'), encoding='utf-8-sig', encoding_errors='replace')
 
         for index, row in predict_analyse_df.iterrows():
             if index == 0:
@@ -178,13 +178,13 @@ def load_table_data(doc_path, themes, table_name, reclassified):
 
     elif table_name == 'train-table':
         if reclassified:
-            train_analyse_df = pd.read_csv(doc_path.replace('.docx', '_train_analyse_1.csv'))
-            train_df = pd.read_csv(doc_path.replace('.docx', '_train_1.csv'))
-            train_keywords_df = pd.read_csv(doc_path.replace('.docx', '_train_keywords_1.csv'))
+            train_analyse_df = pd.read_csv(doc_path.replace('.docx', '_train_analyse_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            train_df = pd.read_csv(doc_path.replace('.docx', '_train_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            train_keywords_df = pd.read_csv(doc_path.replace('.docx', '_train_keywords_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
         else:
-            train_analyse_df = pd.read_csv(doc_path.replace('.docx', '_train_analyse.csv'))
-            train_df = pd.read_csv(doc_path.replace('.docx', '_train.csv'))
-            train_keywords_df = pd.read_csv(doc_path.replace('.docx', '_train_keywords.csv'))
+            train_analyse_df = pd.read_csv(doc_path.replace('.docx', '_train_analyse.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            train_df = pd.read_csv(doc_path.replace('.docx', '_train.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            train_keywords_df = pd.read_csv(doc_path.replace('.docx', '_train_keywords.csv'), encoding='utf-8-sig', encoding_errors='replace')
 
         for index, row in train_analyse_df.iterrows():
             if index == 0:
@@ -272,11 +272,11 @@ class TextThread(QThread):
         whole_text = '\n\n'.join(whole_text)
 
         if self.reclassified:
-            train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train_1.csv'))
-            predict_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_predict_1.csv'))
+            train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            predict_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_predict_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
         else:
-            train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'))
-            predict_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_predict.csv'))
+            train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            predict_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_predict.csv'), encoding='utf-8-sig', encoding_errors='replace')
 
         train_data = []
         for _, row in train_df.fillna('').iterrows():
@@ -314,8 +314,8 @@ class CodesTableThread(QThread):
         data = []
         counts = [0 for _ in self.app_window.themes]
 
-        train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'))
-        codes_df = pd.read_csv(self.app_window.theme_code_table_path).applymap(lambda x: x.lower() if type(x) == str else x)
+        train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'), encoding='utf-8-sig', encoding_errors='replace')
+        codes_df = pd.read_csv(self.app_window.theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
         codes_df.columns = codes_df.columns.str.lower()
 
         for _, row in train_df.iterrows():
@@ -411,8 +411,8 @@ class ReclassifyThread(QThread):
             train_path = self.app_window.doc_path.replace('.docx', '_train_1.csv')
             predict_path = self.app_window.doc_path.replace('.docx', '_predict_1.csv')
         
-        train_df = pd.read_csv(train_path)
-        predict_df = pd.read_csv(predict_path)
+        train_df = pd.read_csv(train_path, encoding='utf-8-sig', encoding_errors='replace')
+        predict_df = pd.read_csv(predict_path, encoding='utf-8-sig', encoding_errors='replace')
 
         for data_row in self.table_changed_data:
             train_sentences = []
@@ -518,9 +518,9 @@ class ConfusionTablesThread(QThread):
 
             cm_path = f'{start_path}cm/{end_path}'
 
-            cm_df = pd.read_csv(cm_path)
-            cm_analyse_df = pd.read_csv(cm_path.replace('.csv', '_analyse.csv'))
-            cm_keywords_df = pd.read_csv(cm_path.replace('.csv', '_keywords.csv'))
+            cm_df = pd.read_csv(cm_path, encoding='utf-8-sig', encoding_errors='replace')
+            cm_analyse_df = pd.read_csv(cm_path.replace('.csv', '_analyse.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            cm_keywords_df = pd.read_csv(cm_path.replace('.csv', '_keywords.csv'), encoding='utf-8-sig', encoding_errors='replace')
 
             table_data.append(list(cm_analyse_df.columns)) # titles
 
@@ -655,7 +655,7 @@ class SetupBackend(QObject):
                 print('theme-code lookup table already in data folder')
 
         if theme_code_lookup_path != '':
-            cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig').applymap(lambda x: x.lower() if type(x) == str else x)
+            cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
             cat_df.columns = cat_df.columns.str.lower()
             self.app_window.themes = list(cat_df)     
 

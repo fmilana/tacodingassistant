@@ -48,7 +48,7 @@ def transverse(start, end, text):
 # doc_path and theme_code_table_path documents already copied in data folder
 def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path, regexp):
     start = datetime.now()
-    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig').applymap(lambda x: x.lower() if type(x) == str else x)
+    cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
     cat_df.columns = cat_df.columns.str.lower()
 
     with zipfile.ZipFile(doc_path, 'r') as archive:

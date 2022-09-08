@@ -29,8 +29,8 @@ def analyse(doc_path, themes, train_file_path=None):
         analyse_both_file_path = train_file_path.replace('train.csv', 'analyse.csv')
 
 
-    train_df = pd.read_csv(train_file_path, encoding='utf-8')
-    predict_df = pd.read_csv(predict_file_path, encoding='utf-8')
+    train_df = pd.read_csv(train_file_path, encoding='utf-8-sig', encoding_errors='replace')
+    predict_df = pd.read_csv(predict_file_path, encoding='utf-8-sig', encoding_errors='replace')
 
     themes_list = themes
 
@@ -187,7 +187,7 @@ def analyse(doc_path, themes, train_file_path=None):
 
         cm_path = resource_path(f'{start_path}cm/{end_path}')
 
-        cm_df = pd.read_csv(cm_path, encoding='utf-8')
+        cm_df = pd.read_csv(cm_path, encoding='utf-8-sig', encoding_errors='replace')
 
         col_names = cm_df.columns.values
 

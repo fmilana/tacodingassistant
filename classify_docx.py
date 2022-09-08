@@ -178,7 +178,7 @@ class ClassifyDocx:
 
         new_df = pd.concat([out_df, proba_df], axis=1)
 
-        predict_df = pd.read_csv(self.predict_file_path, encoding='utf-8')
+        predict_df = pd.read_csv(self.predict_file_path, encoding='utf-8-sig', encoding_errors='replace')
 
         predict_df = predict_df.merge(new_df, left_index=True, right_index=True)
 
@@ -521,10 +521,10 @@ class ClassifyDocx:
             self.predict_file_path = self.doc_path.replace('.docx', '_predict.csv')
 
         if self.cat_path != '':
-            self.cat_df = pd.read_csv(self.cat_path, encoding='utf-8-sig').applymap(lambda x: x.lower() if type(x) == str else x)
+            self.cat_df = pd.read_csv(self.cat_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
             self.cat_df.columns = self.cat_df.columns.str.lower()
 
-        self.train_df = pd.read_csv(self.train_file_path, encoding='utf-8')
+        self.train_df = pd.read_csv(self.train_file_path, encoding='utf-8-sig', encoding_errors='replace')
 
         text = self.get_text(self.doc_path).replace("’", "'")
 
