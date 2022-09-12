@@ -1,3 +1,4 @@
+import itertools
 import os
 import re
 import zipfile
@@ -16,7 +17,7 @@ from preprocess import (
 def transverse(start, end, text):
     if start == end:
         return text
-    for node in start.next_siblings:
+    for node in itertools.chain([start], start.next_siblings):
         if node == end:
             # proper end
             return text
@@ -34,7 +35,8 @@ def transverse(start, end, text):
     # go to the next paragraph
     paragraph_siblings = paragraph_node.next_siblings
     next_paragraph = next(paragraph_siblings)
-    while next_paragraph.name != 'w:p':
+    # also count number of children to avoid StopIteration error in empty paragraphs
+    while next_paragraph.name != 'w:p' or sum(1 for _ in next_paragraph.children) == 0:
         if next_paragraph == end:
             return text
         else:
@@ -78,9 +80,11 @@ def import_codes(sentence2vec_model, doc_path, delimiter, theme_code_table_path,
             codes = codes.strip().rstrip().lower()
             comment_id = comment['w:id']
 
+            # find range in doc_soup based on the comment id just found in comments_soup
             range_start = doc_soup.find('w:commentrangestart', attrs={'w:id': comment_id})
             range_end = doc_soup.find('w:commentrangeend', attrs={'w:id': comment_id})
 
+            # transverse that range in doc_soup to extract the text that has been commented
             text = transverse(range_start, range_end, '')
             text = text.replace('"', "'")
             text = text.replace("’", "'")
