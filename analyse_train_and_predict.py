@@ -200,7 +200,12 @@ def analyse(doc_path, themes, train_file_path=None):
                 sentence = row[col_name]
 
                 if isinstance(sentence, str) and len(sentence) > 0:
-                    cleaned_sentence = train_df[train_df['original_sentence'] == sentence]['cleaned_sentence'].any()
+                    match_df = train_df.loc[train_df['original_sentence'] == sentence, 'cleaned_sentence']
+                    if len(match_df) == 0:
+                        continue
+                    elif len (match_df) > 1:
+                        match_df = match_df.iloc[:1]
+                    cleaned_sentence = match_df.item()
                     if isinstance(cleaned_sentence, str):
                         words = set(word_tokenize(cleaned_sentence))
                         for word in words:

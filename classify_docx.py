@@ -255,8 +255,15 @@ class ClassifyDocx:
                     for sentence in sentences:
                         # to-do: better way than .any()
                         # str() used because sometimes bool
-                        original_sentence = str(self.original_train_df.loc[
-                            self.original_train_df['cleaned_sentence'] == sentence]['original_sentence'].any())
+                        # original_sentence = str(self.original_train_df.loc[self.original_train_df['cleaned_sentence'] == sentence]['original_sentence'].any())
+
+                        # pandas 1.3.0
+                        match_df = self.original_train_df.loc[self.original_train_df['cleaned_sentence'] == sentence, 'original_sentence']
+                        if len(match_df) == 0:
+                            continue
+                        elif len (match_df) > 1:
+                            match_df = match_df.iloc[:1]
+                        original_sentence = match_df.item()
 
                         if len(original_sentence) > 0:
                             # # remove interview artifacts (not stopwords)
@@ -269,7 +276,7 @@ class ClassifyDocx:
 
                     emptyToAdd = max(lengths) - len(original_sentences)
 
-                    for i in range(emptyToAdd):
+                    for _ in range(emptyToAdd):
                         original_sentences.append('')
 
                     all_sentences_lists.append(original_sentences)
