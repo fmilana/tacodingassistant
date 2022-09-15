@@ -248,7 +248,7 @@ class SetupThread(QThread):
         print('done with run_classifier in setup thread')
         print('running analyse now...')
         # print(f'===========================> themes = {self.app_window.themes}')
-        analyse(self.app_window.doc_path, self.app_window.themes)
+        analyse(self.app_window.doc_path, self.app_window.themes, self.app_window.regexp)
         self.thread_signal.emit(self.app_window.themes)
 
 
@@ -489,7 +489,7 @@ class ReclassifyThread(QThread):
         print('done!')
 
         print('running analyse...')
-        analyse(self.app_window.doc_path, self.app_window.themes, new_train_path)
+        analyse(self.app_window.doc_path, self.app_window.themes, self.app_window.regexp, new_train_path)
         print('done!')
 
         self.app_window.classify_counter += 1

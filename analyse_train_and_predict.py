@@ -9,7 +9,7 @@ from shutil import copyfile
 from path_util import resource_path
 
 
-def analyse(doc_path, themes, train_file_path=None):
+def analyse(doc_path, themes, filter_regexp, train_file_path=None):
     # start = datetime.now()
 
     if train_file_path is not None:
@@ -71,8 +71,8 @@ def analyse(doc_path, themes, train_file_path=None):
             if isinstance(cleaned_sentence, str):
                 words = set(word_tokenize(cleaned_sentence))
                 for word in words:
-                    word = word.lower()
-                    if word not in more_stop_words:
+                    if word.lower() not in more_stop_words and not re.match(filter_regexp, word):
+                        word = word.lower()
                         # for analyse.csv
                         train_word_freq_dict[theme].append(word)
                         both_word_freq_dict[theme].append(word)
@@ -90,8 +90,8 @@ def analyse(doc_path, themes, train_file_path=None):
                     words = set(word_tokenize(cleaned_sentence))
 
                     for word in words:
-                        word = word.lower()
-                        if word not in more_stop_words:
+                        if word.lower() not in more_stop_words and not re.match(filter_regexp, word):
+                            word = word.lower()
                             # for analyse.csv
                             predict_word_freq_dict[theme].append(word)
                             both_word_freq_dict[theme].append(word)
@@ -102,8 +102,7 @@ def analyse(doc_path, themes, train_file_path=None):
                             elif word not in predict_keywords_dict:
                                 predict_keywords_dict[word] = [index]
 
-    both_theme_counts = [x + y for x, y in zip(predict_theme_counts,
-        train_theme_counts)]
+    both_theme_counts = [x + y for x, y in zip(predict_theme_counts, train_theme_counts)]
 
     freq_dict_list = [
         train_word_freq_dict,
