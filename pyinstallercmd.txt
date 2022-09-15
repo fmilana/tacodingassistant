@@ -90,7 +90,7 @@ xcrun altool --notarization-info <RequestUUID> -u federico.milana.18@ucl.ac.uk -
 
 
 
-steps (tacaenv2):
+steps (tacaenv):
 1. pyinstaller: package into .app using codesign flag (pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist')
 2. run fix qt script (python fix_app_qt_folder_names_for_codesign.py dist/TACA.app)
 3. run codesign script (./codesign_script)
@@ -147,26 +147,6 @@ pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'dat
 tacaenv-clone:
 
 pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
-
-tacaenv2:
-
-pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
-
-
-
-current issues:
-tacaenv: 
--python scripts work without libomp (build xgboost from source)
--app crashes with rosetta error
-tacaenv2/old mac:
--python scripts work without libomp (build xgboost from source)
--app crashes with libomp error OR (latest) -> cannot import xgbclassifier
-
-
-why are envs different??? tacaenv -> no libomp error, tacaenv2 -> libomp error (pyinstaller??)/cannot impot xgbclassifier
-
-
-https://github.com/dmlc/xgboost/issues/7761#issuecomment-1104619556
 
 
 old xgboost packaging:
