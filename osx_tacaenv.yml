@@ -20,6 +20,7 @@ dependencies:
   - mkl_random=1.2.2=py38hb2f4e1b_0
   - ncurses=6.3=hca72f7f_2
   - numexpr=2.8.3=py38h2e5f0a9_0
+  - numpy-base=1.23.1=py38h3b1a694_0
   - openssl=1.1.1q=hca72f7f_0
   - packaging=21.3=pyhd3eb1b0_0
   - pip=21.2.4=py38hecd8cb5_0
