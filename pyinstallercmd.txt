@@ -98,7 +98,7 @@ steps (tacaenv):
 5. create dmg (hdiutil create -volname MyApp -srcfolder dist/TACA.app -ov -format UDBZ dist/TACA.dmg)
 6. codesign dmg (codesign --verbose=4 --force -s 'Developer ID Application: University College London (8UMT23UD55)' --options runtime dist/TACA.dmg)
 7. notarize dmg (xcrun altool --notarize-app -t osx -f dist/TACA.dmg --primary-bundle-id com.fmilana.tacodingassistant -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD)
-8. check progress (xcrun altool --notarization-info <RequestUUID> -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD)
+8. check status (xcrun notarytool history --keychain-profile "AC_NOTARY")
 9. staple dmg (xcrun stapler staple dist/TACA.dmg)
 10. staple app (xcrun stapler staple dist/TACA.app)
 11. verify dmg (spctl -a -vv -t install dist/TACA.dmg)
