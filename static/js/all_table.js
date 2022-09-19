@@ -16,6 +16,8 @@ const allTableLib = (function () {
 
   let maxZIndex = 1;
 
+  let highlightThreshold = 1;
+
   let keywordZIndex;
 
   let changedData = [];
@@ -134,7 +136,7 @@ const allTableLib = (function () {
 
               if (oldWord === reclassifiedWord) {
                 matched = true;
-                if (Math.abs(reclassifiedCount - oldCount) > (0.5 * oldCount)) {
+                if (Math.abs(reclassifiedCount - oldCount) > (highlightThreshold * oldCount)) {
                   themeWords.push(reclassifiedWord);
                   break;
                 }
