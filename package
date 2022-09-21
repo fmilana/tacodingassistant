@@ -11,7 +11,8 @@ hdiutil create -volname MyApp -srcfolder dist/TACA.app -ov -format UDBZ dist/TAC
 echo "Codesigning dmg..."
 codesign --verbose=4 --force -s "Developer ID Application: University College London (8UMT23UD55)" --options runtime dist/TACA.dmg
 echo "Uploading dmg..."
-xcrun notarytool submit dist/TACA.dmg --keychain-profile "TACA_NOTARY"
+xcrun altool --notarize-app -t osx -f dist/TACA.dmg --primary-bundle-id com.fmilana.tacodingassistant -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD
+# use when altool is deprecated: xcrun notarytool submit dist/TACA.dmg --keychain-profile "TACA_NOTARY"
 echo "Notarization in progress. Stapling app in 15 minutes..."
 sleep 900
 xcrun stapler staple dist/TACA.app
