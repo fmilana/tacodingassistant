@@ -1,5 +1,9 @@
 # Thematic Analysis Coding Assistant
 
+![](static/res/screenshots/text.png)
+
+## Run the Python script
+
 Using XGBoost to classify word2vec embeddings and generate coding suggestions.
 
 1) Install libraries. On MacOS:
