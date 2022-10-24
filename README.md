@@ -4,6 +4,10 @@
 
 Using XGBoost to classify word2vec embeddings and generate coding suggestions.
 
+</br>
+
+## How to run the Python script
+
 1) Install libraries. On MacOS:
 
 ```
