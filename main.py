@@ -24,6 +24,7 @@ from import_codes_from_dedoose import create_codes_csv_from_dedoose
 from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
 from path_util import resource_path
+from urllib import parse
 
 
 # needed for error popup
@@ -57,7 +58,7 @@ def show_error_popup(traceback):
     message_box.setWindowTitle('Error')
     message_box.setIcon(QMessageBox.Critical)
     message_box.setText('Sorry, something went wrong!')
-    message_box.setInformativeText('Please click "Show Details..." below and send the text to the researchers (make sure the text does not contain any sensitive data, such as extracts from your transcripts).')
+    message_box.setInformativeText(f'Please click <a href="mailto:federico.milana.18@ucl.ac.uk?subject=TACA Error Report&body={parse.quote(traceback)}">here</a> to send us the error logs by email or click "Show Details..." below to copy the text (make sure this does not contain any sensitive data, such as extracts from your transcripts).')
     message_box.setDetailedText(traceback)
     message_box.setStandardButtons(QMessageBox.Ok)
     message_box.findChild(QGridLayout).setColumnMinimumWidth(2, 400)
