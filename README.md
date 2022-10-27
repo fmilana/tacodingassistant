@@ -1,10 +1,8 @@
 # Thematic Analysis Coding Assistant
 
-![](static/res/screenshots/text.png)
+![Screenshot of the text tab](static/res/screenshots/text.png)
 
-Using XGBoost to classify word2vec embeddings and generate coding suggestions.
-
-</br>
+Using XGBoost to classify word2vec embeddings and generate interactive coding suggestions.
 
 ## How to run the Python script
 
