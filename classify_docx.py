@@ -134,7 +134,8 @@ class ClassifyDocx:
             Y = self.train_df.iloc[:, 7:]
 
             X_sub, Y_sub = get_minority_samples(X, Y)
-            X_res, Y_res = MLSMOTE(X_sub, Y_sub, 500, 5)
+            if np.shape(X_sub)[0] > 0: # if minority samples were found
+                X_res, Y_res = MLSMOTE(X_sub, Y_sub, 500, 5)
 
             Y_res.to_csv(resource_path('data/augmented_samples.csv'), index=False, encoding='utf-8-sig', errors='replace')          
 
