@@ -124,30 +124,34 @@ class ClassifyDocx:
 
         # oversample minority classes
         if oversample:
-            print('oversampling...')
-            Y_train = self.train_df.iloc[:, 7:].to_numpy()
+            print('checking for minority classes...')
+            Y_train = self.train_df.iloc[:, 7:].to_numpy() # np array for class dist
             class_dist = [x/Y_train.shape[0] for x in Y_train.sum(axis=0)]
-            print(f'class distribution BEFORE MLSMOTE = {class_dist}')
-            print(f'Y_train.shape[0] BEFORE MLSMOTE = {Y_train.shape[0]}')
 
             X = pd.DataFrame(np.array(self.train_df['sentence_embedding'].tolist()))
             Y = self.train_df.iloc[:, 7:]
 
             X_sub, Y_sub = get_minority_samples(X, Y)
             if np.shape(X_sub)[0] > 0: # if minority samples were found
+                print('minority classes found.')
+                print('oversampling...')
+                print(f'class distribution BEFORE MLSMOTE = {class_dist}')
+                print(f'Y_train.shape[0] BEFORE MLSMOTE = {Y_train.shape[0]}')
                 X_res, Y_res = MLSMOTE(X_sub, Y_sub, 500, 5)
+                Y_res.to_csv(resource_path('data/augmented_samples.csv'), index=False, encoding='utf-8-sig', errors='replace')          
+                train_embedding_matrix = X.append(X_res).to_numpy()      # append augmented samples
+                train_themes_binary_matrix = Y.append(Y_res).to_numpy()  # to original dataframes
 
-            Y_res.to_csv(resource_path('data/augmented_samples.csv'), index=False, encoding='utf-8-sig', errors='replace')          
-
-            train_embedding_matrix = X.append(X_res).to_numpy()      # append augmented samples
-            train_themes_binary_matrix = Y.append(Y_res).to_numpy()  # to original dataframes
-
-            class_dist_os = [x/train_themes_binary_matrix.shape[0] for x in train_themes_binary_matrix.sum(axis=0)]
-            print(f'class distribution AFTER MLSMOTE = {class_dist_os}')
-            print(f'Y_train.shape[0] AFTER MLSMOTE = {train_themes_binary_matrix.shape[0]}')
+                class_dist_os = [x/train_themes_binary_matrix.shape[0] for x in train_themes_binary_matrix.sum(axis=0)]
+                print(f'class distribution AFTER MLSMOTE = {class_dist_os}')
+                print(f'Y_train.shape[0] AFTER MLSMOTE = {train_themes_binary_matrix.shape[0]}')
+            else:
+                print('no minority classes.')
+                train_embedding_matrix = X.to_numpy()
+                train_themes_binary_matrix = Y.to_numpy()
         else:
             train_embedding_matrix = np.array(self.train_df['sentence_embedding'].tolist())
-            train_themes_binary_matrix = self.train_df.iloc[:, 7:].to_numpy()        
+            train_themes_binary_matrix = self.train_df.iloc[:, 7:].to_numpy()
 
         print(f'np.shape(train_embedding_matrix) = {np.shape(train_embedding_matrix)}')
         print(f'np.shape(train_themes_binary_matrix) = {np.shape(train_themes_binary_matrix)}')
@@ -617,7 +621,22 @@ class ClassifyDocx:
 
         print(f'done writing in {datetime.now() - start_writing}')
 
-        clf = ClassifierChain(classifier=XGBClassifier())
+        # to-do: tune best params from gridsearchcv on reorder_exit training data
+        # currently using default params
+        clf = ClassifierChain(classifier=XGBClassifier(
+            # n_estimators=100,
+            learning_rate=0.3,
+            gamma=0,
+            max_depth=6,
+            min_child_weight=1,
+            max_delta_step=0,
+            subsample=1,
+            colsample_bytree=1,
+            colsample_bylevel=1,
+            reg_lambda=1,
+            reg_alpha=0,
+            scale_pos_weight=1
+        ))
 
         _, _, _, _, _, accuracies, f_measures = self.classify(sentence_embedding_matrix,
             clf, 'ClassifierChain XGBoost oversample', True, False)
