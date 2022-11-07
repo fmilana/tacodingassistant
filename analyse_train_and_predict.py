@@ -158,19 +158,19 @@ def analyse(doc_path, themes, filter_regexp, train_file_path=None):
                 writer.writerow(row)
 
             # copy freq data in logs
-            counter = 0
-            while True:
-                freq_path_name = re.search(r'([^\/]+).$', freq_path_list[i]).group(0)
-                freq_path_name = re.sub(r'(_\d)*.csv', '', freq_path_name)
+            # counter = 0
+            # while True:
+            #     freq_path_name = re.search(r'([^\/]+).$', freq_path_list[i]).group(0)
+            #     freq_path_name = re.sub(r'(_\d)*.csv', '', freq_path_name)
 
-                freq_log_path = resource_path(f'logs/data/{freq_path_name}_{counter}.csv')
+            #     freq_log_path = resource_path(f'logs/data/{freq_path_name}_{counter}.csv')
 
-                if os.path.exists(freq_log_path):
-                    counter += 1
-                else:
-                    os.makedirs(os.path.dirname(freq_log_path), exist_ok=True)
-                    copyfile(freq_path_list[i], freq_log_path)
-                    break
+            #     if os.path.exists(freq_log_path):
+            #         counter += 1
+            #     else:
+            #         os.makedirs(os.path.dirname(freq_log_path), exist_ok=True)
+            #         copyfile(freq_path_list[i], freq_log_path)
+            #         break
             file.close()
 
     # create keywords csv's
@@ -184,7 +184,7 @@ def analyse(doc_path, themes, filter_regexp, train_file_path=None):
         end_path = re.search(r'([^\/]+).$', doc_path).group(0)
         end_path = end_path.replace('.docx', f'_{theme.replace(" ", "_")}_cm.csv')
 
-        cm_path = resource_path(f'{start_path}cm/{end_path}')
+        cm_path = resource_path(f'{start_path}confusion_tables/{end_path}')
 
         cm_df = pd.read_csv(cm_path, encoding='utf-8-sig', encoding_errors='replace')
 

@@ -517,7 +517,7 @@ class ConfusionTablesThread(QThread):
             end_path = re.search(r'([^\/]+).$', self.app_window.doc_path).group(0)
             end_path = end_path.replace('.docx', f'_{theme.replace(" ", "_")}_cm.csv')
 
-            cm_path = f'{start_path}cm/{end_path}'
+            cm_path = f'{start_path}confusion_tables/{end_path}'
 
             cm_df = pd.read_csv(cm_path, encoding='utf-8-sig', encoding_errors='replace')
             cm_analyse_df = pd.read_csv(cm_path.replace('.csv', '_analyse.csv'), encoding='utf-8-sig', encoding_errors='replace')
@@ -567,11 +567,11 @@ class LogThread(QThread):
             # if 'setup finished' in self.data or 'reclassify' in self.data:
             #     self.data += f' (logs/models/{self.app_window.doc_file_name}_xgbmodel_{self.app_window.classify_counter}.pickle)'
             if 'all table finished loading' in self.data:
-                self.data += f' (logs/data/{self.app_window.doc_file_name}_analyse_{self.app_window.classify_counter}.csv)'
+                self.data += f' (logs/data/documents/{self.app_window.doc_file_name}_analyse_{self.app_window.classify_counter}.csv)'
             elif 'predict table finished loading' in self.data:
-                self.data += f' (logs/data/{self.app_window.doc_file_name}_predict_analyse_{self.app_window.classify_counter}.csv)'
+                self.data += f' (logs/data/documents/{self.app_window.doc_file_name}_predict_analyse_{self.app_window.classify_counter}.csv)'
             elif 'train table finished loading' in self.data:
-                self.data += f' (logs/data/{self.app_window.doc_file_name}_train_analyse_{self.app_window.classify_counter}.csv)'
+                self.data += f' (logs/data/documents/{self.app_window.doc_file_name}_train_analyse_{self.app_window.classify_counter}.csv)'
 
             f.write(f'{self.data}\n')
             f.close()
@@ -642,7 +642,7 @@ class SetupBackend(QObject):
         # copy transcript into data folder
         end_doc_path = re.search(r'([^\/]+).$', transcript_path).group(0)
         self.app_window.doc_file_name = end_doc_path.replace('.docx', '')
-        self.app_window.doc_path = resource_path(f'data/{end_doc_path}')
+        self.app_window.doc_path = resource_path(f'data/documents/{end_doc_path}')
         try:
             copyfile(transcript_path, self.app_window.doc_path)
         except:
@@ -651,7 +651,7 @@ class SetupBackend(QObject):
         # copy code lookup table into data folder
         if theme_code_lookup_path != '':
             try:
-                copyfile(theme_code_lookup_path, resource_path(f'data/{end_doc_path.replace(".docx", "_codes.csv")}'))
+                copyfile(theme_code_lookup_path, resource_path(f'data/documents/{end_doc_path.replace(".docx", "_codes.csv")}'))
             except:
                 print('theme-code lookup table already in data folder')
 
@@ -665,7 +665,7 @@ class SetupBackend(QObject):
         # pass classify_docx object to thread
         self.thread.classify_docx = self.classify_docx
 
-        # even if theme_code_lookup_path was '', import_codes_from_nvivo in classify_docx will have created data/..._codes.csv
+        # even if theme_code_lookup_path was '', import_codes_from_nvivo in classify_docx will have created data/documents/..._codes.csv
         self.app_window.theme_code_table_path = self.app_window.doc_path.replace('.docx', '_codes.csv')
 
         self.start = time.time()

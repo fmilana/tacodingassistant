@@ -138,7 +138,7 @@ class ClassifyDocx:
                 print(f'class distribution BEFORE MLSMOTE = {class_dist}')
                 print(f'Y_train.shape[0] BEFORE MLSMOTE = {Y_train.shape[0]}')
                 X_res, Y_res = MLSMOTE(X_sub, Y_sub, 500, 5)
-                Y_res.to_csv(resource_path('data/augmented_samples.csv'), index=False, encoding='utf-8-sig', errors='replace')          
+                Y_res.to_csv(resource_path('data/documents/augmented_samples.csv'), index=False, encoding='utf-8-sig', errors='replace')          
                 train_embedding_matrix = X.append(X_res).to_numpy()      # append augmented samples
                 train_themes_binary_matrix = Y.append(Y_res).to_numpy()  # to original dataframes
 
@@ -236,7 +236,7 @@ class ClassifyDocx:
             end_path = re.search(r'([^\/]+).$', self.doc_path).group(0)
             end_path = end_path.replace('.docx', f'_{theme.replace(" ", "_")}_cm.csv')
 
-            theme_cm_path = resource_path(f'data/cm/{end_path}')
+            theme_cm_path = resource_path(f'data/documents/confusion_tables/{end_path}')
 
             os.makedirs(os.path.dirname(theme_cm_path), exist_ok=True)
             with open(theme_cm_path, 'w', newline='', encoding='utf-8') as file:
