@@ -17,7 +17,7 @@ from collections import Counter
 from skmultilearn.problem_transform import ClassifierChain
 from path_util import resource_path
 from xgboost import XGBClassifier
-import import_codes
+from import_codes import import_codes_from_word, import_codes_from_nvivo, import_codes_from_maxqda, import_codes_from_dedoose
 
 
 class ClassifyDocx:
@@ -216,12 +216,7 @@ class ClassifyDocx:
 
 
     def write_cms_to_csv(self, sentences_dict, themes_list):
-        cm_col_names = [
-            'true_positives',
-            'false_positives',
-            'true_negatives',
-            'false_negatives'
-        ]
+        cm_col_names = ['true_positives', 'false_positives', 'true_negatives', 'false_negatives']
 
         for theme in themes_list:
             # start_path = re.search(r'^(.*[\\\/])', self.doc_path).group(0)
@@ -304,8 +299,7 @@ class ClassifyDocx:
                         joined_vocab.append(word)
 
             if len(joined_sentences) > 0:
-                counter_freq = Counter([word for word in word_tokenize(joined_sentences)
-                    if word not in stop_words])
+                counter_freq = Counter([word for word in word_tokenize(joined_sentences) if word not in stop_words])
 
                 counter_vocab = Counter(joined_vocab)
 
@@ -504,16 +498,16 @@ class ClassifyDocx:
         if self.themes is None:
             # if from Word
             if self.software_used == 'Word':
-                self.themes = import_codes.import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
+                self.themes = import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
             # if from NVivo
             elif self.software_used == 'NVivo':
-                self.themes = import_codes.import_codes_from_nvivo(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path, self.regexp)
+                self.themes = import_codes_from_nvivo(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path, self.regexp)
             # if from MAXQDA
             elif self.software_used == 'MAXQDA':
-                self.themes = import_codes.import_codes_from_maxqda(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
+                self.themes = import_codes_from_maxqda(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
             # if from Dedoose
             elif self.software_used == 'Dedoose':
-                self.themes = import_codes.import_codes_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path, self.regexp)            
+                self.themes = import_codes_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path, self.regexp)            
 
         if modified_train_file_path is not None:
             self.train_file_path = modified_train_file_path

@@ -272,15 +272,8 @@ def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, the
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
     cat_df.columns = cat_df.columns.str.lower()
 
-    header = [
-        'file_name', 
-        'comment_id',
-        'original_sentence', 
-        'cleaned_sentence', 
-        'sentence_embedding', 
-        'codes', 
-        'themes'
-        ]
+    header = ['file_name', 'comment_id', 'original_sentence', 'cleaned_sentence', 'sentence_embedding', 'codes', 'themes']
+
     themes_list = [theme_name.lower() for theme_name in list(cat_df)]
     header.extend(themes_list)
 
@@ -317,8 +310,7 @@ def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, the
                                 cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
                             
                                 if train_df['original_sentence'].eq(sentence).any():
-                                    matching_index = train_df.index[
-                                        train_df['original_sentence'] == sentence].tolist()[0]
+                                    matching_index = train_df.index[train_df['original_sentence'] == sentence].tolist()[0]
 
                                     matching_row = train_df.iloc[matching_index]
                                     
@@ -370,7 +362,6 @@ def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, the
 
     train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False, encoding='utf-8-sig', errors='replace')
 
-
     return themes_found
 
 
@@ -383,8 +374,7 @@ def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, 
     cat_df.columns = cat_df.columns.str.lower()
     themes_found = []
 
-    train_columns = ['file_name', 'comment_id', 'original_sentence', 
-        'cleaned_sentence', 'sentence_embedding', 'codes', 'themes']
+    train_columns = ['file_name', 'comment_id', 'original_sentence', 'cleaned_sentence', 'sentence_embedding', 'codes', 'themes']
     themes_list = list(cat_df)
     train_columns.extend(themes_list)
 
@@ -494,8 +484,7 @@ def import_codes_from_dedoose(sentence2vec_model, doc_path, excerpts_txt_path, t
     themes_found = []
     missing_codes = []
 
-    train_columns = ['file_name', 'comment_id', 'original_sentence',
-            'cleaned_sentence', 'sentence_embedding', 'codes', 'themes']
+    train_columns = ['file_name', 'comment_id', 'original_sentence', 'cleaned_sentence', 'sentence_embedding', 'codes', 'themes']
     themes_list = list(cat_df)
     train_columns.extend(themes_list)
 

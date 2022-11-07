@@ -3,13 +3,11 @@ import re
 import pandas as pd
 from nltk import word_tokenize
 from collections import Counter
-
 from path_util import resource_path
 
 
 def analyse(doc_path, themes, filter_regexp, train_file_path=None):
     # start = datetime.now()
-
     if train_file_path is not None:
         predict_file_path = train_file_path.replace('train', 'predict')
         keywords_train_file_path = train_file_path.replace('1.csv', 'keywords_1.csv')
@@ -25,7 +23,6 @@ def analyse(doc_path, themes, filter_regexp, train_file_path=None):
         analyse_predict_file_path = predict_file_path.replace('.csv', '_analyse.csv')
         analyse_train_file_path = train_file_path.replace('.csv', '_analyse.csv')
         analyse_both_file_path = train_file_path.replace('train.csv', 'analyse.csv')
-
 
     train_df = pd.read_csv(train_file_path, encoding='utf-8-sig', encoding_errors='replace')
     predict_df = pd.read_csv(predict_file_path, encoding='utf-8-sig', encoding_errors='replace')
@@ -75,8 +72,7 @@ def analyse(doc_path, themes, filter_regexp, train_file_path=None):
                         train_word_freq_dict[theme].append(word)
                         both_word_freq_dict[theme].append(word)
                         # for keywords.csv
-                        if (word in train_keywords_dict and
-                        index not in train_keywords_dict[word]):
+                        if (word in train_keywords_dict and index not in train_keywords_dict[word]):
                             train_keywords_dict[word].append(index)
                         elif word not in train_keywords_dict:
                             train_keywords_dict[word] = [index]
@@ -94,8 +90,7 @@ def analyse(doc_path, themes, filter_regexp, train_file_path=None):
                             predict_word_freq_dict[theme].append(word)
                             both_word_freq_dict[theme].append(word)
                             # for keywords.csv
-                            if (word in predict_keywords_dict and
-                                index not in predict_keywords_dict[word]):
+                            if (word in predict_keywords_dict and index not in predict_keywords_dict[word]):
                                 predict_keywords_dict[word].append(index)
                             elif word not in predict_keywords_dict:
                                 predict_keywords_dict[word] = [index]
@@ -235,16 +230,14 @@ def analyse(doc_path, themes, filter_regexp, train_file_path=None):
                 row = []
                 for col_name in cm_word_freq_dict:
                     try:
-                        row.append(f'{cm_word_freq_dict[col_name][i][0]} ' +
-                            f'({cm_word_freq_dict[col_name][i][1]})')
+                        row.append(f'{cm_word_freq_dict[col_name][i][0]} ' + f'({cm_word_freq_dict[col_name][i][1]})')
                     except IndexError:
                         row.append('')
                 writer.writerow(row)
             file.close()
 
         # keyword mathcing file:
-        cm_keywords_df = pd.DataFrame(cm_keywords_dict.items(), 
-            columns=['word', 'sentences'])
+        cm_keywords_df = pd.DataFrame(cm_keywords_dict.items(), columns=['word', 'sentences'])
 
         cm_keywords_path = cm_path.replace('.csv', '_keywords.csv')
 
