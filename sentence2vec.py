@@ -1,7 +1,5 @@
-import sys
 import os
 import re
-import csv
 import numpy as np
 import pickle
 import gensim.downloader

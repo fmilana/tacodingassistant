@@ -5,27 +5,19 @@ import pickle
 import pandas as pd
 import numpy as np
 import scipy
-import matplotlib.pyplot as plt
-# import seaborn as sns
 import docx
 import pandas as pd
 from datetime import datetime
 from nltk import sent_tokenize, word_tokenize, download, data
 from path_util import resource_path
 from sentence2vec import Sentence2Vec
-from preprocess import (
-    clean_sentence,
-    remove_stop_words)
+from preprocess import clean_sentence, remove_stop_words
 from augment import get_minority_samples, MLSMOTE
 from collections import Counter
 from skmultilearn.problem_transform import ClassifierChain
-from sklearn.metrics import multilabel_confusion_matrix
 from path_util import resource_path
 from xgboost import XGBClassifier
-import import_codes_from_word
-import import_codes_from_nvivo
-import import_codes_from_maxqda
-import import_codes_from_dedoose
+import import_codes
 
 
 class ClassifyDocx:
@@ -512,16 +504,16 @@ class ClassifyDocx:
         if self.themes is None:
             # if from Word
             if self.software_used == 'Word':
-                self.themes = import_codes_from_word.import_codes(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
+                self.themes = import_codes.import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
             # if from NVivo
             elif self.software_used == 'NVivo':
-                self.themes = import_codes_from_nvivo.import_codes(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path, self.regexp)
+                self.themes = import_codes.import_codes_from_nvivo(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path, self.regexp)
             # if from MAXQDA
             elif self.software_used == 'MAXQDA':
-                self.themes = import_codes_from_maxqda.import_codes(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
+                self.themes = import_codes.import_codes_from_maxqda(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
             # if from Dedoose
             elif self.software_used == 'Dedoose':
-                self.themes = import_codes_from_dedoose.import_codes(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path, self.regexp)            
+                self.themes = import_codes.import_codes_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path, self.regexp)            
 
         if modified_train_file_path is not None:
             self.train_file_path = modified_train_file_path

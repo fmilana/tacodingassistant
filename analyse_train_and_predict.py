@@ -1,10 +1,8 @@
 import csv
-import os
 import re
 import pandas as pd
 from nltk import word_tokenize
 from collections import Counter
-from shutil import copyfile
 
 from path_util import resource_path
 

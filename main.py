@@ -17,10 +17,7 @@ from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QGridLayout
 from PySide2.QtGui import QScreen
-from import_codes_from_word import create_codes_csv_from_word
-from import_codes_from_nvivo import create_codes_csv_from_nvivo
-from import_codes_from_maxqda import create_codes_csv_from_maxqda
-from import_codes_from_dedoose import create_codes_csv_from_dedoose
+from import_codes import create_codes_csv_from_word, create_codes_csv_from_nvivo, create_codes_csv_from_maxqda, create_codes_csv_from_dedoose
 from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
 from path_util import resource_path
