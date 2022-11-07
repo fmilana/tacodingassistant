@@ -16,7 +16,7 @@ from path_util import resource_path
 class Sentence2Vec:
     # https://github.com/RaRe-Technologies/gensim-data
     model_name = 'glove-twitter-50'
-    model_file_path = resource_path('embeddings/word2vec_model.pickle')
+    model_file_path = resource_path('data/embeddings/word2vec_model.pickle')
 
     vector_sentence_dict = {}
 

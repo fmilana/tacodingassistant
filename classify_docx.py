@@ -384,17 +384,17 @@ class ClassifyDocx:
         doc_file_name = re.search(r'([^\/]+).$', self.doc_path).group(0).replace('.docx', '')
 
         # save xgboost model in logs
-        model_counter = 0
-        while True:
-            model_path = resource_path(f'logs/models/{doc_file_name}_xgbmodel_{model_counter}.pickle')
-            if os.path.exists(model_path):
-                model_counter += 1
-            else:
-                os.makedirs(os.path.dirname(model_path), exist_ok=True)
-                with open(model_path, 'wb') as handle:
-                    pickle.dump(clf, handle, protocol=4)
-                    handle.close()
-                break
+        # model_counter = 0
+        # while True:
+        #     model_path = resource_path(f'logs/models/{doc_file_name}_xgbmodel_{model_counter}.pickle')
+        #     if os.path.exists(model_path):
+        #         model_counter += 1
+        #     else:
+        #         os.makedirs(os.path.dirname(model_path), exist_ok=True)
+        #         with open(model_path, 'wb') as handle:
+        #             pickle.dump(clf, handle, protocol=4)
+        #             handle.close()
+        #         break
 
         print(f'done fitting clf in {datetime.now() - start_fit}')
 
@@ -572,8 +572,8 @@ class ClassifyDocx:
 
             start_emb = datetime.now()
 
-            if os.path.exists(resource_path('embeddings/embeddings.pickle')):
-                with open(resource_path('embeddings/embeddings.pickle'), 'rb') as handle:
+            if os.path.exists(resource_path('data/embeddings/embeddings.pickle')):
+                with open(resource_path('data/embeddings/embeddings.pickle'), 'rb') as handle:
                     dict = pickle.load(handle)
                     for sentence in uncoded_original_sentences:
                         try:
@@ -602,7 +602,7 @@ class ClassifyDocx:
 
                     cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence, sentence_embedding]
 
-                with open(resource_path('embeddings/embeddings.pickle'), 'wb') as handle:
+                with open(resource_path('data/embeddings/embeddings.pickle'), 'wb') as handle:
                     pickle.dump(cleaned_sentence_embedding_dict, handle, protocol=4)
                     handle.close()
 
@@ -612,7 +612,7 @@ class ClassifyDocx:
 
 
         # save sentence, cleaned_sentence, sentence_embedding dict to pickle
-        with open(resource_path('embeddings/embeddings.pickle'), 'wb') as handle:
+        with open(resource_path('data/embeddings/embeddings.pickle'), 'wb') as handle:
             pickle.dump(cleaned_sentence_embedding_dict, handle, protocol=4)
             handle.close()
         #-------------------------------------------------------------------

@@ -3,7 +3,7 @@
 eval "$(command conda 'shell.bash' 'hook' 2> /dev/null)"
 conda activate tacaenv
 cd documents/tacodingassistant
-echo "Y Y" | pyinstaller -n "TACA" main.py --windowed --collect-all "xgboost" --add-data "data:data/" --add-data "logs:logs/" --add-data "templates:templates/" --add-data "static:static/" --add-data "embeddings:embeddings/" --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity "Developer ID Application: University College London (8UMT23UD55)" --osx-entitlements-file "entitlements.plist"
+echo "Y Y" | pyinstaller -n "TACA" main.py --windowed --collect-all "xgboost" --add-data "data:data/" --add-data "logs:logs/" --add-data "templates:templates/" --add-data "static:static/" --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity "Developer ID Application: University College London (8UMT23UD55)" --osx-entitlements-file "entitlements.plist"
 python fix_app_qt_folder_names_for_codesign.py dist/TACA.app
 ./codesign_script
 codesign --verbose=4 --deep --force --options runtime -s "Developer ID Application: University College London (8UMT23UD55)" --entitlements entitlements.plist dist/TACA.app

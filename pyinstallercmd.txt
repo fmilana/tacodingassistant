@@ -5,15 +5,15 @@ MACOS
 
 onedir:
 
-pyinstaller -n 'TACA' main.py --collect-all 'xgboost' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --add-data 'embeddings:embeddings' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'TACA' main.py --collect-all 'xgboost' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 onefile:
 
-pyinstaller -n 'TACA' main.py --onefile --collect-all 'xgboost' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --add-data 'embeddings:embeddings' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'TACA' main.py --onefile --collect-all 'xgboost' --add-data 'data:data' --add-data 'logs:logs' --add-data 'templates:templates' --add-data 'static:static' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 windowed:
 
-pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 
 
@@ -23,9 +23,9 @@ WINDOWS:
 onefile
 
 -desktop pc-
-pyinstaller -n 'TACA' --onefile main.py --add-data 'C:\Users\feder\anaconda3\envs\tacaenv\Lib\site-packages\xgboost\lib\xgboost.dll;xgboost\lib\' --add-data 'C:\Users\feder\anaconda3\envs\tacaenv\Lib\site-packages\xgboost\VERSION;xgboost\' --add-data '.\embeddings\word2vec_model.pickle;embeddings\' --add-data '.\data\stopwords\analysis_stopwords.txt;data\' --add-data '.\data\stopwords\extra_stopwords.txt;data\' --add-data '.\templates\main.html;templates\' --add-data '.\static\js\lib\*;static\js\lib\' --add-data '.\static\js\*;static\js\' --add-data '.\static\res\lib\*;static\res\lib\' --add-data '.\static\res\*;static\res\'
+pyinstaller -n 'TACA' --onefile main.py --add-data 'C:\Users\feder\anaconda3\envs\tacaenv\Lib\site-packages\xgboost\lib\xgboost.dll;xgboost\lib\' --add-data 'C:\Users\feder\anaconda3\envs\tacaenv\Lib\site-packages\xgboost\VERSION;xgboost\' --add-data '.\data\embeddings\word2vec_model.pickle;data\embeddings\' --add-data '.\data\stopwords\analysis_stopwords.txt;data\' --add-data '.\data\stopwords\extra_stopwords.txt;data\' --add-data '.\templates\main.html;templates\' --add-data '.\static\js\lib\*;static\js\lib\' --add-data '.\static\js\*;static\js\' --add-data '.\static\res\lib\*;static\res\lib\' --add-data '.\static\res\*;static\res\'
 -parallels-
-pyinstaller -n TACA --onefile main.py --add-data C:\Users\fmilana\miniconda3\envs\tacaenv\Lib\site-packages\xgboost\lib\xgboost.dll;xgboost\lib\ --add-data C:\Users\fmilana\miniconda3\envs\tacaenv\Lib\site-packages\xgboost\VERSION;xgboost\ --add-data .\embeddings\word2vec_model.pickle;embeddings\ --add-data .\data\stopwords\analysis_stopwords.txt;data\ --add-data .\data\stopwords\extra_stopwords.txt;data\ --add-data .\templates\main.html;templates\ --add-data .\static\js\lib\*;static\js\lib\ --add-data .\static\js\*;static\js\ --add-data .\static\res\lib\*;static\res\lib\ --add-data .\static\res\*;static\res\
+pyinstaller -n TACA --onefile main.py --add-data C:\Users\fmilana\miniconda3\envs\tacaenv\Lib\site-packages\xgboost\lib\xgboost.dll;xgboost\lib\ --add-data C:\Users\fmilana\miniconda3\envs\tacaenv\Lib\site-packages\xgboost\VERSION;xgboost\ --add-data .\data\embeddings\word2vec_model.pickle;data\embeddings\ --add-data .\data\stopwords\analysis_stopwords.txt;data\ --add-data .\data\stopwords\extra_stopwords.txt;data\ --add-data .\templates\main.html;templates\ --add-data .\static\js\lib\*;static\js\lib\ --add-data .\static\js\*;static\js\ --add-data .\static\res\lib\*;static\res\lib\ --add-data .\static\res\*;static\res\
 
 
 (then create TACA folder with TACA.exe and logs folder inside, and zip)
@@ -91,7 +91,7 @@ xcrun altool --notarization-info <RequestUUID> -u federico.milana.18@ucl.ac.uk -
 
 
 steps (tacaenv):
-1. pyinstaller: package into .app using codesign flag (pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist')
+1. pyinstaller: package into .app using codesign flag (pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist')
 2. run fix qt script (python fix_app_qt_folder_names_for_codesign.py dist/TACA.app)
 3. run codesign script (./codesign_script)
 4. codesign main exe with force and deep flags (codesign --verbose=4 --deep --force --options runtime -s 'Developer ID Application: University College London (8UMT23UD55)' --entitlements entitlements.plist dist/TACA.app)
@@ -143,14 +143,14 @@ other pxds:
 
 tacaenv:
 
-pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 
 tacaenv-clone:
 
-pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'TACA' main.py --windowed --collect-all 'xgboost' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
 
 
 old xgboost packaging:
 
-pyinstaller -n 'TACA' main.py --windowed --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --add-data 'embeddings:embeddings/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'
+pyinstaller -n 'TACA' main.py --windowed --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/lib/libxgboost.dylib:xgboost/lib/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/xgboost/VERSION:xgboost/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/icudtl.dat:PySide2/Qt/' --add-data '/opt/miniconda3/envs/tacaenv/lib/python3.8/site-packages/PySide2/Qt/lib/QtWebEngineCore.framework/Resources/qtwebengine_resources.pak:PySide2/Qt/' --add-data 'data:data/' --add-data 'logs:logs/' --add-data 'templates:templates/' --add-data 'static:static/' --hidden-import sklearn.neighbors._typedefs --hidden-import sklearn.neighbors._partition_nodes --codesign-identity 'Developer ID Application: University College London (8UMT23UD55)' --osx-entitlements-file 'entitlements.plist'

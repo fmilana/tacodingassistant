@@ -9,10 +9,9 @@ nvivo
 *.csv
 *.docx
 reorder_exit.docx
-embeddings.pickle
 classification.txt
 /models
-/embeddings/*
+/data/embeddings/*
 static/js/old_tablejs_file.js
 cm_data.json
 /build
