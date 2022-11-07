@@ -9,13 +9,13 @@ Using XGBoost to classify word2vec embeddings and generate interactive coding su
 1) Install libraries. On MacOS:
 
 ```
-conda env create -f osx_tacaenv.yml
+conda env create -f envs/osx_tacaenv.yml
 ```
 
 On Windows:
 
 ```
-conda env create -f win_tacaenv.yml
+conda env create -f envs/win_tacaenv.yml
 ```
 
 2) Install pandas 1.3.0
