@@ -297,7 +297,7 @@ class ClassifyDocx:
         word_freq_dict = {}
         all_cms = []
 
-        stop_words = open(resource_path('data/analysis_stopwords.txt'), 'r', encoding='utf-8').read().split(',')
+        stop_words = open(resource_path('data/stopwords/analysis_stopwords.txt'), 'r', encoding='utf-8').read().split(',')
 
         for category in sentences_dict:
             sentence_list = sentences_dict[category]

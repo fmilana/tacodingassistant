@@ -6,7 +6,7 @@ from path_util import resource_path
 
 def remove_stop_words(text):
     stop_words = list(set(stopwords.words('english')))
-    extra_stop_words = open(resource_path('data/extra_stopwords.txt'), 'r', encoding='utf-8').read().split(',')
+    extra_stop_words = open(resource_path('data/stopwords/extra_stopwords.txt'), 'r', encoding='utf-8').read().split(',')
 
     stop_words += extra_stop_words
 
