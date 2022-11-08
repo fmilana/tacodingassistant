@@ -3,8 +3,6 @@ import re
 import numpy as np
 import pickle
 import gensim.downloader
-from numpy import dot
-from numpy.linalg import norm
 from nltk import word_tokenize
 from datetime import datetime
 
