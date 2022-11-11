@@ -334,12 +334,15 @@ class ClassifyDocx:
         print('fitting clf...')
         start_fit = datetime.now()
 
-        print(f'np.shape(X_train) = {np.shape(X_train)}')
-        print(f'np.shape(Y_train) = {np.shape(Y_train)}')
+        X = np.concatenate((X_train, X_test))
+        Y = np.concatenate((Y_train, Y_test))
 
-        clf.fit(X_train, Y_train)
+        print(f'np.shape(X) = {np.shape(X)}')
+        print(f'np.shape(Y) = {np.shape(Y)}')
 
-        doc_file_name = re.search(r'([^\/]+).$', self.doc_path).group(0).replace('.docx', '')
+        clf.fit(X, Y)
+
+        # doc_file_name = re.search(r'([^\/]+).$', self.doc_path).group(0).replace('.docx', '')
 
         # save xgboost model in logs
         # model_counter = 0
