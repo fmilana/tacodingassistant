@@ -9,6 +9,7 @@ import docx
 import pandas as pd
 from datetime import datetime
 from nltk import sent_tokenize, word_tokenize, download, data
+from sklearn.model_selection import train_test_split
 from path_util import resource_path
 from sentence2vec import Sentence2Vec
 from preprocess import clean_sentence, remove_stop_words
@@ -86,11 +87,11 @@ class ClassifyDocx:
 
         return np.asarray(sample_weights) """
 
-
+    
     def generate_training_and_testing_data(self, oversample, many_together):
         # themes_list = list(self.cat_df)
         self.original_train_df = self.train_df.copy()
-        # convert embedding string to np array
+        # clean vector strings to later convert to np array
         if not many_together:
             self.train_df['sentence_embedding'] = self.train_df['sentence_embedding'].apply(
                 lambda x: np.fromstring(
@@ -99,62 +100,34 @@ class ClassifyDocx:
                     .replace(']','')
                     .replace('  ',' '), sep=' '))
 
-        # split into training and testing
-        by_themes = self.train_df.groupby('themes')
+        X = np.array(self.train_df['sentence_embedding'].tolist())
+        Y = np.array(self.train_df.iloc[:, 7:])
 
-        training_list = []
-        testing_list = []
-        # iterate by themes
-        for name, group in by_themes:
-            training = group.sample(frac=.8)
-            testing = group.loc[~group.index.isin(training.index)]
-            training_list.append(training)
-            testing_list.append(testing)
-        # create two new dataframes from the lists
-        self.train_df = pd.concat(training_list)
-        test_df = pd.concat(testing_list)
+        indices = np.arange(X.shape[0])
+
+        X_train, X_test, Y_train, Y_test, i_train, i_test = train_test_split(X, Y, indices, test_size=0.2)
 
         # oversample minority classes
         if oversample:
-            print('checking for minority classes...')
-            Y_train = self.train_df.iloc[:, 7:].to_numpy() # np array for class dist
             class_dist = [x/Y_train.shape[0] for x in Y_train.sum(axis=0)]
-
-            X = pd.DataFrame(np.array(self.train_df['sentence_embedding'].tolist()))
-            Y = self.train_df.iloc[:, 7:]
-
-            X_sub, Y_sub = get_minority_samples(X, Y)
+            print('checking for minority classes in train split...')
+            X_sub, Y_sub = get_minority_samples(pd.DataFrame(X_train), pd.DataFrame(Y_train)) # only oversample training set
             if np.shape(X_sub)[0] > 0: # if minority samples were found
                 print('minority classes found.')
                 print('oversampling...')
-                print(f'class distribution BEFORE MLSMOTE = {class_dist}')
-                print(f'Y_train.shape[0] BEFORE MLSMOTE = {Y_train.shape[0]}')
-                X_res, Y_res = MLSMOTE(X_sub, Y_sub, 500, 5)
-                Y_res.to_csv(resource_path('data/documents/augmented_samples.csv'), index=False, encoding='utf-8-sig', errors='replace')          
-                train_embedding_matrix = X.append(X_res).to_numpy()      # append augmented samples
-                train_themes_binary_matrix = Y.append(Y_res).to_numpy()  # to original dataframes
-
-                class_dist_os = [x/train_themes_binary_matrix.shape[0] for x in train_themes_binary_matrix.sum(axis=0)]
-                print(f'class distribution AFTER MLSMOTE = {class_dist_os}')
-                print(f'Y_train.shape[0] AFTER MLSMOTE = {train_themes_binary_matrix.shape[0]}')
+                X_res, Y_res = MLSMOTE(X_sub, Y_sub, 500, 5)       
+                X_train = np.concatenate((X, X_res.to_numpy())) # append augmented samples
+                Y_train = np.concatenate((Y, Y_res.to_numpy())) # to original dataframes
+                print('oversampled.')
+                class_dist_os = [x/Y_train.shape[0] for x in Y_train.sum(axis=0)]
+                print(f'class distribution BEFORE MLSMOTE: {class_dist}')
+                print(f'class distribution AFTER MLSMOTE: {class_dist_os}')
             else:
                 print('no minority classes.')
-                train_embedding_matrix = X.to_numpy()
-                train_themes_binary_matrix = Y.to_numpy()
-        else:
-            train_embedding_matrix = np.array(self.train_df['sentence_embedding'].tolist())
-            train_themes_binary_matrix = self.train_df.iloc[:, 7:].to_numpy()
 
-        print(f'np.shape(train_embedding_matrix) = {np.shape(train_embedding_matrix)}')
-        print(f'np.shape(train_themes_binary_matrix) = {np.shape(train_themes_binary_matrix)}')
+        test_cleaned_sentences = self.train_df.iloc[i_test]['cleaned_sentence'].tolist()
 
-        test_embedding_matrix = np.array(test_df['sentence_embedding'].tolist())
-        test_cleaned_sentences = test_df['cleaned_sentence'].tolist()
-        test_themes_binary_matrix = test_df.iloc[:, 7:].to_numpy()
-
-        return (train_embedding_matrix, test_embedding_matrix,
-            train_themes_binary_matrix, test_themes_binary_matrix,
-            test_cleaned_sentences, self.themes)
+        return X_train, X_test, Y_train, Y_test, test_cleaned_sentences, self.themes
 
 
     def add_classification_to_csv(self, prediction_output, prediction_proba):
@@ -355,8 +328,7 @@ class ClassifyDocx:
 
         print('running generate_training_and_testing_data...')
         start_gen = datetime.now()
-        (X_train, X_test, Y_train, Y_test,
-        test_cleaned_sentences, themes_list) = self.generate_training_and_testing_data(oversample, many_together)
+        X_train, X_test, Y_train, Y_test, test_cleaned_sentences, themes_list = self.generate_training_and_testing_data(oversample, many_together)
         print(f'generate_training_and_testing_data run in {datetime.now() - start_gen}')
 
         print('fitting clf...')
