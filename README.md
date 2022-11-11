@@ -2,7 +2,7 @@
 
 ![Screenshot of the text tab](static/res/screenshots/text.png)
 
-Using XGBoost to classify word2vec embeddings and generate interactive coding suggestions.
+Using XGBoost to classify GloVe embeddings and generate interactive coding suggestions.
 
 ## How to run the Python script
 

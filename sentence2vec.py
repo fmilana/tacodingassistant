@@ -12,7 +12,7 @@ from path_util import resource_path
 class Sentence2Vec:
     # https://github.com/RaRe-Technologies/gensim-data
     model_name = 'glove-twitter-50'
-    model_file_path = resource_path('data/embeddings/word2vec_model.pickle')
+    model_file_path = resource_path('data/embeddings/glove_model.pickle')
 
     vector_sentence_dict = {}
 
@@ -24,7 +24,7 @@ class Sentence2Vec:
                 self.model = pickle.load(f)
                 f.close()
         else:
-            print('downloading word2vec model...')
+            print(f'downloading glove model ({self.model_name})...')
             self.model = gensim.downloader.load(self.model_name)
             os.makedirs(os.path.dirname(self.model_file_path), exist_ok=True)
             with open(self.model_file_path, 'wb') as f:
