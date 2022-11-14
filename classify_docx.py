@@ -15,7 +15,7 @@ from sentence2vec import Sentence2Vec
 from preprocess import clean_sentence, remove_stop_words
 from augment import get_minority_samples, MLSMOTE
 from collections import Counter
-from skmultilearn.problem_transform import ClassifierChain
+from sklearn.multioutput import ClassifierChain
 from path_util import resource_path
 from xgboost import XGBClassifier
 from import_codes import import_codes_from_word, import_codes_from_nvivo, import_codes_from_maxqda, import_codes_from_dedoose
@@ -88,17 +88,16 @@ class ClassifyDocx:
         return np.asarray(sample_weights) """
 
     
-    def generate_training_and_testing_data(self, oversample, many_together):
+    def generate_training_and_testing_data(self, oversample):
         # themes_list = list(self.cat_df)
         self.original_train_df = self.train_df.copy()
         # clean vector strings to later convert to np array
-        if not many_together:
-            self.train_df['sentence_embedding'] = self.train_df['sentence_embedding'].apply(
-                lambda x: np.fromstring(
-                    x.replace('\n','')
-                    .replace('[','')
-                    .replace(']','')
-                    .replace('  ',' '), sep=' '))
+        self.train_df['sentence_embedding'] = self.train_df['sentence_embedding'].apply(
+            lambda x: np.fromstring(
+                x.replace('\n','')
+                .replace('[','')
+                .replace(']','')
+                .replace('  ',' '), sep=' '))
 
         X = np.array(self.train_df['sentence_embedding'].tolist())
         Y = np.array(self.train_df.iloc[:, 7:])
@@ -322,13 +321,13 @@ class ClassifyDocx:
     #     axes.set_title(theme)
 
 
-    def classify(self, sentence_embedding_matrix, clf, clf_name, oversample, many_together):
+    def classify(self, sentence_embedding_matrix, chains, oversample=True):
         print('running classify function...')
         start_function = datetime.now()
 
         print('running generate_training_and_testing_data...')
         start_gen = datetime.now()
-        X_train, X_test, Y_train, Y_test, test_cleaned_sentences, themes_list = self.generate_training_and_testing_data(oversample, many_together)
+        X_train, X_test, Y_train, Y_test, test_cleaned_sentences, themes_list = self.generate_training_and_testing_data(oversample)
         print(f'generate_training_and_testing_data run in {datetime.now() - start_gen}')
 
         print('fitting clf...')
@@ -340,7 +339,9 @@ class ClassifyDocx:
         print(f'np.shape(X) = {np.shape(X)}')
         print(f'np.shape(Y) = {np.shape(Y)}')
 
-        clf.fit(X, Y)
+        for i, chain in enumerate(chains):
+            chain.fit(X_train, Y_train)
+            print(f'{i+1}/{len(chains)} chains fit')
 
         # doc_file_name = re.search(r'([^\/]+).$', self.doc_path).group(0).replace('.docx', '')
 
@@ -364,27 +365,27 @@ class ClassifyDocx:
 
         scores = []
 
-        test_pred = clf.predict(X_test).toarray()
+        # test_pred = chains.predict(X_test).toarray()
+        Y_test_pred = np.array([chain.predict(X_test) for chain in chains]).mean(axis=0)
 
-        for col in range(test_pred.shape[1]):
-            equals = np.equal(test_pred[:, col], Y_test[:, col])
+        for col in range(Y_test_pred.shape[1]):
+            equals = np.equal(Y_test_pred[:, col], Y_test[:, col])
             score = np.sum(equals)/equals.size
             scores.append(score)
 
         print(f'np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
 
-        prediction_output = clf.predict(sentence_embedding_matrix)
-
+        prediction_output = np.array([chain.predict(sentence_embedding_matrix) for chain in chains]).mean(axis=0)
+        
         print(f'np.shape(prediction_output) 1 = {np.shape(prediction_output)}')
 
         prediction_output = prediction_output.astype(int)
 
         print(f'np.shape(prediction_output) 2 = {np.shape(prediction_output)}')
 
-        prediction_proba = clf.predict_proba(sentence_embedding_matrix)
+        prediction_proba = np.array([chain.predict_proba(sentence_embedding_matrix) for chain in chains]).mean(axis=0)
 
-        if not many_together:
-            self.add_classification_to_csv(prediction_output, prediction_proba)
+        self.add_classification_to_csv(prediction_output, prediction_proba)
 
         sentences_dict = {}
 
@@ -394,14 +395,14 @@ class ClassifyDocx:
             false_positives = []
             false_negatives = []
 
-            for row in range(test_pred.shape[0]):
-                if test_pred[row, col] == 1 and Y_test[row, col] == 1:
+            for row in range(Y_test_pred.shape[0]):
+                if Y_test_pred[row, col] == 1 and Y_test[row, col] == 1:
                     true_positives.append(test_cleaned_sentences[row])
-                elif test_pred[row, col] == 0 and Y_test[row, col] == 0:
+                elif Y_test_pred[row, col] == 0 and Y_test[row, col] == 0:
                     true_negatives.append(test_cleaned_sentences[row])
-                elif test_pred[row, col] == 1 and Y_test[row, col] == 0:
+                elif Y_test_pred[row, col] == 1 and Y_test[row, col] == 0:
                     false_positives.append(test_cleaned_sentences[row])
-                elif test_pred[row, col] == 0 and Y_test[row, col] == 1:
+                elif Y_test_pred[row, col] == 0 and Y_test[row, col] == 1:
                     false_negatives.append(test_cleaned_sentences[row])
 
             sentences_dict[class_name + ' true_positives'] = true_positives
@@ -416,20 +417,20 @@ class ClassifyDocx:
         accuracies = []
         f_measures = []
 
-        for col in range(test_pred.shape[1]):
+        for col in range(Y_test_pred.shape[1]):
             tp = 0
             fp = 0
             fn = 0
             tn = 0
 
-            for row in range(test_pred.shape[0]):
-                if test_pred[row][col] == 1 and Y_test[row][col] == 1:
+            for row in range(Y_test_pred.shape[0]):
+                if Y_test_pred[row][col] == 1 and Y_test[row][col] == 1:
                     tp += 1
-                elif test_pred[row][col] == 1 and Y_test[row][col] == 0:
+                elif Y_test_pred[row][col] == 1 and Y_test[row][col] == 0:
                     fp += 1
-                elif test_pred[row][col] == 0 and Y_test[row][col] == 1:
+                elif Y_test_pred[row][col] == 0 and Y_test[row][col] == 1:
                     fn += 1
-                elif test_pred[row][col] == 0 and Y_test[row][col] == 0:
+                elif Y_test_pred[row][col] == 0 and Y_test[row][col] == 0:
                     tn += 1
 
             if (tp + fp) > 0:
@@ -584,23 +585,27 @@ class ClassifyDocx:
 
         # to-do: tune best params from gridsearchcv on reorder_exit training data
         # currently using default params
-        clf = ClassifierChain(classifier=XGBClassifier(
+        clf = XGBClassifier(
+            verbosity=0
             # n_estimators=100,
-            learning_rate=0.3,
-            gamma=0,
-            max_depth=6,
-            min_child_weight=1,
-            max_delta_step=0,
-            subsample=1,
-            colsample_bytree=1,
-            colsample_bylevel=1,
-            reg_lambda=1,
-            reg_alpha=0,
-            scale_pos_weight=1
-        ))
+            # learning_rate=0.3,
+            # gamma=0,
+            # max_depth=6,
+            # min_child_weight=1,
+            # max_delta_step=0,
+            # subsample=1,
+            # colsample_bytree=1,
+            # colsample_bylevel=1,
+            # reg_lambda=1,
+            # reg_alpha=0,
+            # scale_pos_weight=1
+        )
 
-        _, _, _, _, _, accuracies, f_measures = self.classify(sentence_embedding_matrix,
-            clf, 'ClassifierChain XGBoost oversample', True, False)
+        number_of_chains = 10
+
+        chains = [ClassifierChain(clf, order='random', random_state=i) for i in range(number_of_chains)]
+
+        _, _, _, _, _, accuracies, f_measures = self.classify(sentence_embedding_matrix, chains)
 
         print(f'accuracy per class = {accuracies}')
         print(f'f_measure per class = {f_measures}')
