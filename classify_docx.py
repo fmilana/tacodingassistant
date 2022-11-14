@@ -365,8 +365,7 @@ class ClassifyDocx:
 
         scores = []
 
-        # test_pred = chains.predict(X_test).toarray()
-        Y_test_pred = np.array([chain.predict(X_test) for chain in chains]).mean(axis=0)
+        Y_test_pred = np.rint(np.array([chain.predict(X_test) for chain in chains]).mean(axis=0))
 
         for col in range(Y_test_pred.shape[1]):
             equals = np.equal(Y_test_pred[:, col], Y_test[:, col])
@@ -375,7 +374,7 @@ class ClassifyDocx:
 
         print(f'np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
 
-        prediction_output = np.array([chain.predict(sentence_embedding_matrix) for chain in chains]).mean(axis=0)
+        prediction_output = np.rint(np.array([chain.predict(sentence_embedding_matrix) for chain in chains]).mean(axis=0))
         
         print(f'np.shape(prediction_output) 1 = {np.shape(prediction_output)}')
 
