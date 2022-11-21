@@ -11,7 +11,7 @@ from datetime import datetime
 from nltk import sent_tokenize, word_tokenize, download, data
 from sklearn.model_selection import train_test_split
 from path_util import resource_path
-from sentence2vec import Sentence2Vec
+from sentence_bert import SentenceBert
 from preprocess import clean_sentence, remove_stop_words
 from augment import get_minority_samples, MLSMOTE
 from collections import Counter
@@ -23,7 +23,7 @@ from import_codes import import_codes_from_word, import_codes_from_nvivo, import
 
 class ClassifyDocx:
 
-    sentence2vec_model = None
+    sentence_bert = None
 
     software_used = ''
 
@@ -51,7 +51,7 @@ class ClassifyDocx:
         download('punkt', download_dir=resource_path('data/nltk/'))
         download('stopwords', download_dir=resource_path('data/nltk/'))
         data.path.append(resource_path('data/nltk/'))
-        self.sentence2vec_model = Sentence2Vec()
+        self.sentence_bert = SentenceBert()
 
 
     def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_folder_path, maxqda_doc_path, dedoose_excerpts_path, theme_code_table_path, filter_regexp):
@@ -473,16 +473,16 @@ class ClassifyDocx:
         if self.themes is None:
             # if from Word
             if self.software_used == 'Word':
-                self.themes = import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
+                self.themes = import_codes_from_word(self.sentence_bert, self.doc_path, self.delimiter, self.cat_path, self.regexp)
             # if from NVivo
             elif self.software_used == 'NVivo':
-                self.themes = import_codes_from_nvivo(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path, self.regexp)
+                self.themes = import_codes_from_nvivo(self.sentence_bert, self.doc_path, self.nvivo_codes_folder_path, self.cat_path, self.regexp)
             # if from MAXQDA
             elif self.software_used == 'MAXQDA':
-                self.themes = import_codes_from_maxqda(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
+                self.themes = import_codes_from_maxqda(self.sentence_bert, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
             # if from Dedoose
             elif self.software_used == 'Dedoose':
-                self.themes = import_codes_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path, self.regexp)            
+                self.themes = import_codes_from_dedoose(self.sentence_bert, self.doc_path, self.dedoose_excerpts_path, self.cat_path, self.regexp)            
 
         if modified_train_file_path is not None:
             self.train_file_path = modified_train_file_path
@@ -535,27 +535,27 @@ class ClassifyDocx:
 
             if os.path.exists(resource_path('data/embeddings/embeddings.pickle')):
                 with open(resource_path('data/embeddings/embeddings.pickle'), 'rb') as handle:
-                    dict = pickle.load(handle)
+                    embedding_dict = pickle.load(handle)
                     for sentence in uncoded_original_sentences:
                         try:
-                            cleaned_sentence = dict[sentence][0]
-                            sentence_embedding = dict[sentence][1]
+                            cleaned_sentence = embedding_dict[sentence][0]
+                            sentence_embedding = embedding_dict[sentence][1]
                         except KeyError:
                             cleaned_sentence = remove_stop_words(clean_sentence(sentence, self.regexp))
-                            sentence_embedding = self.sentence2vec_model.get_vector(cleaned_sentence)
+                            sentence_embedding = self.sentence_bert.get_embeddings([cleaned_sentence])
 
-                        writer.writerow([sentence, cleaned_sentence,
-                            sentence_embedding])
+                        writer.writerow([sentence, cleaned_sentence, sentence_embedding])
 
                         sentence_embedding_list.append(sentence_embedding)
 
                         cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence, sentence_embedding]
 
                         handle.close()
+                    
             else:
                 for sentence in uncoded_original_sentences:
                     cleaned_sentence = remove_stop_words(clean_sentence(sentence, self.regexp))
-                    sentence_embedding = self.sentence2vec_model.get_vector(cleaned_sentence)
+                    sentence_embedding = self.sentence_bert.get_embeddings(cleaned_sentence)
 
                     writer.writerow([sentence, cleaned_sentence, sentence_embedding])
 
@@ -577,6 +577,10 @@ class ClassifyDocx:
             pickle.dump(cleaned_sentence_embedding_dict, handle, protocol=4)
             handle.close()
         #-------------------------------------------------------------------
+
+        shapes = [array.shape for array in sentence_embedding_list]
+
+        print(f'set(shapes) ===> {set(shapes)}')
 
         sentence_embedding_matrix = np.stack(sentence_embedding_list, axis=0)
 

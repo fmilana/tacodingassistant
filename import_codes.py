@@ -167,7 +167,7 @@ def transverse(start, end, text):
 
 # WORD
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_table_path, regexp):
+def import_codes_from_word(sentence_bert, doc_path, delimiter, theme_code_table_path, regexp):
 
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
@@ -215,7 +215,7 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
             # split text into sentences
             for sentence in sent_tokenize(text):
                 cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
-                sentence_to_cleaned_dict[sentence] = [cleaned_sentence, sentence2vec_model.get_vector(cleaned_sentence)]
+                sentence_to_cleaned_dict[sentence] = [cleaned_sentence, sentence_bert.get_embeddings([cleaned_sentence])]
 
             themes = []
 
@@ -260,7 +260,7 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
 
 # NVIVO
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, theme_code_table_path, regexp):
+def import_codes_from_nvivo(sentence_bert, doc_path, codes_folder_path, theme_code_table_path, regexp):
     print(f'extracting codes from {codes_folder_path}...')
     start = datetime.now()
 
@@ -336,7 +336,7 @@ def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, the
                                         'comment_id': '0', 
                                         'original_sentence': sentence,
                                         'cleaned_sentence': cleaned_sentence,
-                                        'sentence_embedding': sentence2vec_model.get_vector(cleaned_sentence),
+                                        'sentence_embedding': sentence_bert.get_embeddings([cleaned_sentence]),
                                         'codes': code,
                                         'themes': theme
                                     }
@@ -367,7 +367,7 @@ def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, the
 
 # MAXQDA
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_table_path, regexp):
+def import_codes_from_maxqda(sentence_bert, doc_path, retrieved_codes_doc, theme_code_table_path, regexp):
     print(f'extracting sentences...')
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
@@ -438,7 +438,7 @@ def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, 
                                     'comment_id': '0', 
                                     'original_sentence': sentence, 
                                     'cleaned_sentence': cleaned_sentence, 
-                                    'sentence_embedding': sentence2vec_model.get_vector(cleaned_sentence),
+                                    'sentence_embedding': sentence_bert.getembeddings([cleaned_sentence]),
                                     'codes': code,
                                     'themes': current_theme
                                 }
@@ -476,7 +476,7 @@ def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, 
 
 # DEDOOSE
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_dedoose(sentence2vec_model, doc_path, excerpts_txt_path, theme_code_table_path, regexp):
+def import_codes_from_dedoose(sentence_bert, doc_path, excerpts_txt_path, theme_code_table_path, regexp):
     print(f'extracting sentences...')
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
@@ -544,7 +544,7 @@ def import_codes_from_dedoose(sentence2vec_model, doc_path, excerpts_txt_path, t
                             'comment_id': '0',
                             'original_sentence': sentence,
                             'cleaned_sentence': cleaned_sentence,
-                            'sentence_embedding': sentence2vec_model.get_vector(cleaned_sentence),
+                            'sentence_embedding': sentence_bert.get_embeddings(cleaned_sentence),
                             'codes': '; '.join(current_codes),
                             'themes': '; '.join(current_themes)                            
                         }
