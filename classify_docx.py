@@ -542,7 +542,7 @@ class ClassifyDocx:
                             sentence_embedding = embedding_dict[sentence][1]
                         except KeyError:
                             cleaned_sentence = remove_stop_words(clean_sentence(sentence, self.regexp))
-                            sentence_embedding = self.sentence_bert.get_embeddings([cleaned_sentence])
+                            sentence_embedding = self.sentence_bert.get_embedding(cleaned_sentence)
 
                         writer.writerow([sentence, cleaned_sentence, sentence_embedding])
 
@@ -555,7 +555,7 @@ class ClassifyDocx:
             else:
                 for sentence in uncoded_original_sentences:
                     cleaned_sentence = remove_stop_words(clean_sentence(sentence, self.regexp))
-                    sentence_embedding = self.sentence_bert.get_embeddings(cleaned_sentence)
+                    sentence_embedding = self.sentence_bert.get_embedding(cleaned_sentence)
 
                     writer.writerow([sentence, cleaned_sentence, sentence_embedding])
 

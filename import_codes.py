@@ -215,7 +215,7 @@ def import_codes_from_word(sentence_bert, doc_path, delimiter, theme_code_table_
             # split text into sentences
             for sentence in sent_tokenize(text):
                 cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
-                sentence_to_cleaned_dict[sentence] = [cleaned_sentence, sentence_bert.get_embeddings([cleaned_sentence])]
+                sentence_to_cleaned_dict[sentence] = [cleaned_sentence, sentence_bert.get_embedding(cleaned_sentence)]
 
             themes = []
 
@@ -336,7 +336,7 @@ def import_codes_from_nvivo(sentence_bert, doc_path, codes_folder_path, theme_co
                                         'comment_id': '0', 
                                         'original_sentence': sentence,
                                         'cleaned_sentence': cleaned_sentence,
-                                        'sentence_embedding': sentence_bert.get_embeddings([cleaned_sentence]),
+                                        'sentence_embedding': sentence_bert.get_embedding(cleaned_sentence),
                                         'codes': code,
                                         'themes': theme
                                     }
@@ -544,7 +544,7 @@ def import_codes_from_dedoose(sentence_bert, doc_path, excerpts_txt_path, theme_
                             'comment_id': '0',
                             'original_sentence': sentence,
                             'cleaned_sentence': cleaned_sentence,
-                            'sentence_embedding': sentence_bert.get_embeddings(cleaned_sentence),
+                            'sentence_embedding': sentence_bert.get_embedding(cleaned_sentence),
                             'codes': '; '.join(current_codes),
                             'themes': '; '.join(current_themes)                            
                         }

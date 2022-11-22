@@ -27,16 +27,15 @@ class SentenceBert:
         print(f'done loading model in {datetime.datetime.now() - start}')
 
     
-    def get_embeddings(self, sentences):
+    def get_embedding(self, sentence):
         # convert to lowercase and keep only alpha-numerical characters and spaces
-        sentences = [re.sub(r'[^A-Za-z0-9\s]', r'', str(sentence).lower()) for sentence in sentences]
-        # get sentence embeddings from the model
-        sentence_embeddings = self.model.encode(sentences)
-        # append each sentence embedding pair to dictionary
-        for sentence, embedding in zip(sentences, sentence_embeddings):
-            self.embedding_sentence_dict[embedding.tobytes()] = sentence
-        
-        return sentence_embeddings
+        sentence = re.sub(r'[^A-Za-z0-9\s]', r'', str(sentence).lower())
+        # get embedding from the model
+        embedding = self.model.encode([sentence])[0]
+        # append embedding to dictionary
+        self.embedding_sentence_dict[embedding.tobytes()] = sentence
+        # return embedding
+        return embedding
 
     
     def get_sentence(self, embedding):
