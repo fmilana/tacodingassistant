@@ -1,4 +1,5 @@
 # needed for pyinstaller for MacOS
+import filecmp
 import os
 from pathlib import Path
 from sys import platform
@@ -640,17 +641,29 @@ class SetupBackend(QObject):
         end_doc_path = re.search(r'([^\/]+).$', transcript_path).group(0)
         self.app_window.doc_file_name = end_doc_path.replace('.docx', '')
         self.app_window.doc_path = resource_path(f'data/documents/{end_doc_path}')
-        try:
+
+        print(f'copying {transcript_path} to {self.app_window.doc_path}...')
+        if not os.path.exists(self.app_window.doc_path) or not filecmp.cmp(transcript_path, self.app_window.doc_path):
+            # create directory first
+            os.makedirs(os.path.dirname(self.app_window.doc_path), exist_ok=True)
+            # copy file
             copyfile(transcript_path, self.app_window.doc_path)
-        except:
-            print('transcript already in data folder')
+            print('transcript copied.')
+        else:
+            print('transcript already in data folder.')
 
         # copy code lookup table into data folder
+        theme_code_lookup_destination_path = resource_path(f'data/documents/{end_doc_path.replace(".docx", "_codes.csv")}')
         if theme_code_lookup_path != '':
-            try:
-                copyfile(theme_code_lookup_path, resource_path(f'data/documents/{end_doc_path.replace(".docx", "_codes.csv")}'))
-            except:
-                print('theme-code lookup table already in data folder')
+            print(f'copying {theme_code_lookup_path} to {theme_code_lookup_destination_path}...')
+            if not os.path.exists(theme_code_lookup_destination_path) or not filecmp.cmp(theme_code_lookup_path, theme_code_lookup_destination_path):
+                # create directory first
+                os.makedirs(os.path.dirname(theme_code_lookup_destination_path), exist_ok=True)
+                # copy file
+                copyfile(theme_code_lookup_path, theme_code_lookup_destination_path)
+                print('theme code table copied.')
+            else:
+                print('theme code table already in data folder.')            
 
         if theme_code_lookup_path != '':
             cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
