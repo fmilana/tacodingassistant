@@ -4,24 +4,18 @@ channels:
   - defaults
 dependencies:
   - altgraph=0.17.2=pyhd8ed1ab_1
-  - blas=1.0=mkl
-  - bottleneck=1.3.5=py38h67323c0_0
+  - blas=1.0=openblas
   - bzip2=1.0.8=h1de35cc_0
-  - ca-certificates=2022.07.19=hecd8cb5_0
-  - certifi=2022.6.15=py38hecd8cb5_0
+  - ca-certificates=2022.10.11=hecd8cb5_0
+  - certifi=2022.9.24=py38hecd8cb5_0
   - gmp=6.2.1=h2e338ed_0
   - intel-openmp=2021.4.0=hecd8cb5_3538
   - libcxx=12.0.0=h2f01273_0
   - libffi=3.3=hb1e8313_2
   - macholib=1.16=pyhd8ed1ab_0
-  - mkl=2021.4.0=hecd8cb5_637
-  - mkl-service=2.4.0=py38h9ed2024_0
-  - mkl_fft=1.3.1=py38h4ab4a9b_0
-  - mkl_random=1.2.2=py38hb2f4e1b_0
   - ncurses=6.3=hca72f7f_2
-  - numexpr=2.8.3=py38h2e5f0a9_0
-  - numpy-base=1.23.1=py38h3b1a694_0
-  - openssl=1.1.1q=hca72f7f_0
+  - nomkl=3.0=0
+  - openssl=1.1.1s=hca72f7f_0
   - packaging=21.3=pyhd3eb1b0_0
   - pip=21.2.4=py38hecd8cb5_0
   - pycryptodome=3.14.1=py38h5fe443b_1
