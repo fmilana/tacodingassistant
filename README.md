@@ -18,7 +18,12 @@ On Windows:
 conda env create -f envs/win_tacaenv.yml
 ```
 
-2) Activate conda environment
+2) Activate conda environment:
+
+```
+conda activate tacaenv
+```
+
 3) Run the application:
 
 ```
