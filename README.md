@@ -6,7 +6,7 @@ Using XGBoost to classify GloVe embeddings and generate interactive coding sugge
 
 ## How to run the Python script
 
-1) Install libraries. On MacOS:
+1) Install libraries in a new conda environment. On MacOS:
 
 ```
 conda env create -f envs/osx_tacaenv.yml
