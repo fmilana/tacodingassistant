@@ -274,8 +274,12 @@
           <p id="setup-label">Extracting codes...</p>
         </div>
       </div>
-      <!-- edit code theme table -->
-      <div id="import-edit-code-theme-table-container">
+      <!-- edit code theme table (old) -->
+      <!-- TO-DO: REMOVE MENTIONS OF THESE -->
+      <!-- TO-DO: REMOVE MENTIONS OF THESE -->
+      <!-- TO-DO: REMOVE MENTIONS OF THESE -->
+      <!-- TO-DO: REMOVE MENTIONS OF THESE -->
+      <!-- <div id="import-edit-code-theme-table-container">
         <div class="import-content">
           <p id="import-edit-code-theme-table-label" class="import-label">Edit your code table</p>
           <p class="import-sub-label">A code table has been created in:</p>
@@ -286,6 +290,90 @@
           <div id="edit-code-theme-table-checkbox-group">
             <input type="checkbox" id="edit-code-theme-table-checkbox">
             <label for="edit-code-theme-table-checkbox">I have edited and saved the code table</label>
+          </div>
+        </div>
+        <div id="import-step-progress-bar">
+          <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+              <div class="step-counter">1</div>
+              <div class="step-name">Import transcript</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">2</div>
+              <div class="step-name">Select software</div>
+            </div>
+            <div class="stepper-item completed">
+              <div class="step-counter">3</div>
+              <div class="step-name dynamic-stepper"></div>
+            </div>
+            <div class="stepper-item active">
+              <div class="step-counter">4</div>
+              <div class="step-name">Edit code table</div>
+            </div>
+            <div class="stepper-item">
+              <div class="step-counter">5</div>
+              <div class="step-name">Enter keyword filter</div>
+            </div>
+          </div>
+        </div>
+        <button id="import-edit-code-theme-table-back-button" class="back-button btn btn-secondary">Back</button>
+        <button id="import-edit-code-theme-table-next-button" class="next-button btn btn-secondary" disabled>Next</button>
+      </div> -->
+      <!-- edit code theme table -->
+      <div id="import-edit-code-theme-table-container">
+        <div class="import-content">
+          <p id="import-edit-code-theme-table-label" class="import-label">Edit your code table</p>
+          <p class="import-sub-label">Please drag and drop your codes under each theme.</p>
+          <p class="import-sub-label">Rename each theme by clicking on the headers.</p>
+          <!-- <p id="import-edit-code-theme-table-path"class="import-sub-label"></p>
+          <p class="import-sub-label">Edit this table so each column header is the name of a theme, and the respective codes are listed below.</p>
+          <p class="import-sub-label">For example:</p>
+          <img id="code-theme-table-example-png" src="../static/res/code-table-example.png"> -->
+          <!-- <div id="edit-code-theme-table-checkbox-group">
+            <input type="checkbox" id="edit-code-theme-table-checkbox">
+            <label for="edit-code-theme-table-checkbox">I have edited and saved the code table</label>
+          </div> -->
+          <div>
+            <table id="theme-code-table">
+              <thead>
+                <tr>
+                  <th><div contenteditable>Theme 1</div></th>
+                  <th><div contenteditable>Theme 2</div></th>
+                  <th><div contenteditable>Theme 3</div></th>
+                  <th><div contenteditable>Theme 4</div></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span id="code-1" class="code" draggable="true">Code 1</span></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><span id="code-2" class="code" draggable="true">Code 2</span></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><span id="code-3" class="code" draggable="true">Code 3</span></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><span id="code-4" class="code" draggable="true">Code 4</span></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+            <div id="add-remove-buttons-div">
+              <button id="remove-theme-button" class="btn btn-secondary" type="button">Remove theme</button>
+              <button id="add-theme-button" class="btn btn-secondary" type="button">Add theme</button>
+            </div>
           </div>
         </div>
         <div id="import-step-progress-bar">

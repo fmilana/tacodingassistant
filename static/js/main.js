@@ -46,6 +46,55 @@ const log = function (message) {
 };
 
 
+//codethemetable functionality
+//https://stackoverflow.com/questions/61492659/how-can-i-drag-and-drop-cell-contents-within-a-table-with-dynamically-added-rows
+$(function() {
+  initDragAndDrop();
+
+  // https://stackoverflow.com/questions/14964253/how-to-dynamically-add-a-new-column-to-an-html-table
+  $('#add-theme-button').on('click', function() {
+    [...$('#theme-code-table tr')].forEach((row, i) => {
+      let cell;
+      if (i === 0) {
+        cell = document.createElement('th');
+        const columnCount = document.getElementById('theme-code-table').rows[0].cells.length;
+        cell.innerHTML = `<div contenteditable>Theme ${columnCount+1}</div>`;
+      } else {
+        cell = document.createElement('td');
+      }
+      row.appendChild(cell);
+    });
+
+    clearDragAndDrop();
+    initDragAndDrop();
+  });
+
+  $('#remove-theme-button').on('click', function() {
+    $('#theme-code-table tr').find('th:last-child, td:last-child').remove();
+  });
+});
+
+const clearDragAndDrop = function () {
+  $('.code').off();
+  $('#theme-code-table td').off('dragenter dragover drop');
+};
+
+const initDragAndDrop = function () {
+  $('.code').on('dragstart', function(event) {
+    var dt = event.originalEvent.dataTransfer;
+    dt.setData('Text', $(this).attr('id'));
+  });
+  $('#theme-code-table td').on('dragenter dragover drop', function(event) {
+    event.preventDefault();
+    if (event.type === 'drop') {
+      var data = event.originalEvent.dataTransfer.getData('Text', $(this).attr('id'));
+      de = $('#' + data).detach();
+      de.appendTo($(this));
+    }
+  });
+};
+// ............................. //
+
 const onImportData = function (data) {
   switch (data[0]) {
     case 'transcript':

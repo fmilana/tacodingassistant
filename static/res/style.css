@@ -204,6 +204,37 @@ input[type=radio] {
   font-weight: bold;
 }
 
+/* themecodetable */
+#theme-code-table {
+  border: 1px solid;
+  border-collapse: collapse;
+}
+
+#theme-code-table th, #theme-code-table td {
+  border: 1px solid;
+  height: 40px;
+  width: 200px;
+}
+
+#theme-code-table span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  padding-top: 5px;
+}
+
+#add-remove-buttons-div {
+  display: flex; 
+  padding-top: 15px;
+  justify-content: flex-end;
+}
+
+#remove-theme-button {
+  margin-right: 15px;
+}
+/*  */
+
 #code-theme-table-example-png {
   display: block;
   margin: auto;
