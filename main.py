@@ -56,7 +56,7 @@ def show_error_popup(traceback):
     message_box.setWindowTitle('Error')
     message_box.setIcon(QMessageBox.Critical)
     message_box.setText('Sorry, something went wrong!')
-    message_box.setInformativeText(f'Please click <a href="mailto:federico.milana.18@ucl.ac.uk?subject=TACA Error Report&body={parse.quote(traceback)}">here</a> to send us the error logs by email or click "Show Details..." below to copy the text (make sure this does not contain any sensitive data, such as extracts from your transcripts).')
+    message_box.setInformativeText(f'Please click <a href="mailto:federico.milana.18@ucl.ac.uk?subject=TACA Error Report&body={parse.quote(traceback)}">here</a> to send us the error logs by email or click "Show Details..." below to copy the text.')
     message_box.setDetailedText(traceback)
     message_box.setStandardButtons(QMessageBox.Ok)
     message_box.findChild(QGridLayout).setColumnMinimumWidth(2, 400)
