@@ -5,8 +5,7 @@ let wordDelimiter = '';
 
 const importLib = (function () {
   const setupImportPage = function () {
-    let noWordDelimiterCheckBoxValue = false; 
-    let editedCheckBoxValue = false;
+    let noWordDelimiterCheckBoxValue = false;
     let wordCheckboxValue = false;
     let nvivoCheckboxValue = false;
     let maxqdaCheckboxValue = false;
@@ -84,7 +83,7 @@ const importLib = (function () {
           d3.select('#import-loading-code-theme-table-container')
           .style('display', 'block');
 
-        importBackend.create_code_table_csv_from_word(transcriptPath, window.wordDelimiter);
+        importBackend.get_codes_from_word(transcriptPath, window.wordDelimiter);
 
         software = 'Word';
         
@@ -98,7 +97,7 @@ const importLib = (function () {
         d3.select('#import-loading-code-theme-table-container')
           .style('display', 'block');
 
-        importBackend.create_code_table_csv_from_nvivo(transcriptPath, nvivoCodesPath);
+        importBackend.get_codes_from_nvivo(transcriptPath, nvivoCodesPath);
 
         software = 'NVivo';
         
@@ -112,7 +111,7 @@ const importLib = (function () {
         d3.select('#import-loading-code-theme-table-container')
           .style('display', 'block');
 
-        importBackend.create_code_table_csv_from_maxqda(transcriptPath, MAXQDASegmentsPath);
+        importBackend.get_codes_from_maxqda(transcriptPath, MAXQDASegmentsPath);
 
         software = 'MAXQDA';
         
@@ -126,7 +125,7 @@ const importLib = (function () {
           d3.select('#import-loading-code-theme-table-container')
             .style('display', 'block');
 
-          importBackend.create_code_table_csv_from_dedoose(transcriptPath, dedooseExcerptsPath);
+          importBackend.get_codes_from_dedoose(transcriptPath, dedooseExcerptsPath);
 
           software = 'Dedoose';
           
@@ -188,12 +187,74 @@ const importLib = (function () {
           .property('disabled', noWordDelimiterCheckBoxValue);
       });
 
-    d3.select('#edit-code-theme-table-checkbox')
-      .on('click', () => {
-        editedCheckBoxValue = !editedCheckBoxValue;
-        d3.select('#import-edit-code-theme-table-next-button')
-          .property('disabled', !editedCheckBoxValue);
+    //codethemetable functionality
+    //https://stackoverflow.com/questions/61492659/how-can-i-drag-and-drop-cell-contents-within-a-table-with-dynamically-added-rows
+    $(function() {
+      initDragAndDrop();
+
+      // https://stackoverflow.com/questions/14964253/how-to-dynamically-add-a-new-column-to-an-html-table
+      $('#add-theme-button').on('click', function() {
+        setupThemeCodeColumnCount = setupThemeCodeColumnCount + 1;
+
+        [...$('#theme-code-table tr')].forEach((row, i) => {
+          let cell;
+          if (i === 0) {
+            cell = document.createElement('th');
+            cell.innerHTML = `<div contenteditable>Theme ${setupThemeCodeColumnCount}</div>`;
+          } else {
+            cell = document.createElement('td');
+          }
+
+          row.appendChild(cell);
+
+          if (setupThemeCodeColumnCount === 8) {
+            $('#add-theme-button').prop('disabled', true);
+          }
+
+          if (setupThemeCodeColumnCount === 3) {
+            $('#remove-theme-button').prop('disabled', false);
+          }
+        });
+
+        clearDragAndDrop();
+        initDragAndDrop();
       });
+
+      $('#remove-theme-button').on('click', function() {
+        setupThemeCodeColumnCount = setupThemeCodeColumnCount - 1;
+
+        $('#theme-code-table tr').find('th:last-child, td:last-child').remove();
+        
+        if (setupThemeCodeColumnCount === 7) {
+          $('#add-theme-button').prop('disabled', false);
+        }
+
+        if (setupThemeCodeColumnCount === 2) {
+          $('#remove-theme-button').prop('disabled', true);
+        }
+      });
+    });
+
+    const clearDragAndDrop = function () {
+      $('.code').off();
+      $('#theme-code-table td').off('dragenter dragover drop');
+    };
+
+    const initDragAndDrop = function () {
+      $('.code').on('dragstart', function(event) {
+        var dt = event.originalEvent.dataTransfer;
+        dt.setData('Text', $(this).attr('id'));
+      });
+      $('#theme-code-table td').on('dragenter dragover drop', function(event) {
+        event.preventDefault();
+        if (event.type === 'drop') {
+          var data = event.originalEvent.dataTransfer.getData('Text', $(this).attr('id'));
+          de = $('#' + data).detach();
+          de.appendTo($(this));
+        }
+      });
+    };
+    // ............................. //
 
     d3.select('#import-edit-code-theme-table-next-button')
       .on('click', () => {

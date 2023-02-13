@@ -47,80 +47,6 @@ const log = function (message) {
   logBackend.log(`[${dateTime.toLocaleString()} (${msTime})]: ${message}`);
 };
 
-
-//codethemetable functionality
-//https://stackoverflow.com/questions/61492659/how-can-i-drag-and-drop-cell-contents-within-a-table-with-dynamically-added-rows
-$(function() {
-  initDragAndDrop();
-
-  // https://stackoverflow.com/questions/14964253/how-to-dynamically-add-a-new-column-to-an-html-table
-  $('#add-theme-button').on('click', function() {
-    setupThemeCodeColumnCount = setupThemeCodeColumnCount + 1;
-
-    [...$('#theme-code-table tr')].forEach((row, i) => {
-      let cell;
-      if (i === 0) {
-        cell = document.createElement('th');
-        cell.innerHTML = `<div contenteditable>Theme ${setupThemeCodeColumnCount}</div>`;
-      } else {
-        cell = document.createElement('td');
-      }
-
-      row.appendChild(cell);
-
-      if (setupThemeCodeColumnCount === 8) {
-        $('#add-theme-button').prop('disabled', true);
-        console.log('themes => 8, disabling add-theme-button');
-      }
-
-      if (setupThemeCodeColumnCount === 3) {
-        $('#remove-theme-button').prop('disabled', false);
-        console.log('themes => 3, enabling remove-theme-button');
-      }
-    });
-
-    clearDragAndDrop();
-    initDragAndDrop();
-  });
-
-  $('#remove-theme-button').on('click', function() {
-    setupThemeCodeColumnCount = setupThemeCodeColumnCount - 1;
-
-    $('#theme-code-table tr').find('th:last-child, td:last-child').remove();
-    
-    if (setupThemeCodeColumnCount === 7) {
-      $('#add-theme-button').prop('disabled', false);
-      console.log('themes => 7, enabling add-theme-button');
-    }
-
-    if (setupThemeCodeColumnCount === 2) {
-      $('#remove-theme-button').prop('disabled', true);
-      console.log('themes => 2, disabling remove-theme-button');
-    }
-  });
-});
-
-const clearDragAndDrop = function () {
-  $('.code').off();
-  $('#theme-code-table td').off('dragenter dragover drop');
-};
-
-const initDragAndDrop = function () {
-  $('.code').on('dragstart', function(event) {
-    var dt = event.originalEvent.dataTransfer;
-    dt.setData('Text', $(this).attr('id'));
-  });
-  $('#theme-code-table td').on('dragenter dragover drop', function(event) {
-    event.preventDefault();
-    if (event.type === 'drop') {
-      var data = event.originalEvent.dataTransfer.getData('Text', $(this).attr('id'));
-      de = $('#' + data).detach();
-      de.appendTo($(this));
-    }
-  });
-};
-// ............................. //
-
 const onImportData = function (data) {
   switch (data[0]) {
     case 'transcript':
@@ -165,32 +91,37 @@ const onImportData = function (data) {
       break;
     case 'codeThemeTable':
       // code table
-      themeCodeTablePath = data[1];
-      if (themeCodeTablePath !== '') { 
-        // d3.select('#import-theme-code-table-button')
-        //   .text(/[^/]*$/.exec(themeCodeTablePath)[0]);
-        // d3.select('#import-theme-code-table-next-button')
-        //   .property('disabled', false);
-        d3.select('#import-loading-code-theme-table-container')
-          .style('display', 'none');
-        d3.select('#import-edit-code-theme-table-container')
-          .style('display', 'block');
-        d3.select('#import-edit-code-theme-table-path')
-          .text(`${themeCodeTablePath}`);
+      const codeList = data[1];
+      const pathToCodesCsv = data[2];
+      const softwareUsed = data[3];
 
-        d3.selectAll('.dynamic-stepper')
-          .text(function(d) {
-            if (data[2] === 'fromWord') {
-              return 'Enter delimiter';
-            } else if (data[2] === 'fromNVivo') {
-              return 'Select codes folder';
-            } else if (data[2] === 'fromMAXQDA') {
-              return 'Import coded segments';
-            } else if (data[2] === 'fromDedoose') {
-              return 'Import excerpts';
-            }
-          });
-      }
+      console.log(`codeList => ${codeList}`);
+      console.log(`pathToCodesCsv => ${pathToCodesCsv}`);
+      console.log(`softwareUsed => ${softwareUsed}`);
+
+      // d3.select('#import-theme-code-table-button')
+      //   .text(/[^/]*$/.exec(themeCodeTablePath)[0]);
+      // d3.select('#import-theme-code-table-next-button')
+      //   .property('disabled', false);
+      d3.select('#import-loading-code-theme-table-container')
+        .style('display', 'none');
+      d3.select('#import-edit-code-theme-table-container')
+        .style('display', 'block');
+      // d3.select('#import-edit-code-theme-table-path')
+      //   .text(`${themeCodeTablePath}`);
+
+      d3.selectAll('.dynamic-stepper')
+        .text(function(d) {
+          if (softwareUsed === 'Word') {
+            return 'Enter delimiter';
+          } else if (softwareUsed === 'NVivo') {
+            return 'Select codes folder';
+          } else if (softwareUsed === 'MAXQDA') {
+            return 'Import coded segments';
+          } else if (softwareUsed === 'Dedoose') {
+            return 'Import excerpts';
+          }
+        });
       break;
     default:
       // keywords

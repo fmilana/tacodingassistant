@@ -14,120 +14,96 @@ from preprocess import clean_sentence, remove_stop_words
 
 
 # WORD
-def create_codes_csv_from_word(doc_path, delimiter):
+def extract_codes_from_word(doc_path, delimiter):
+    print(f'extracting codes from {doc_path}...')
+    all_codes = []
+
+    with zipfile.ZipFile(doc_path, 'r') as archive:
+        comments_xml = archive.read('word/comments.xml')
+        comments_soup = BeautifulSoup(comments_xml, 'xml')
+
+        for comment in comments_soup.find_all('w:comment'):
+            codes = comment.find_all('w:t')
+            codes = ''.join([x.text for x in codes])
+            codes = codes.strip().rstrip().lower()
+
+            if delimiter != '' and delimiter in codes:
+                for code in codes.split(delimiter):
+                    code = code.strip()
+                    if len(code) > 0:
+                        all_codes.append(code)
+            else:
+                if len(codes) > 0:
+                    all_codes.append(codes)
+    
     theme_code_table_path = os.path.join(Path(doc_path).parent.absolute(), doc_path.replace('.docx', '_codes.csv'))
 
-    if not os.path.isfile(theme_code_table_path):
-        print(f'extracting codes from {doc_path}...')
-        all_codes = []
+    all_codes = set(all_codes)
 
-        with zipfile.ZipFile(doc_path, 'r') as archive:
-            comments_xml = archive.read('word/comments.xml')
-            comments_soup = BeautifulSoup(comments_xml, 'xml')
-
-            for comment in comments_soup.find_all('w:comment'):
-                codes = comment.find_all('w:t')
-                codes = ''.join([x.text for x in codes])
-                codes = codes.strip().rstrip().lower()
-
-                if delimiter != '' and delimiter in codes:
-                    for code in codes.split(delimiter):
-                        code = code.strip()
-                        if len(code) > 0:
-                            all_codes.append(code)
-                else:
-                    if len(codes) > 0:
-                        all_codes.append(codes)
-
-        codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(all_codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
-        codes_df.to_csv(theme_code_table_path, index=False, encoding='utf-8-sig', errors='replace')
-
-        print(f'{doc_path.replace(".docx", "_codes.csv")} created in {Path(doc_path).parent.absolute()}')
-    else:
-        print(f'code table already exists in {theme_code_table_path}')
-
-    return theme_code_table_path
+    return all_codes, theme_code_table_path
 
 
 # NVIVO
-def create_codes_csv_from_nvivo(doc_path, codes_folder_path):
+def extract_codes_from_nvivo(doc_path, codes_folder_path):
+    print(f'extracting codes from {codes_folder_path}...')
+    codes = []
+
+    for entry in os.scandir(codes_folder_path):
+        if entry.path.endswith('.docx'):
+            code = entry.name[:-5].lower()
+            codes.append(code)
+
     theme_code_table_path = os.path.join(codes_folder_path, doc_path.replace('.docx', '_codes.csv'))
 
-    if not os.path.isfile(theme_code_table_path):
-        print(f'extracting codes from {codes_folder_path}...')
-        codes = []
+    codes = set(codes)
 
-        for entry in os.scandir(codes_folder_path):
-            if entry.path.endswith('.docx'):
-                code = entry.name[:-5].lower()
-                codes.append(code)
-
-        codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
-        codes_df.to_csv(theme_code_table_path, index=False, encoding='utf-8-sig', errors='replace')
-
-        print(f'{doc_path.replace(".docx", "_codes.csv")} created in {codes_folder_path}')
-    else:
-        print(f'code table already exists in {theme_code_table_path}')
-
-    return theme_code_table_path
+    return codes, theme_code_table_path
 
 
 # MAXQDA
-def create_codes_csv_from_maxqda(doc_path, retrieved_codes_doc):
-    theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
+def extract_codes_from_maxqda(doc_path, retrieved_codes_doc):
+    print(f'extracting codes from {retrieved_codes_doc}...')
+    all_codes = []
 
-    if not os.path.isfile(theme_code_table_path):
-        print(f'extracting codes from {retrieved_codes_doc}...')
-        all_codes = []
-
-        for paragraph in docx.Document(retrieved_codes_doc).paragraphs:
-            code_search = re.search(r'(?<=Code: ● ).*', paragraph.text)
-            if code_search:
-                code_line = re.sub(r'(Weight score: \d+)$', '', code_search.group(0)).strip()
-                if '>' in code_line:
-                    code_line = re.search(r'>(.*)', code_line).group(1).strip()
+    for paragraph in docx.Document(retrieved_codes_doc).paragraphs:
+        code_search = re.search(r'(?<=Code: ● ).*', paragraph.text)
+        if code_search:
+            code_line = re.sub(r'(Weight score: \d+)$', '', code_search.group(0)).strip()
+            if '>' in code_line:
+                code_line = re.search(r'>(.*)', code_line).group(1).strip()
                 all_codes.append(code_line)
 
-        codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(all_codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
-        codes_df.to_csv(theme_code_table_path, index=False, encoding='utf-8-sig', errors='replace')
+    theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
-        print(f'{doc_path.replace(".docx", "_codes.csv")} created in {Path(doc_path).parent.absolute()}')
-    else:
-        print(f'code table already exists in {theme_code_table_path}')
+    all_codes = set(all_codes)
 
-    return theme_code_table_path
+    return all_codes, theme_code_table_path
     
 
 # DEDOOSE
-def create_codes_csv_from_dedoose(doc_path, excerpts_txt_path):
+def extract_codes_from_dedoose(doc_path, excerpts_txt_path):
+    print(f'extracting codes from {excerpts_txt_path}...')
+    all_codes = []
+
+    with open(excerpts_txt_path, errors='ignore', encoding='utf-8') as f:
+        for line in f.readlines():
+            codes_search = re.search(r'Codes Applied:\s(.*)\(\d+ of \d+-\d+\)', line)
+            if codes_search:
+                codes = codes_search.group(0)
+                codes = re.sub(r'^Codes Applied:\s+', '', codes)
+                codes = re.sub(r'\t', ' ', codes)
+                codes = re.split(r'\(\d+ of \d+-\d+\)\s+', codes)
+                for code in codes:
+                    if len(code) > 0:
+                        code = re.sub(r'\([^)]+\)$', '', code)
+                        all_codes.append(code)
+        f.close()
+
     theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
-    if not os.path.isfile(theme_code_table_path):
-        print(f'extracting codes from {excerpts_txt_path}...')
-        all_codes = []
+    all_codes = set(all_codes)
 
-        with open(excerpts_txt_path, errors='ignore', encoding='utf-8') as f:
-            for line in f.readlines():
-                codes_search = re.search(r'Codes Applied:\s(.*)\(\d+ of \d+-\d+\)', line)
-                if codes_search:
-                    codes = codes_search.group(0)
-                    codes = re.sub(r'^Codes Applied:\s+', '', codes)
-                    codes = re.sub(r'\t', ' ', codes)
-                    codes = re.split(r'\(\d+ of \d+-\d+\)\s+', codes)
-                    for code in codes:
-                        if len(code) > 0:
-                            code = re.sub(r'\([^)]+\)$', '', code)
-                            all_codes.append(code)
-            f.close()
-        
-        codes_df = pd.DataFrame({'Theme 1 (replace this)': sorted(list(set(all_codes))), 'Theme 2 (replace this)': np.nan, 'Theme 3 (replace this)': np.nan, '...': np.nan})
-        codes_df.to_csv(theme_code_table_path, index=False, encoding='utf-8-sig', errors='replace')
-
-        print(f'{doc_path.replace(".docx", "_codes.csv")} created in {Path(doc_path).parent.absolute()}')
-    else:
-        print(f'code table already exists in {theme_code_table_path}')
-
-    return theme_code_table_path
+    return all_codes, theme_code_table_path 
 
 
 # WORD
@@ -167,7 +143,7 @@ def transverse(start, end, text):
 
 # WORD
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_table_path, regexp):
+def extract_all_from_word(sentence2vec_model, doc_path, delimiter, theme_code_table_path, regexp):
 
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
@@ -260,7 +236,7 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
 
 # NVIVO
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, theme_code_table_path, regexp):
+def extract_all_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, theme_code_table_path, regexp):
     print(f'extracting codes from {codes_folder_path}...')
     start = datetime.now()
 
@@ -367,7 +343,7 @@ def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, the
 
 # MAXQDA
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_table_path, regexp):
+def extract_all_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_table_path, regexp):
     print(f'extracting sentences...')
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
@@ -476,7 +452,7 @@ def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, 
 
 # DEDOOSE
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_dedoose(sentence2vec_model, doc_path, excerpts_txt_path, theme_code_table_path, regexp):
+def extract_all_from_dedoose(sentence2vec_model, doc_path, excerpts_txt_path, theme_code_table_path, regexp):
     print(f'extracting sentences...')
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)

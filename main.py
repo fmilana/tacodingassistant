@@ -18,7 +18,7 @@ from PySide2.QtWebChannel import QWebChannel
 from PySide2.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from PySide2.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QGridLayout
 from PySide2.QtGui import QScreen
-from import_codes import create_codes_csv_from_word, create_codes_csv_from_nvivo, create_codes_csv_from_maxqda, create_codes_csv_from_dedoose
+from import_codes import extract_codes_from_word, extract_codes_from_nvivo, extract_codes_from_maxqda, extract_codes_from_dedoose
 from classify_docx import ClassifyDocx
 from analyse_train_and_predict import analyse
 from path_util import resource_path
@@ -900,28 +900,29 @@ class ImportBackend(QObject):
         self.signal.emit(['DedooseExcerpts', path_to_file])
 
     @Slot(str, str)
-    def create_code_table_csv_from_word(self, transcript_path, delimiter):
-        path_to_file = create_codes_csv_from_word(transcript_path, delimiter)
-        path_to_file = path_to_file.replace('\\', '/')
-        self.signal.emit(['codeThemeTable', path_to_file, 'fromWord'])
+    def get_codes_from_word(self, transcript_path, delimiter):
+        codes, path_to_codes_csv = extract_codes_from_word(transcript_path, delimiter)
+        path_to_codes_csv = path_to_codes_csv.replace('\\', '/')
+        print(codes)
+        self.signal.emit(['codeThemeTable', codes, path_to_codes_csv, 'Word'])
 
     @Slot(str, str)
-    def create_code_table_csv_from_nvivo(self, transcript_path, codes_folder_path):
-        path_to_file = create_codes_csv_from_nvivo(transcript_path, codes_folder_path)
-        path_to_file = path_to_file.replace('\\', '/')
-        self.signal.emit(['codeThemeTable', path_to_file, 'fromNVivo'])
+    def get_codes_from_nvivo(self, transcript_path, codes_folder_path):
+        codes, path_to_codes_csv = extract_codes_from_nvivo(transcript_path, codes_folder_path)
+        path_to_codes_csv = path_to_codes_csv.replace('\\', '/')
+        self.signal.emit(['codeThemeTable', codes, path_to_codes_csv, 'NVivo'])
 
     @Slot(str, str)
-    def create_code_table_csv_from_maxqda(self, transcript_path, maxqda_document_path):
-        path_to_file = create_codes_csv_from_maxqda(transcript_path, maxqda_document_path)
-        path_to_file = path_to_file.replace('\\', '/')
-        self.signal.emit(['codeThemeTable', path_to_file, 'fromMAXQDA'])
+    def get_codes_from_maxqda(self, transcript_path, maxqda_document_path):
+        codes, path_to_codes_csv = extract_codes_from_maxqda(transcript_path, maxqda_document_path)
+        path_to_codes_csv = path_to_codes_csv.replace('\\', '/')
+        self.signal.emit(['codeThemeTable', codes, path_to_codes_csv, 'MAXQDA'])
 
     @Slot(str, str)
-    def create_code_table_csv_from_dedoose(self, transcript_path, dedoose_excerpts_path):
-        path_to_file = create_codes_csv_from_dedoose(transcript_path, dedoose_excerpts_path)
-        path_to_file = path_to_file.replace('\\', '/')
-        self.signal.emit(['codeThemeTable', path_to_file, 'fromDedoose'])
+    def get_codes_from_dedoose(self, transcript_path, dedoose_excerpts_path):
+        codes, path_to_codes_csv = extract_codes_from_dedoose(transcript_path, dedoose_excerpts_path)
+        path_to_codes_csv = path_to_codes_csv.replace('\\', '/')
+        self.signal.emit(['codeThemeTable', codes, path_to_codes_csv, 'Dedoose'])
 
     # @Slot()
     # def open_theme_code_table_chooser(self):

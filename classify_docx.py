@@ -18,7 +18,7 @@ from collections import Counter
 from sklearn.multioutput import ClassifierChain
 from path_util import resource_path
 from xgboost import XGBClassifier
-from import_codes import import_codes_from_word, import_codes_from_nvivo, import_codes_from_maxqda, import_codes_from_dedoose
+from import_codes import extract_all_from_word, extract_all_from_nvivo, extract_all_from_maxqda, extract_all_from_dedoose
 
 
 class ClassifyDocx:
@@ -473,16 +473,16 @@ class ClassifyDocx:
         if self.themes is None:
             # if from Word
             if self.software_used == 'Word':
-                self.themes = import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
+                self.themes = extract_all_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
             # if from NVivo
             elif self.software_used == 'NVivo':
-                self.themes = import_codes_from_nvivo(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path, self.regexp)
+                self.themes = extract_all_from_nvivo(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path, self.regexp)
             # if from MAXQDA
             elif self.software_used == 'MAXQDA':
-                self.themes = import_codes_from_maxqda(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
+                self.themes = extract_all_from_maxqda(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
             # if from Dedoose
             elif self.software_used == 'Dedoose':
-                self.themes = import_codes_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path, self.regexp)            
+                self.themes = extract_all_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path, self.regexp)            
 
         if modified_train_file_path is not None:
             self.train_file_path = modified_train_file_path
