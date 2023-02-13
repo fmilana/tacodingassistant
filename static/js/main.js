@@ -38,6 +38,8 @@ let MAXQDASegmentsPath = null;
 let dedooseExcerptsPath = null;
 let themeCodeTablePath = null;
 
+let setupThemeCodeColumnCount = 4;
+
 
 const log = function (message) {
   const msTime = new Date().getTime();
@@ -53,16 +55,28 @@ $(function() {
 
   // https://stackoverflow.com/questions/14964253/how-to-dynamically-add-a-new-column-to-an-html-table
   $('#add-theme-button').on('click', function() {
+    setupThemeCodeColumnCount = setupThemeCodeColumnCount + 1;
+
     [...$('#theme-code-table tr')].forEach((row, i) => {
       let cell;
       if (i === 0) {
         cell = document.createElement('th');
-        const columnCount = document.getElementById('theme-code-table').rows[0].cells.length;
-        cell.innerHTML = `<div contenteditable>Theme ${columnCount+1}</div>`;
+        cell.innerHTML = `<div contenteditable>Theme ${setupThemeCodeColumnCount}</div>`;
       } else {
         cell = document.createElement('td');
       }
+
       row.appendChild(cell);
+
+      if (setupThemeCodeColumnCount === 8) {
+        $('#add-theme-button').prop('disabled', true);
+        console.log('themes => 8, disabling add-theme-button');
+      }
+
+      if (setupThemeCodeColumnCount === 3) {
+        $('#remove-theme-button').prop('disabled', false);
+        console.log('themes => 3, enabling remove-theme-button');
+      }
     });
 
     clearDragAndDrop();
@@ -70,7 +84,19 @@ $(function() {
   });
 
   $('#remove-theme-button').on('click', function() {
+    setupThemeCodeColumnCount = setupThemeCodeColumnCount - 1;
+
     $('#theme-code-table tr').find('th:last-child, td:last-child').remove();
+    
+    if (setupThemeCodeColumnCount === 7) {
+      $('#add-theme-button').prop('disabled', false);
+      console.log('themes => 7, enabling add-theme-button');
+    }
+
+    if (setupThemeCodeColumnCount === 2) {
+      $('#remove-theme-button').prop('disabled', true);
+      console.log('themes => 2, disabling remove-theme-button');
+    }
   });
 });
 
