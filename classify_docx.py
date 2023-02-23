@@ -1,7 +1,6 @@
 import csv
 import re
 import os
-import time
 import pickle
 import pandas as pd
 import numpy as np
