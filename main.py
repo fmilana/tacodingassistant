@@ -903,7 +903,6 @@ class ImportBackend(QObject):
     def get_codes_from_word(self, transcript_path, delimiter):
         codes, path_to_codes_csv = extract_codes_from_word(transcript_path, delimiter)
         path_to_codes_csv = path_to_codes_csv.replace('\\', '/')
-        print(codes)
         self.signal.emit(['codeThemeTable', codes, path_to_codes_csv, 'Word'])
 
     @Slot(str, str)

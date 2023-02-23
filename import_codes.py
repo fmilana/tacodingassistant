@@ -38,7 +38,7 @@ def extract_codes_from_word(doc_path, delimiter):
     
     theme_code_table_path = os.path.join(Path(doc_path).parent.absolute(), doc_path.replace('.docx', '_codes.csv'))
 
-    all_codes = set(all_codes)
+    all_codes = list(set(all_codes))
 
     return all_codes, theme_code_table_path
 
@@ -55,7 +55,7 @@ def extract_codes_from_nvivo(doc_path, codes_folder_path):
 
     theme_code_table_path = os.path.join(codes_folder_path, doc_path.replace('.docx', '_codes.csv'))
 
-    codes = set(codes)
+    codes = list(set(codes))
 
     return codes, theme_code_table_path
 
@@ -75,7 +75,7 @@ def extract_codes_from_maxqda(doc_path, retrieved_codes_doc):
 
     theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
-    all_codes = set(all_codes)
+    all_codes = list(set(all_codes))
 
     return all_codes, theme_code_table_path
     
@@ -101,7 +101,7 @@ def extract_codes_from_dedoose(doc_path, excerpts_txt_path):
 
     theme_code_table_path = doc_path.replace('.docx', '_codes.csv')
 
-    all_codes = set(all_codes)
+    all_codes = list(set(all_codes))
 
     return all_codes, theme_code_table_path 
 
