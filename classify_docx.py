@@ -1,6 +1,7 @@
 import csv
 import re
 import os
+import time
 import pickle
 import pandas as pd
 import numpy as np
@@ -10,13 +11,13 @@ import pandas as pd
 from datetime import datetime
 from nltk import sent_tokenize, word_tokenize, download, data
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import jaccard_score, f1_score
 from path_util import resource_path
 from sentence2vec import Sentence2Vec
 from preprocess import clean_sentence, remove_stop_words
 from augment import get_minority_samples, MLSMOTE
 from collections import Counter
 from sklearn.multioutput import ClassifierChain
-from path_util import resource_path
 from xgboost import XGBClassifier
 from import_codes import import_codes_from_word, import_codes_from_nvivo, import_codes_from_maxqda, import_codes_from_dedoose
 
@@ -86,6 +87,13 @@ class ClassifyDocx:
             sample_weights.append(sample_weight)
 
         return np.asarray(sample_weights) """
+    
+
+    def log_scores(self, weighted_f1_score, weighted_jaccard_score):
+        with open(resource_path('logs/app.log'), 'a+', encoding='utf-8') as f:
+            line = f'=====================================> MODEL SCORES: weighted f1 = {weighted_f1_score} weighted jaccard = {weighted_jaccard_score}\n'
+            f.write(line)
+            f.close()
 
     
     def generate_training_and_testing_data(self, oversample):
@@ -363,14 +371,11 @@ class ClassifyDocx:
         print(f'generating confusion matrices...')
         start_cm = datetime.now()
 
-        scores = []
-
         Y_test_pred = np.rint(np.array([chain.predict(X_test) for chain in chains]).mean(axis=0))
 
-        for col in range(Y_test_pred.shape[1]):
-            equals = np.equal(Y_test_pred[:, col], Y_test[:, col])
-            score = np.sum(equals)/equals.size
-            scores.append(score)
+        # these scores are then logged in app.log
+        weighted_f1_score = f1_score(Y_test, Y_test_pred >=0.5, average='weighted')
+        weighted_jaccard_score = jaccard_score(Y_test, Y_test_pred >=0.5, average='weighted')
 
         print(f'np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
 
@@ -411,51 +416,11 @@ class ClassifyDocx:
 
         self.write_cms_to_csv(sentences_dict, themes_list)
 
-        ##### evaluate accuracy and f-measure per class ######
-
-        accuracies = []
-        f_measures = []
-
-        for col in range(Y_test_pred.shape[1]):
-            tp = 0
-            fp = 0
-            fn = 0
-            tn = 0
-
-            for row in range(Y_test_pred.shape[0]):
-                if Y_test_pred[row][col] == 1 and Y_test[row][col] == 1:
-                    tp += 1
-                elif Y_test_pred[row][col] == 1 and Y_test[row][col] == 0:
-                    fp += 1
-                elif Y_test_pred[row][col] == 0 and Y_test[row][col] == 1:
-                    fn += 1
-                elif Y_test_pred[row][col] == 0 and Y_test[row][col] == 0:
-                    tn += 1
-
-            if (tp + fp) > 0:
-                precision = tp / (tp + fp)
-            else:
-                precision = 0
-
-            if (tp + fn) > 0:
-                recall = tp / (tp + fn)
-            else:
-                recall = 0
-
-            if (precision + recall) > 0:
-                f_measure = (2 * precision * recall) / (precision + recall)
-            else:
-                f_measure = 0
-
-            accuracies.append((tp + tn)/(tp + tn + fp + fn))
-            f_measures.append(f_measure)
-
         print(f'confusion matrices created in {datetime.now() - start_cm}')
 
         print(f'classify function run in {datetime.now() - start_function}')
 
-        return (scores, true_positives, true_negatives, false_positives,
-            false_negatives, accuracies, f_measures)
+        return weighted_f1_score, weighted_jaccard_score
 
 
     def get_text(self, file_path):
@@ -604,11 +569,12 @@ class ClassifyDocx:
 
         chains = [ClassifierChain(clf, order='random', random_state=i) for i in range(number_of_chains)]
 
-        _, _, _, _, _, accuracies, f_measures = self.classify(sentence_embedding_matrix, chains)
+        weighted_f1_score, weighted_jaccard_score = self.classify(sentence_embedding_matrix, chains)
 
-        print(f'accuracy per class = {accuracies}')
-        print(f'f_measure per class = {f_measures}')
+        print(f'weighted f1 score = {weighted_f1_score}')
+        print(f'weighted jaccard score = {weighted_jaccard_score}')
 
+        self.log_scores(weighted_f1_score, weighted_jaccard_score)
 
         print(f'script finished in {datetime.now() - start_script}')
 
