@@ -203,7 +203,14 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
             range_start = doc_soup.find('w:commentrangestart', attrs={'w:id': comment_id})
             range_end = doc_soup.find('w:commentrangeend', attrs={'w:id': comment_id})
 
-            # transverse that range in doc_soup to extract the text that has been commented
+            # If this is true, commentRangeStart is placed
+            # just OUTSIDE <w:p>, while commentRangeEnd is INSIDE <w:p>.
+            # We change range_start to <w:p>'s first child
+            # so the transverse function can find commentRangeEnd
+            if range_start.find_next_siblings('w:p'):
+                children = range_start.find_next_sibling().children
+                range_start = next(children)
+
             text = transverse(range_start, range_end, '')
             text = text.replace('"', "'")
             text = text.replace("’", "'")
