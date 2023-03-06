@@ -96,19 +96,25 @@ const onImportData = function (data) {
       const softwareUsed = data[3];
 
       console.log(`codeList => ${codeList}`);
-      console.log(`pathToCodesCsv => ${pathToCodesCsv}`);
-      console.log(`softwareUsed => ${softwareUsed}`);
+      // console.log(`pathToCodesCsv => ${pathToCodesCsv}`);
+      // console.log(`softwareUsed => ${softwareUsed}`);
 
-      // d3.select('#import-theme-code-table-button')
-      //   .text(/[^/]*$/.exec(themeCodeTablePath)[0]);
-      // d3.select('#import-theme-code-table-next-button')
-      //   .property('disabled', false);
       d3.select('#import-loading-code-theme-table-container')
         .style('display', 'none');
       d3.select('#import-edit-code-theme-table-container')
         .style('display', 'block');
-      // d3.select('#import-edit-code-theme-table-path')
-      //   .text(`${themeCodeTablePath}`);
+
+      for (let i = 0; i < codeList.length; i++) {
+        var row = d3.select('tbody').append('tr');
+        row.append('td')
+          .html(`<span id="code-${i}" class="code" draggable="true">${codeList[i]}</span>`);
+        row.append('td')
+          .html('');
+        row.append('td')
+          .html('');
+        row.append('td')
+          .html('');
+      }
 
       d3.selectAll('.dynamic-stepper')
         .text(function(d) {

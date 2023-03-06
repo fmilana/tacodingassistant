@@ -200,14 +200,23 @@ input[type=radio] {
   font-size: 18px;
 }
 
-#import-edit-code-theme-table-path {
+/* #import-edit-code-theme-table-path {
   font-weight: bold;
-}
+} */
 
 /* themecodetable */
 #theme-code-table {
-  border: 1px solid;
   border-collapse: collapse;
+}
+
+#theme-code-table tbody {
+  display: block;
+  overflow: auto;
+  height: 250px;
+}
+
+#theme-code-table thead tr {
+  display: block;
 }
 
 #theme-code-table th, #theme-code-table td {
