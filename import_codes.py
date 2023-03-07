@@ -215,6 +215,8 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
             # the text that has been commented
             text = transverse(range_start, range_end, '')
             text = text.replace('"', "'")
+            text = text.replace("“", "'")
+            text = text.replace("”", "'")
             text = text.replace("’", "'")
             text = text.replace("´", "'")
             text = text.replace("…", "...")

@@ -461,7 +461,7 @@ class ClassifyDocx:
 
         self.train_df = pd.read_csv(self.train_file_path, encoding='utf-8-sig', encoding_errors='replace')
 
-        text = self.get_text(self.doc_path).replace("’", "'")
+        text = self.get_text(self.doc_path).replace("’", "'").replace("“", "'").replace("”", "'")
 
         print('writing sentences to predict csv...')
         start_writing = datetime.now()

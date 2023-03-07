@@ -55,6 +55,17 @@ const textLib = (function () {
 
 
   const highlightSentences = function (text, trainData, predictData) {
+    // filter special text characters
+    // TO-DO: check why you do the same in python too
+    text = text
+      .replace(/"/g, "'")
+      .replace(/“/g, "'")
+      .replace(/”/g, "'")
+      .replace(/’/g, "'")
+      .replace(/´/g, "'")
+      .replace(/…/g, "...")
+      .replace(/\\/g, "\\\\");
+
     const mapObj = {};
 
     for (let i = 0; i < trainData.length; i++) {
