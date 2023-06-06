@@ -410,9 +410,9 @@ def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, 
         else:
             for run in paragraph.runs:
                 if next_is_code:
-                    code = run.text.lower()
+                    code = run.text.lower().strip()
                     if '>' in code:
-                        code = re.search(r'>(.*)', code).group(1).strip()
+                        code = re.search(r'>(.*)', code).group(1)
                     find_code = (cat_df.values == code).any(axis=0)
                     try:
                         current_theme = cat_df.columns[np.where(find_code==True)[0]].item()
