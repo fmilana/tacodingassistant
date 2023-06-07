@@ -1,22 +1,47 @@
 #!/bin/bash
-
+# configure the Bash shell environment for Conda
 eval "$(command conda 'shell.bash' 'hook' 2> /dev/null)"
-zenity --warning --text="Make sure to remove the studies folder, documents content, and clear app.log and sys.log."
+# activate the conda environment
 conda activate tacaenv
+# navigate to the directory
 cd documents/tacodingassistant
+# move documents and studies directories to a temp directory to exclude them from bundling
+mkdir -p ~/Desktop/pyinstaller_temp
+mv -f data/documents ~/Desktop/pyinstaller_temp/
+mv -f data/studies ~/Desktop/pyinstaller_temp/
+# recreate documents directory structure
+mkdir -p ~/data/documents/confusion_tables
+# clear log files
 : > logs/app.log
 : > logs/sys.log
+# bundle the Python application using PyInstaller with specified options
+echo "Bundling the application..."
 echo "Y Y" | pyinstaller -n "TACA" main.py --windowed --collect-all "xgboost" --add-data "data:data/" --add-data "logs:logs/" --add-data "templates:templates/" --add-data "static:static/" --hidden-import "sklearn.utils._typedefs" --hidden-import "sklearn.neighbors._typedefs" --hidden-import "sklearn.utils._heap" --hidden-import "sklearn.utils._sorting" --hidden-import "sklearn.utils._vector_sentinel" --hidden-import "sklearn.neighbors._partition_nodes" --codesign-identity "Developer ID Application: University College London (8UMT23UD55)" --osx-entitlements-file "pkg/entitlements.plist"
+# fix folder names related to Qt frameworks for codesigning
 python pkg/fix_app_qt_folder_names_for_codesign.py dist/TACA.app
-./pkg/codesign # run codesign script to sign all dylibs left unsigned
+# run a custom script to sign all dylibs left unsigned
+./pkg/codesign
+# codesign the application
+echo "Codesigning the application..."
 codesign --verbose=4 --deep --force --options runtime -s "Developer ID Application: University College London (8UMT23UD55)" --entitlements pkg/entitlements.plist dist/TACA.app
+# create a dmg of the application
+echo "Creating a disk image (dmg)..."
 hdiutil create -volname MyApp -srcfolder dist/TACA.app -ov -format UDBZ dist/TACA.dmg
-echo "Codesigning dmg..."
+# codesign the dmg file
+echo "Codesigning the dmg..."
 codesign --verbose=4 --force -s "Developer ID Application: University College London (8UMT23UD55)" --options runtime dist/TACA.dmg
-echo "Uploading dmg..."
+# upload the dmg file for notarization
+echo "Uploading the dmg for notarization..."
 xcrun altool --notarize-app -t osx -f dist/TACA.dmg --primary-bundle-id com.fmilana.tacodingassistant -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD
-# use when altool is deprecated: xcrun notarytool submit dist/TACA.dmg --keychain-profile "TACA_NOTARY"
+# use this when altool is deprecated: xcrun notarytool submit dist/TACA.dmg --keychain-profile "TACA_NOTARY"
+# move the documents and studies directory from the temp folder back to data
+mv -f ~/Desktop/pyinstaller_temp/documents data/
+mv -f ~/Desktop/pyinstaller_temp/studies data/
+rm -r ~/Desktop/pyinstaller_temp
+# wait for notarization to complete
 echo "Notarization in progress. Stapling app in 15 minutes..."
 sleep 900
+# staple the app to the notarization ticket
 xcrun stapler staple dist/TACA.app
+# all tasks completed
 echo "All done!"
