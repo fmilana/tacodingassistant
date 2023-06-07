@@ -1,3 +1,5 @@
+***********REMOVE STUDIES FOLDER AND DOCUMENTS FOLDER CONTENT BEFORE RUNNING SCRIPT***********
+
 pyinstaller:
 
 
@@ -87,7 +89,7 @@ xcrun altool --notarization-info <RequestUUID> -u federico.milana.18@ucl.ac.uk -
 
 
 
-
+***********REMOVE STUDIES FOLDER AND DOCUMENTS FOLDER CONTENT BEFORE RUNNING SCRIPT***********
 
 
 
@@ -139,3 +141,7 @@ other pxds:
 -taca.app/Contents/Resources/sklearn/utils/_cython_blas.pxd
 -taca.app/Contents/Resources/sklearn/utils/_fast_dict.pxd
 -taca.app/Contents/Resources/sklearn/neighbors/_quad_tree.pxd
+
+
+
+***********REMOVE STUDIES FOLDER AND DOCUMENTS FOLDER CONTENT BEFORE RUNNING SCRIPT***********

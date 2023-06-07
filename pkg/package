@@ -1,6 +1,7 @@
 #!/bin/bash
 
 eval "$(command conda 'shell.bash' 'hook' 2> /dev/null)"
+zenity --warning --text="Make sure to remove the studies folder, documents content, and clear app.log and sys.log."
 conda activate tacaenv
 cd documents/tacodingassistant
 : > logs/app.log
