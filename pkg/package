@@ -39,7 +39,7 @@ mv -f ~/Desktop/pyinstaller_temp/documents data/
 mv -f ~/Desktop/pyinstaller_temp/studies data/
 rm -r ~/Desktop/pyinstaller_temp
 # wait for notarization to complete
-echo "Notarization in progress. Stapling app in 15 minutes..."
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Notarization in progress. Stapling app in 15 minutes..."
 sleep 900
 # staple the app to the notarization ticket
 xcrun stapler staple dist/TACA.app
