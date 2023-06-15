@@ -6,42 +6,44 @@ conda activate tacaenv
 # navigate to the directory
 cd documents/tacodingassistant
 # move documents and studies directories to a temp directory to exclude them from bundling
-mkdir -p ~/Desktop/pyinstaller_temp
-mv -f data/documents ~/Desktop/pyinstaller_temp/
-mv -f data/studies ~/Desktop/pyinstaller_temp/
+echo ">> Moving documents and studies folders to a temp folder in pkg..."
+mkdir -p pkg/pyinstaller_temp
+mv -f data/documents pkg/pyinstaller_temp/
+mv -f data/studies pkg/pyinstaller_temp/
 # recreate documents directory structure
 mkdir -p ~/data/documents/confusion_tables
 # clear log files
+echo ">> Clearing app.log and sys.log..."
 : > logs/app.log
 : > logs/sys.log
 # bundle the Python application using PyInstaller with specified options
-echo "Bundling the application..."
-echo "Y Y" | pyinstaller -n "TACA" main.py --windowed --collect-all "xgboost" --add-data "data:data/" --add-data "logs:logs/" --add-data "templates:templates/" --add-data "static:static/" --hidden-import "sklearn.utils._typedefs" --hidden-import "sklearn.neighbors._typedefs" --hidden-import "sklearn.utils._heap" --hidden-import "sklearn.utils._sorting" --hidden-import "sklearn.utils._vector_sentinel" --hidden-import "sklearn.neighbors._partition_nodes" --codesign-identity "Developer ID Application: University College London (8UMT23UD55)" --osx-entitlements-file "pkg/entitlements.plist"
+echo ">> Bundling the application..."
+echo ">> Y Y" | pyinstaller -n "TACA" main.py --windowed --collect-all "xgboost" --add-data "data:data/" --add-data "logs:logs/" --add-data "templates:templates/" --add-data "static:static/" --hidden-import "sklearn.utils._typedefs" --hidden-import "sklearn.neighbors._typedefs" --hidden-import "sklearn.utils._heap" --hidden-import "sklearn.utils._sorting" --hidden-import "sklearn.utils._vector_sentinel" --hidden-import "sklearn.neighbors._partition_nodes" --codesign-identity "Developer ID Application: University College London (8UMT23UD55)" --osx-entitlements-file "pkg/entitlements.plist"
+# move the documents and studies directory from the temp folder back to data
+echo ">> Moving documents and studies folders back to data..."
+mv -f pkg/pyinstaller_temp/documents data/
+mv -f pkg/pyinstaller_temp/studies data/
+rm -r pkg/pyinstaller_temp
 # fix folder names related to Qt frameworks for codesigning
+echo ">> Fixing qt folder names in the app for codesigning..."
 python pkg/fix_app_qt_folder_names_for_codesign.py dist/TACA.app
 # run a custom script to sign all dylibs left unsigned
+echo ">> Signing all dylib files left unsigned..."
 ./pkg/codesign
-# codesign the application
-echo "Codesigning the application..."
+# codesign the app file
+echo ">> Codesigning the application..."
 codesign --verbose=4 --deep --force --options runtime -s "Developer ID Application: University College London (8UMT23UD55)" --entitlements pkg/entitlements.plist dist/TACA.app
 # create a dmg of the application
-echo "Creating a disk image (dmg)..."
+echo ">> Creating a disk image (dmg)..."
 hdiutil create -volname MyApp -srcfolder dist/TACA.app -ov -format UDBZ dist/TACA.dmg
 # codesign the dmg file
-echo "Codesigning the dmg..."
+echo ">> Codesigning the dmg..."
 codesign --verbose=4 --force -s "Developer ID Application: University College London (8UMT23UD55)" --options runtime dist/TACA.dmg
 # upload the dmg file for notarization
-echo "Uploading the dmg for notarization..."
-xcrun altool --notarize-app -t osx -f dist/TACA.dmg --primary-bundle-id com.fmilana.tacodingassistant -u federico.milana.18@ucl.ac.uk -p @keychain:TACA_PASSWORD
-# use this when altool is deprecated: xcrun notarytool submit dist/TACA.dmg --keychain-profile "TACA_NOTARY"
-# move the documents and studies directory from the temp folder back to data
-mv -f ~/Desktop/pyinstaller_temp/documents data/
-mv -f ~/Desktop/pyinstaller_temp/studies data/
-rm -r ~/Desktop/pyinstaller_temp
-# wait for notarization to complete
-echo "$(date '+%Y-%m-%d %H:%M:%S') - Notarization in progress. Stapling app in 15 minutes..."
-sleep 900
-# staple the app to the notarization ticket
+echo ">> Uploading and notarizing the dmg..."
+xcrun notarytool submit dist/TACA.dmg --keychain-profile "TACA_NOTARY" --wait
+# staple the notarization ticket to the app
+echo ">> Stapling the notarization ticket to the app..."
 xcrun stapler staple dist/TACA.app
 # all tasks completed
-echo "All done!"
+echo ">> All done!"
