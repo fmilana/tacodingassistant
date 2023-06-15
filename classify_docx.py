@@ -140,10 +140,9 @@ class ClassifyDocx:
 
 
     def add_classification_to_csv(self, prediction_output, prediction_proba):
-        print(np.shape(prediction_output))
+        print(f'np.shape(prediction_output) = {np.shape(prediction_output)}')
         if isinstance(prediction_output, scipy.sparse.spmatrix):
-            out_df = pd.DataFrame.sparse.from_spmatrix(data=prediction_output,
-                columns=self.themes)
+            out_df = pd.DataFrame.sparse.from_spmatrix(data=prediction_output, columns=self.themes)
         else:
             out_df = pd.DataFrame(data=prediction_output, columns=self.themes)
 

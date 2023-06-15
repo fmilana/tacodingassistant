@@ -413,6 +413,7 @@ def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, 
                     code = run.text.lower().strip()
                     if '>' in code:
                         code = re.search(r'>(.*)', code).group(1)
+                    code = re.sub(r'\s*weight score: \d+$', '', code)
                     find_code = (cat_df.values == code).any(axis=0)
                     try:
                         current_theme = cat_df.columns[np.where(find_code==True)[0]].item()
@@ -480,7 +481,7 @@ def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, 
 
     train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False, encoding='utf-8-sig', errors='replace')
     
-    # print(f'themes found = {themes_found}')
+    print(f'themes found = {themes_found}')
 
     return themes_found
 

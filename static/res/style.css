@@ -211,10 +211,14 @@ input[type=radio] {
   padding-bottom: 20px;
 }
 
+#only-theme-label {
+  white-space: nowrap;
+}
+
 #edit-code-theme-table-checkbox-group {
   position: fixed;
   left: 50%;
-  bottom: -80px;
+  bottom: -50px;
   transform: translate(-50%, -50%);
   margin: 0 auto;
   font-size: 18px;
