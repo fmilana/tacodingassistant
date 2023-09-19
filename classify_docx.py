@@ -330,6 +330,34 @@ class ClassifyDocx:
     #     axes.set_title(theme)
 
 
+    def train_and_export_model(self, X, Y):
+        clf = XGBClassifier(
+            verbosity=0
+            # n_estimators=100,
+            # learning_rate=0.3,
+            # gamma=0,
+            # max_depth=6,
+            # min_child_weight=1,
+            # max_delta_step=0,
+            # subsample=1,
+            # colsample_bytree=1,
+            # colsample_bylevel=1,
+            # reg_lambda=1,
+            # reg_alpha=0,
+            # scale_pos_weight=1
+        )
+
+        chains = [ClassifierChain(clf, order='random', random_state=i) for i in range(10)]
+        
+        for chain in chains:
+            chain.fit(X, Y)
+        
+        model_file_path = 'data/model/chains.pkl'
+
+        with open(model_file_path, 'wb') as file:  
+            pickle.dump(chains, file)
+
+
     def classify(self, sentence_embedding_matrix, chains, oversample=True):
         print('running classify function...')
         start_function = datetime.now()
@@ -348,6 +376,10 @@ class ClassifyDocx:
         print(f'np.shape(X) = {np.shape(X)}')
         print(f'np.shape(Y) = {np.shape(Y)}')
 
+        # train and export model for transfer learning in transfer branch
+        self.train_and_export_model(X, Y)
+        # ------------------------------------------------------------------
+
         for i, chain in enumerate(chains):
             chain.fit(X_train, Y_train)
             print(f'{i+1}/{len(chains)} chains fit')
@@ -357,7 +389,7 @@ class ClassifyDocx:
         # save xgboost model in logs
         # model_counter = 0
         # while True:
-        #     model_path = resource_path(f'logs/models/{doc_file_name}_xgbmodel_{model_counter}.pickle')
+        #     model_path = resource_path(f'logs/models/{doc_file_name}_xgbmodel_{model_counter}.pkl')
         #     if os.path.exists(model_path):
         #         model_counter += 1
         #     else:
@@ -499,8 +531,8 @@ class ClassifyDocx:
 
             start_emb = datetime.now()
 
-            if os.path.exists(resource_path('data/embeddings/embeddings.pickle')):
-                with open(resource_path('data/embeddings/embeddings.pickle'), 'rb') as handle:
+            if os.path.exists(resource_path('data/embeddings/embeddings.pkl')):
+                with open(resource_path('data/embeddings/embeddings.pkl'), 'rb') as handle:
                     dict = pickle.load(handle)
                     for sentence in uncoded_original_sentences:
                         try:
@@ -529,7 +561,7 @@ class ClassifyDocx:
 
                     cleaned_sentence_embedding_dict[sentence] = [cleaned_sentence, sentence_embedding]
 
-                with open(resource_path('data/embeddings/embeddings.pickle'), 'wb') as handle:
+                with open(resource_path('data/embeddings/embeddings.pkl'), 'wb') as handle:
                     pickle.dump(cleaned_sentence_embedding_dict, handle, protocol=4)
                     handle.close()
 
@@ -539,7 +571,7 @@ class ClassifyDocx:
 
 
         # save sentence, cleaned_sentence, sentence_embedding dict to pickle
-        with open(resource_path('data/embeddings/embeddings.pickle'), 'wb') as handle:
+        with open(resource_path('data/embeddings/embeddings.pkl'), 'wb') as handle:
             pickle.dump(cleaned_sentence_embedding_dict, handle, protocol=4)
             handle.close()
         #-------------------------------------------------------------------

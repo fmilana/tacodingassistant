@@ -563,7 +563,7 @@ class LogThread(QThread):
     def run(self):
         with open(resource_path('logs/app.log'), 'a+', encoding='utf-8') as f:
             # if 'setup finished' in self.data or 'reclassify' in self.data:
-            #     self.data += f' (logs/models/{self.app_window.doc_file_name}_xgbmodel_{self.app_window.classify_counter}.pickle)'
+            #     self.data += f' (logs/models/{self.app_window.doc_file_name}_xgbmodel_{self.app_window.classify_counter}.pkl)'
             if 'all table finished loading' in self.data:
                 self.data += f' (logs/data/documents/{self.app_window.doc_file_name}_analyse_{self.app_window.classify_counter}.csv)'
             elif 'predict table finished loading' in self.data:
