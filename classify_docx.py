@@ -33,7 +33,6 @@ class ClassifyDocx:
     maxqda_document_path = ''
     dedoose_excerpts_path = ''
     delimiter = ''
-    regexp = ''
 
     train_file_path = ''
     predict_file_path = ''
@@ -54,7 +53,7 @@ class ClassifyDocx:
         self.sentence2vec_model = Sentence2Vec()
 
 
-    def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_folder_path, maxqda_doc_path, dedoose_excerpts_path, theme_code_table_path, filter_regexp):
+    def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_folder_path, maxqda_doc_path, dedoose_excerpts_path, theme_code_table_path):
         self.doc_path = transcript_path
         self.software_used = software
         self.delimiter = word_delimiter
@@ -62,7 +61,6 @@ class ClassifyDocx:
         self.maxqda_document_path = maxqda_doc_path
         self.dedoose_excerpts_path = dedoose_excerpts_path
         self.cat_path = theme_code_table_path
-        self.regexp = filter_regexp
 
 
     """ def get_sample_weights(self, Y_train):
@@ -439,16 +437,16 @@ class ClassifyDocx:
         if self.themes is None:
             # if from Word
             if self.software_used == 'Word':
-                self.themes = import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path, self.regexp)
+                self.themes = import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path)
             # if from NVivo
             elif self.software_used == 'NVivo':
-                self.themes = import_codes_from_nvivo(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path, self.regexp)
+                self.themes = import_codes_from_nvivo(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path)
             # if from MAXQDA
             elif self.software_used == 'MAXQDA':
-                self.themes = import_codes_from_maxqda(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path, self.regexp)
+                self.themes = import_codes_from_maxqda(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path)
             # if from Dedoose
             elif self.software_used == 'Dedoose':
-                self.themes = import_codes_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path, self.regexp)            
+                self.themes = import_codes_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path)            
 
         if modified_train_file_path is not None:
             self.train_file_path = modified_train_file_path
@@ -488,8 +486,6 @@ class ClassifyDocx:
             for sentence in all_original_sentences:
                 if (sentence not in train_moved_sentences and
                     sentence not in train_original_sentences and
-                    re.sub(self.regexp, '', sentence, flags=re.IGNORECASE)
-                    .strip() not in train_original_sentences and
                     sentence[:-1] not in train_original_sentences): # to-do: better way
                     uncoded_original_sentences.append(sentence)     # to check for "."
 
@@ -507,7 +503,7 @@ class ClassifyDocx:
                             cleaned_sentence = dict[sentence][0]
                             sentence_embedding = dict[sentence][1]
                         except KeyError:
-                            cleaned_sentence = remove_stop_words(clean_sentence(sentence, self.regexp))
+                            cleaned_sentence = remove_stop_words(clean_sentence(sentence))
                             sentence_embedding = self.sentence2vec_model.get_vector(cleaned_sentence)
 
                         writer.writerow([sentence, cleaned_sentence,
@@ -520,7 +516,7 @@ class ClassifyDocx:
                         handle.close()
             else:
                 for sentence in uncoded_original_sentences:
-                    cleaned_sentence = remove_stop_words(clean_sentence(sentence, self.regexp))
+                    cleaned_sentence = remove_stop_words(clean_sentence(sentence))
                     sentence_embedding = self.sentence2vec_model.get_vector(cleaned_sentence)
 
                     writer.writerow([sentence, cleaned_sentence, sentence_embedding])

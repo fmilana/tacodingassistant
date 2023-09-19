@@ -247,7 +247,7 @@ class SetupThread(QThread):
         print('done with run_classifier in setup thread')
         print('running analyse now...')
         # print(f'===========================> themes = {self.app_window.themes}')
-        analyse(self.app_window.doc_path, self.app_window.themes, self.app_window.regexp)
+        analyse(self.app_window.doc_path, self.app_window.themes)
         self.thread_signal.emit(self.app_window.themes)
 
 
@@ -488,7 +488,7 @@ class ReclassifyThread(QThread):
         print('done!')
 
         print('running analyse...')
-        analyse(self.app_window.doc_path, self.app_window.themes, self.app_window.regexp, new_train_path)
+        analyse(self.app_window.doc_path, self.app_window.themes, new_train_path)
         print('done!')
 
         self.app_window.classify_counter += 1
@@ -587,27 +587,8 @@ class RegexpThread(QThread):
         self.app_window = parent.parent().parent()
 
     def run(self):
-        if self.input_regexp != '':
-            if self.regular_expression:
-                if self.case_insensitive and not self.input_regexp.strip().startswith('(?i)'):
-                    self.app_window.regexp = '(?i)' + self.input_regexp
-                else:
-                    self.app_window.regexp = self.input_regexp
-            else:
-                if self.case_insensitive:
-                    self.app_window.regexp = '(?i)(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
-                else:
-                    self.app_window.regexp = '(' + re.sub(r'; |;', '|', self.input_regexp).strip() + ')'
-            try: 
-                re.compile(self.app_window.regexp) # check if valid regex pattern
-                valid = True
-            except re.error:
-                valid = False
-        else:
-            self.app_window.regexp = self.input_regexp
-            valid = True
-
-        print(f'saved filter regexp => "{self.app_window.regexp}"')
+        self.app_window.regexp = self.input_regexp
+        valid = True
 
         self.thread_signal.emit(['regexp', self.app_window.regexp, valid])
 
@@ -625,8 +606,8 @@ class SetupBackend(QObject):
         self.thread = SetupThread(self)
         self.thread.thread_signal.connect(self.send_data)
 
-    @Slot(str, str, str, str, str, str, str, str)
-    def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_path, maxqda_document_path, dedoose_excerpts_path, theme_code_lookup_path, filter_regexp):
+    @Slot(str, str, str, str, str, str, str)
+    def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_path, maxqda_document_path, dedoose_excerpts_path, theme_code_lookup_path):
 
         if len(nvivo_codes_path) > 0:
             nvivo_codes_path = resource_path(nvivo_codes_path)
@@ -671,7 +652,7 @@ class SetupBackend(QObject):
             self.app_window.themes = list(cat_df)     
 
         # set paths and regexp for classify_docx object
-        self.classify_docx.set_up(self.app_window.doc_path, software, word_delimiter, nvivo_codes_path, maxqda_document_path, dedoose_excerpts_path, theme_code_lookup_path, filter_regexp)
+        self.classify_docx.set_up(self.app_window.doc_path, software, word_delimiter, nvivo_codes_path, maxqda_document_path, dedoose_excerpts_path, theme_code_lookup_path)
         # pass classify_docx object to thread
         self.thread.classify_docx = self.classify_docx
 
@@ -873,7 +854,7 @@ class ImportBackend(QObject):
         QObject.__init__(self, parent)
         self._main_window = main_window
         self.thread = RegexpThread(self)
-        self.thread.thread_signal.connect(self.send_keywords_data)
+        self.thread.thread_signal.connect(self.send_transcript_signal)
         
     @Slot()
     def open_transcript_chooser(self):                
@@ -929,15 +910,12 @@ class ImportBackend(QObject):
     #     path_to_file = path_to_file.replace('\\', '/')
     #     self.signal.emit(['codeThemeTable', path_to_file])
 
-    @Slot(str, bool, bool)
-    def save_regexp(self, input_regexp, regular_expression, case_insensitive):
-        self.thread.input_regexp = input_regexp
-        self.thread.regular_expression = regular_expression
-        self.thread.case_insensitive = case_insensitive
+    @Slot()
+    def import_transcript(self):
         self.thread.start()
 
     @Slot(str)
-    def send_keywords_data(self, data):
+    def send_transcript_signal(self, data):
         self.signal.emit(data)
 
 
@@ -982,7 +960,6 @@ class AppWindow(QMainWindow):
     theme_code_table_path = ''
     nvivo_codes_folder_path = ''
     doc_file_name = ''
-    regexp = ''
     themes = []
     classify_counter = 0
 

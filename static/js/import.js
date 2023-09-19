@@ -42,11 +42,7 @@ const importLib = (function () {
     //next-buttons//
     d3.select('#import-transcript-next-button')
       .on('click', () => {
-        d3.select('#import-transcript-container')
-          .style('display', 'none');
-        d3.select('#import-software-container')
-          .style('display', 'block');
-        containersStack.push('#import-transcript-container');
+        importBackend.import_transcript();
       });
 
     d3.select('#import-software-next-button')

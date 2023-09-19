@@ -6,7 +6,7 @@ from collections import Counter
 from path_util import resource_path
 
 
-def analyse(doc_path, themes, filter_regexp, train_file_path=None):
+def analyse(doc_path, themes, train_file_path=None):
     # start = datetime.now()
     if train_file_path is not None:
         predict_file_path = train_file_path.replace('train', 'predict')
@@ -66,7 +66,7 @@ def analyse(doc_path, themes, filter_regexp, train_file_path=None):
             if isinstance(cleaned_sentence, str):
                 words = set(word_tokenize(cleaned_sentence))
                 for word in words:
-                    if word.lower() not in more_stop_words and not (filter_regexp != '' and re.match(filter_regexp, word)):
+                    if word.lower() not in more_stop_words:
                         word = word.lower()
                         # for analyse.csv
                         train_word_freq_dict[theme].append(word)
@@ -84,7 +84,7 @@ def analyse(doc_path, themes, filter_regexp, train_file_path=None):
                     words = set(word_tokenize(cleaned_sentence))
 
                     for word in words:
-                        if word.lower() not in more_stop_words and not (filter_regexp != '' and re.match(filter_regexp, word)):
+                        if word.lower() not in more_stop_words:
                             word = word.lower()
                             # for analyse.csv
                             predict_word_freq_dict[theme].append(word)

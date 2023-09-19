@@ -167,7 +167,7 @@ def transverse(start, end, text):
 
 # WORD
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_table_path, regexp):
+def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_table_path):
 
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
@@ -225,7 +225,7 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
             sentence_to_cleaned_dict = {}
             # split text into sentences
             for sentence in sent_tokenize(text):
-                cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
+                cleaned_sentence = remove_stop_words(clean_sentence(sentence))
                 sentence_to_cleaned_dict[sentence] = [cleaned_sentence, sentence2vec_model.get_vector(cleaned_sentence)]
 
             themes = []
@@ -271,7 +271,7 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
 
 # NVIVO
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, theme_code_table_path, regexp):
+def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, theme_code_table_path):
     print(f'extracting codes from {codes_folder_path}...')
     start = datetime.now()
 
@@ -318,7 +318,7 @@ def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, the
                             text = text.replace("…", "...")
                             text = text.replace("\\", "\\\\")
                             for sentence in sent_tokenize(text):
-                                cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
+                                cleaned_sentence = remove_stop_words(clean_sentence(sentence))
                             
                                 if train_df['original_sentence'].eq(sentence).any():
                                     matching_index = train_df.index[train_df['original_sentence'] == sentence].tolist()[0]
@@ -378,7 +378,7 @@ def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, the
 
 # MAXQDA
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_table_path, regexp):
+def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, theme_code_table_path):
     print(f'extracting sentences...')
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
@@ -444,7 +444,7 @@ def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, 
                                 train_df.loc[matching_index, current_theme] = 1
                             # sentence not already in table, need to write row
                             else:
-                                cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
+                                cleaned_sentence = remove_stop_words(clean_sentence(sentence))
                                 row = {
                                     'file_name': re.search(r'([^\/]+).$', doc_path).group(0),
                                     'comment_id': '0', 
@@ -488,7 +488,7 @@ def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, 
 
 # DEDOOSE
 # doc_path and theme_code_table_path documents already copied in data folder
-def import_codes_from_dedoose(sentence2vec_model, doc_path, excerpts_txt_path, theme_code_table_path, regexp):
+def import_codes_from_dedoose(sentence2vec_model, doc_path, excerpts_txt_path, theme_code_table_path):
     print(f'extracting sentences...')
     start = datetime.now()
     cat_df = pd.read_csv(theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
@@ -550,7 +550,7 @@ def import_codes_from_dedoose(sentence2vec_model, doc_path, excerpts_txt_path, t
                     current_excerpt = current_excerpt.replace("\\", "\\\\")
 
                     for sentence in sent_tokenize(current_excerpt):
-                        cleaned_sentence = remove_stop_words(clean_sentence(sentence, regexp))
+                        cleaned_sentence = remove_stop_words(clean_sentence(sentence))
                         row = {
                             'file_name': re.search(r'([^\/]+).$', doc_path).group(0),
                             'comment_id': '0',

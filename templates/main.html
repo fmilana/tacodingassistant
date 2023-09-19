@@ -31,15 +31,8 @@
           <a id="all-keywords-button">All Keywords</a>
         </div>
       </div>
-      <div id="cm-dropdown" class="dropdown">
-        <button class="dropbtn">Confusion Tables
-          <img src="../static/res/caret-down-fill.svg", height=12px, width=12px/>
-        </button>
-        <div id="cm-dropdown-content" class="dropdown-content">
-          <!-- links dynamically added here -->
-        </div>
-      </div>
     </div>
+
     <!-- import page -->
     <div id="import-container">
       <h1 id="import-title">Thematic Analysis Coding Assistant</h1>
@@ -49,7 +42,7 @@
           <p id="import-transcript-label" class="import-label">Import your transcript:</p>
           <button id="import-transcript-button" class="btn btn-secondary">Import transcript</button>
         </div>
-        <div id="import-step-progress-bar">
+        <!-- <div id="import-step-progress-bar">
           <div class="stepper-wrapper">
             <div class="stepper-item active">
               <div class="step-counter">1</div>
@@ -72,9 +65,10 @@
               <div class="step-name">Enter keyword filter</div>
             </div>
           </div>
-        </div>
-        <button id="import-transcript-next-button" class="btn btn-secondary next-button" disabled>Next</button>
+        </div> -->
+        <button id="import-transcript-next-button" class="btn btn-secondary next-button" disabled>Done</button>
       </div>
+
       <!-- select software used -->
       <div id="import-software-container">
         <div class="import-content">
@@ -126,6 +120,7 @@
         <button id="import-software-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-software-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
+
       <!-- select word delimiter -->
       <div id="import-word-delimiter-container">
         <div class="import-content">
@@ -165,6 +160,7 @@
         <button id="import-word-delimiter-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-word-delimiter-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
+
       <!-- select nvivo codes folder -->
       <div id="import-nvivo-codes-folder-container">
         <div class="import-content">
@@ -199,6 +195,7 @@
         <button id="import-nvivo-codes-folder-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-nvivo-codes-folder-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
+
       <!-- import MAXQDA coded segments -->
       <div id="import-maxqda-document-container">
         <div class="import-content">
@@ -233,6 +230,7 @@
         <button id="import-maxqda-document-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-maxqda-document-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
+
       <!-- import dedoose excerpts -->
       <div id="import-dedoose-excerpts-container">
         <div class="import-content">
@@ -267,6 +265,7 @@
         <button id="import-dedoose-excerpts-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-dedoose-excerpts-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
+
       <!-- code-theme table loading -->
       <div id="import-loading-code-theme-table-container">
         <div class="import-content">
@@ -274,6 +273,7 @@
           <p id="setup-label">Extracting codes...</p>
         </div>
       </div>
+
       <!-- edit code theme table -->
       <div id="import-edit-code-theme-table-container">
         <div class="import-content">
@@ -316,6 +316,7 @@
         <button id="import-edit-code-theme-table-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-edit-code-theme-table-next-button" class="next-button btn btn-secondary" disabled>Next</button>
       </div>
+
       <!-- enter filter keywords -->
       <div id="import-keywords-container">
         <div class="import-content">
@@ -356,21 +357,23 @@
         <button id="import-keywords-back-button" class="back-button btn btn-secondary">Back</button>
         <button id="import-keywords-next-button" class="next-button btn btn-secondary">Done</button>
       </div>
-
     </div>
-    <!--  -->
+
     <div id="setup-container">
       <img id="loading-gif" src="../static/res/loading.gif">
       <p id="setup-label">Extracting and classifying sentences...</p>
       <p class="import-sub-label">(This might take a few minutes)</p>
     </div>
+
     <div id="text-container">
       <img id="loading-gif" src="../static/res/loading.gif">
     </div>
+
     <div id="codes-table-container" class="table-container">
       <h1 id="table-title">Codes</h1>
       <img id="loading-gif" src="../static/res/loading.gif">
     </div>
+
     <div id="all-table-container" class="table-container">
       <button id="re-classify-button" class="btn btn-secondary" type="button" disabled>Re-classify</button>
       <h1 id="table-title">All Keywords</h1>
@@ -380,6 +383,7 @@
       </div>
       <img id="loading-gif" src="../static/res/loading.gif">
     </div>
+
     <div id="predict-table-container" class="table-container">
       <button id="re-classify-button" class="btn btn-secondary" type="button" disabled>Re-classify</button>
       <h1 id="table-title">Predict Keywords</h1>
@@ -389,6 +393,7 @@
       </div>
       <img id="loading-gif" src="../static/res/loading.gif">
     </div>
+
     <div id="train-table-container" class="table-container">
       <button id="re-classify-button" class="btn btn-secondary" type="button" disabled>Re-classify</button>
       <h1 id="table-title">Train Keywords</h1>
@@ -398,6 +403,7 @@
       </div>
       <img id="loading-gif" src="../static/res/loading.gif">
     </div>
+
     <div id="confusion-tables-container">
       <img id="loading-gif" src="../static/res/loading.gif">
     </div>

@@ -119,15 +119,6 @@ const onImportData = function (data) {
       break;
     default:
       // keywords
-      if (data[1] === '') {
-        regexp = data[1];
-      } else if (data[1].startsWith('(?i)')) {
-        regexp = new RegExp(`\\b${data[1].replace(/^\(\?i\)/, '')}\\b[^A-Za-z]*`, 'gi'); // match only words (or word + punct)
-        regexp = regexp.toString();
-      } else {
-        regexp = new RegExp(`\\b${data[1].replace(/^\(\?i\)/, '')}\\b[^A-Za-z]*`, 'g'); // match only words (or word + punct)
-        regexp = regexp.toString();
-      }
       const valid = data[2];
       if (valid) {
         d3.select('#import-container')
@@ -136,7 +127,7 @@ const onImportData = function (data) {
         d3.select('#setup-container')
           .style('display', 'block');
 
-        setupBackend.set_up(transcriptPath, software, window.wordDelimiter, nvivoCodesPath, MAXQDASegmentsPath, dedooseExcerptsPath, themeCodeTablePath, regexp);
+        setupBackend.set_up(transcriptPath, software, window.wordDelimiter, nvivoCodesPath, MAXQDASegmentsPath, dedooseExcerptsPath, themeCodeTablePath);
       } else {
         // error message
         alert('Please check your filtered keywords or regular expression');
@@ -146,30 +137,12 @@ const onImportData = function (data) {
 };
 
 
-const onSetup = function (extractedThemes) {
-  themes = extractedThemes;
-
+const onSetup = function () {
   d3.select('#setup-container')
     .remove();
 
-  console.log(`${themes.length} themes`);
-
   d3.select('.navbar-top')
     .style('display', 'block');
-
-  d3.select('#cm-dropdown-content')
-    .selectAll('a')
-    .data(themes)
-    .enter()
-    .append('a')
-    .attr('id', (theme) => `${theme.replace(/([^a-zA-Z\d\s])/g, '').replace(/\s/g, '-')}-cm-button`)
-    .classed('capitalized', true)
-    .text(theme => theme);
-
-    for (let i = 0; i < themes.length; i++) {
-      const escapedTheme = themes[i].replace(/([^a-zA-Z\d\s])/g, '').replace(/\s/g, '-');
-      tabToContainerDict[`${escapedTheme}-cm-button`] = `${escapedTheme}-table-container`;
-    }
   
     // Navbar functionality
     d3.select('.navbar-top')
