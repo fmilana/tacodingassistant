@@ -1,3 +1,7 @@
+# https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+# https://huggingface.co/sentence-transformers/all-mpnet-base-v2 - stuck loading
+# https://huggingface.co/flax-sentence-embeddings/all_datasets_v4_MiniLM-L6
+
 import os
 import re
 import numpy as np
@@ -31,7 +35,7 @@ class SentenceEmbeddings:
     #     print(f'done in {datetime.now() - start}')
 
     def __init__(self):
-        self.model = SentenceTransformer('flax-sentence-embeddings/all_datasets_v4_MiniLM-L6')
+        self.model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 
     def get_vector(self, sentence):
