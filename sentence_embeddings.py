@@ -15,27 +15,26 @@ from path_util import resource_path
 
 
 class SentenceEmbeddings:
+    model_name = 'sentence-transformers/all-MiniLM-L6-v2'
+    model_file_path = resource_path('data/embeddings/embeddings_model.pickle')
     model = None
     vector_sentence_dict = {}
 
-    # def __init__(self):
-    #     start = datetime.now()
-    #     if os.path.exists(self.model_file_path):
-    #         print('loading word embeddings from disk...')
-    #         with open(self.model_file_path, 'rb') as f:
-    #             self.model = pickle.load(f)
-    #             f.close()
-    #     else:
-    #         print(f'downloading glove model ({self.model_name})...')
-    #         self.model = gensim.downloader.load(self.model_name)
-    #         os.makedirs(os.path.dirname(self.model_file_path), exist_ok=True)
-    #         with open(self.model_file_path, 'wb') as f:
-    #             pickle.dump(self.model, f)
-    #             f.close()
-    #     print(f'done in {datetime.now() - start}')
-
     def __init__(self):
-        self.model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+        start = datetime.now()
+        if os.path.exists(self.model_file_path):
+            print('loading word embeddings from disk...')
+            with open(self.model_file_path, 'rb') as f:
+                self.model = pickle.load(f)
+                f.close()
+        else:
+            print(f'downloading embeddings model ({self.model_name})...')
+            self.model = SentenceTransformer(self.model_name)
+            os.makedirs(os.path.dirname(self.model_file_path), exist_ok=True)
+            with open(self.model_file_path, 'wb') as f:
+                pickle.dump(self.model, f)
+                f.close()
+        print(f'done in {datetime.now() - start}')
 
 
     def get_vector(self, sentence):
