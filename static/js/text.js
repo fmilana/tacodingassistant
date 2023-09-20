@@ -54,7 +54,7 @@ const textLib = (function () {
   };
 
 
-  const highlightSentences = function (text, trainData, predictData) {
+  const highlightSentences = function (text, predictData) {
     // filter special text characters
     // TO-DO: check why you do the same in python too
     text = text
@@ -68,16 +68,16 @@ const textLib = (function () {
 
     const mapObj = {};
 
-    for (let i = 0; i < trainData.length; i++) {
-      const entry = trainData[i];
-      const trainSentence = entry[0];
-      const themes = entry[1];
-      //better way?
-      if (trainSentence.length > 6) {
-        mapObj[trainSentence] = `<span data-tooltip="${themes}"` +
-        `style="background-color: #dbdbdb">${trainSentence}</span>`;
-      }
-    }
+    // for (let i = 0; i < trainData.length; i++) {
+    //   const entry = trainData[i];
+    //   const trainSentence = entry[0];
+    //   const themes = entry[1];
+    //   //better way?
+    //   if (trainSentence.length > 6) {
+    //     mapObj[trainSentence] = `<span data-tooltip="${themes}"` +
+    //     `style="background-color: #dbdbdb">${trainSentence}</span>`;
+    //   }
+    // }
 
     for (let i = 0; i < predictData.length; i++) {
       const entry = predictData[i];

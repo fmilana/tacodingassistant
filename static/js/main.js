@@ -47,6 +47,8 @@ const log = function (message) {
 
 
 const onImportData = function (data) {
+  console.log(`====================> onImportData data = ${data}`);
+
   switch (data[0]) {
     case 'transcript':
       // transcript file
@@ -148,7 +150,10 @@ const onSetup = function () {
     d3.select('.navbar-top')
       .selectAll('a')
       .on('click', function () {
-        tabId = d3.select(this).attr('id');   
+        tabId = d3.select(this).attr('id');
+        
+        console.log(`${tabId} clicked`);
+        
         if (tabId !== currentTabId) {
           d3.selectAll('.dropbtn').classed('btn-active', false);
           d3.select(`#${currentTabId}`).classed('btn-active', false);
@@ -198,11 +203,11 @@ const onTextData = function (data) {
     log('setup finished, text finished loading');
 
     if (threadStartId === 'text-button') {
-      codesTableBackend.get_table();
-      allTableBackend.get_table(false); 
+      // codesTableBackend.get_table();
+      // allTableBackend.get_table(false); 
       predictTableBackend.get_table(false);
-      trainTableBackend.get_table(false);
-      confusionTablesBackend.get_data();
+      // trainTableBackend.get_table(false);
+      // confusionTablesBackend.get_data();
     } 
   });
 };
@@ -245,10 +250,10 @@ const onPredictTableData = function (dataAndReclassified) {
     predictTableLib.loadReclassifiedTable(data, () => {
       log('reclassified predict table finished loading');
       if (threadStartId === 'predict-keywords-button') {
-        allTableBackend.get_table(true);
-        trainTableBackend.get_table(true);
+        // allTableBackend.get_table(true);
+        // trainTableBackend.get_table(true);
         textBackend.get_text(true);
-        confusionTablesBackend.get_data();
+        // confusionTablesBackend.get_data();
       } 
     });
   } else {
@@ -323,23 +328,23 @@ d3.select(window).on('load', () => {
       new QWebChannel(qt.webChannelTransport, (channel) => {
         setupBackend = channel.objects.setupBackend;
         textBackend = channel.objects.textBackend;
-        codesTableBackend = channel.objects.codesTableBackend;
-        allTableBackend = channel.objects.allTableBackend;
+        // codesTableBackend = channel.objects.codesTableBackend;
+        // allTableBackend = channel.objects.allTableBackend;
         predictTableBackend = channel.objects.predictTableBackend;
-        trainTableBackend = channel.objects.trainTableBackend;
+        // trainTableBackend = channel.objects.trainTableBackend;
         reclassifyBackend = channel.objects.reclassifyBackend;
-        confusionTablesBackend = channel.objects.confusionTablesBackend;
+        // confusionTablesBackend = channel.objects.confusionTablesBackend;
         logBackend = channel.objects.logBackend;
         importBackend = channel.objects.importBackend;
         // connect signals from the external object to callback functions
         setupBackend.signal.connect(onSetup);
         textBackend.signal.connect(onTextData);
-        codesTableBackend.signal.connect(onCodesTableData);
-        allTableBackend.signal.connect(onAllTableData);
+        // codesTableBackend.signal.connect(onCodesTableData);
+        // allTableBackend.signal.connect(onAllTableData);
         predictTableBackend.signal.connect(onPredictTableData);
-        trainTableBackend.signal.connect(onTrainTableData);
+        // trainTableBackend.signal.connect(onTrainTableData);
         reclassifyBackend.signal.connect(onReclassified);
-        confusionTablesBackend.signal.connect(onConfusionTablesData);
+        // confusionTablesBackend.signal.connect(onConfusionTablesData);
         importBackend.signal.connect(onImportData);
         // call functions on the external objects
         // textBackend.get_text(false); // false-> not reclassified data

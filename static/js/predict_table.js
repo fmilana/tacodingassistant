@@ -346,6 +346,8 @@ const predictTableLib = (function () {
       .select('#bin-div')
       .style('visibility', 'visible')
       .style('z-index', maxZIndex);
+
+    console.log('generatetable done');
   };
 
 

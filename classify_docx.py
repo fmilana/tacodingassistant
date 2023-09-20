@@ -51,6 +51,8 @@ class ClassifyDocx:
         download('stopwords', download_dir=resource_path('data/nltk/'))
         data.path.append(resource_path('data/nltk/'))
         self.sentence2vec_model = Sentence2Vec()
+        # hard-coded themes
+        self.themes = ['food and drinks', 'place', 'people', 'opinions']
 
 
     def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_folder_path, maxqda_doc_path, dedoose_excerpts_path, theme_code_table_path):
@@ -328,53 +330,102 @@ class ClassifyDocx:
     #     axes.set_title(theme)
 
 
-    def classify(self, sentence_embedding_matrix, chains, oversample=True):
-        print('running classify function...')
+    # def classify(self, sentence_embedding_matrix, chains, oversample=True):
+    #     print('running classify function...')
+    #     start_function = datetime.now()
+
+    #     print('running generate_training_and_testing_data...')
+    #     start_gen = datetime.now()
+    #     X_train, X_test, Y_train, Y_test, test_cleaned_sentences, themes_list = self.generate_training_and_testing_data(oversample)
+    #     print(f'generate_training_and_testing_data run in {datetime.now() - start_gen}')
+
+    #     print('fitting clf...')
+    #     start_fit = datetime.now()
+
+    #     X = np.concatenate((X_train, X_test))
+    #     Y = np.concatenate((Y_train, Y_test))
+
+    #     print(f'np.shape(X) = {np.shape(X)}')
+    #     print(f'np.shape(Y) = {np.shape(Y)}')
+
+    #     for i, chain in enumerate(chains):
+    #         chain.fit(X_train, Y_train)
+    #         print(f'{i+1}/{len(chains)} chains fit')
+
+    #     # doc_file_name = re.search(r'([^\/]+).$', self.doc_path).group(0).replace('.docx', '')
+
+    #     # save xgboost model in logs
+    #     # model_counter = 0
+    #     # while True:
+    #     #     model_path = resource_path(f'logs/models/{doc_file_name}_xgbmodel_{model_counter}.pickle')
+    #     #     if os.path.exists(model_path):
+    #     #         model_counter += 1
+    #     #     else:
+    #     #         os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    #     #         with open(model_path, 'wb') as handle:
+    #     #             pickle.dump(clf, handle, protocol=4)
+    #     #             handle.close()
+    #     #         break
+
+    #     print(f'done fitting clf in {datetime.now() - start_fit}')
+
+    #     print(f'generating confusion matrices...')
+    #     start_cm = datetime.now()
+
+    #     Y_test_pred = np.rint(np.array([chain.predict(X_test) for chain in chains]).mean(axis=0))
+
+    #     # these scores are then logged in app.log
+    #     weighted_f1_score = f1_score(Y_test, Y_test_pred >=0.5, average='weighted')
+    #     weighted_jaccard_score = jaccard_score(Y_test, Y_test_pred >=0.5, average='weighted')
+
+    #     print(f'np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
+
+    #     prediction_output = np.rint(np.array([chain.predict(sentence_embedding_matrix) for chain in chains]).mean(axis=0))
+        
+    #     print(f'np.shape(prediction_output) 1 = {np.shape(prediction_output)}')
+
+    #     prediction_output = prediction_output.astype(int)
+
+    #     print(f'np.shape(prediction_output) 2 = {np.shape(prediction_output)}')
+
+    #     prediction_proba = np.array([chain.predict_proba(sentence_embedding_matrix) for chain in chains]).mean(axis=0)
+
+    #     self.add_classification_to_csv(prediction_output, prediction_proba)
+
+    #     sentences_dict = {}
+
+    #     for col, class_name in enumerate(themes_list):
+    #         true_positives = []
+    #         true_negatives = []
+    #         false_positives = []
+    #         false_negatives = []
+
+    #         for row in range(Y_test_pred.shape[0]):
+    #             if Y_test_pred[row, col] == 1 and Y_test[row, col] == 1:
+    #                 true_positives.append(test_cleaned_sentences[row])
+    #             elif Y_test_pred[row, col] == 0 and Y_test[row, col] == 0:
+    #                 true_negatives.append(test_cleaned_sentences[row])
+    #             elif Y_test_pred[row, col] == 1 and Y_test[row, col] == 0:
+    #                 false_positives.append(test_cleaned_sentences[row])
+    #             elif Y_test_pred[row, col] == 0 and Y_test[row, col] == 1:
+    #                 false_negatives.append(test_cleaned_sentences[row])
+
+    #         sentences_dict[class_name + ' true_positives'] = true_positives
+    #         sentences_dict[class_name + ' true_negatives'] = true_negatives
+    #         sentences_dict[class_name + ' false_positives'] = false_positives
+    #         sentences_dict[class_name + ' false_negatives'] = false_negatives
+
+    #     self.write_cms_to_csv(sentences_dict, themes_list)
+
+    #     print(f'confusion matrices created in {datetime.now() - start_cm}')
+
+    #     print(f'classify function run in {datetime.now() - start_function}')
+
+    #     return weighted_f1_score, weighted_jaccard_score
+
+
+    def classify(self, sentence_embedding_matrix, chains):
         start_function = datetime.now()
-
-        print('running generate_training_and_testing_data...')
-        start_gen = datetime.now()
-        X_train, X_test, Y_train, Y_test, test_cleaned_sentences, themes_list = self.generate_training_and_testing_data(oversample)
-        print(f'generate_training_and_testing_data run in {datetime.now() - start_gen}')
-
-        print('fitting clf...')
-        start_fit = datetime.now()
-
-        X = np.concatenate((X_train, X_test))
-        Y = np.concatenate((Y_train, Y_test))
-
-        print(f'np.shape(X) = {np.shape(X)}')
-        print(f'np.shape(Y) = {np.shape(Y)}')
-
-        for i, chain in enumerate(chains):
-            chain.fit(X_train, Y_train)
-            print(f'{i+1}/{len(chains)} chains fit')
-
-        # doc_file_name = re.search(r'([^\/]+).$', self.doc_path).group(0).replace('.docx', '')
-
-        # save xgboost model in logs
-        # model_counter = 0
-        # while True:
-        #     model_path = resource_path(f'logs/models/{doc_file_name}_xgbmodel_{model_counter}.pickle')
-        #     if os.path.exists(model_path):
-        #         model_counter += 1
-        #     else:
-        #         os.makedirs(os.path.dirname(model_path), exist_ok=True)
-        #         with open(model_path, 'wb') as handle:
-        #             pickle.dump(clf, handle, protocol=4)
-        #             handle.close()
-        #         break
-
-        print(f'done fitting clf in {datetime.now() - start_fit}')
-
-        print(f'generating confusion matrices...')
-        start_cm = datetime.now()
-
-        Y_test_pred = np.rint(np.array([chain.predict(X_test) for chain in chains]).mean(axis=0))
-
-        # these scores are then logged in app.log
-        weighted_f1_score = f1_score(Y_test, Y_test_pred >=0.5, average='weighted')
-        weighted_jaccard_score = jaccard_score(Y_test, Y_test_pred >=0.5, average='weighted')
 
         print(f'np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
 
@@ -390,36 +441,7 @@ class ClassifyDocx:
 
         self.add_classification_to_csv(prediction_output, prediction_proba)
 
-        sentences_dict = {}
-
-        for col, class_name in enumerate(themes_list):
-            true_positives = []
-            true_negatives = []
-            false_positives = []
-            false_negatives = []
-
-            for row in range(Y_test_pred.shape[0]):
-                if Y_test_pred[row, col] == 1 and Y_test[row, col] == 1:
-                    true_positives.append(test_cleaned_sentences[row])
-                elif Y_test_pred[row, col] == 0 and Y_test[row, col] == 0:
-                    true_negatives.append(test_cleaned_sentences[row])
-                elif Y_test_pred[row, col] == 1 and Y_test[row, col] == 0:
-                    false_positives.append(test_cleaned_sentences[row])
-                elif Y_test_pred[row, col] == 0 and Y_test[row, col] == 1:
-                    false_negatives.append(test_cleaned_sentences[row])
-
-            sentences_dict[class_name + ' true_positives'] = true_positives
-            sentences_dict[class_name + ' true_negatives'] = true_negatives
-            sentences_dict[class_name + ' false_positives'] = false_positives
-            sentences_dict[class_name + ' false_negatives'] = false_negatives
-
-        self.write_cms_to_csv(sentences_dict, themes_list)
-
-        print(f'confusion matrices created in {datetime.now() - start_cm}')
-
         print(f'classify function run in {datetime.now() - start_function}')
-
-        return weighted_f1_score, weighted_jaccard_score
 
 
     def get_text(self, file_path):
@@ -434,32 +456,32 @@ class ClassifyDocx:
         print('inside run_classifier.')
         start_script = datetime.now()
 
-        if self.themes is None:
-            # if from Word
-            if self.software_used == 'Word':
-                self.themes = import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path)
-            # if from NVivo
-            elif self.software_used == 'NVivo':
-                self.themes = import_codes_from_nvivo(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path)
-            # if from MAXQDA
-            elif self.software_used == 'MAXQDA':
-                self.themes = import_codes_from_maxqda(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path)
-            # if from Dedoose
-            elif self.software_used == 'Dedoose':
-                self.themes = import_codes_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path)            
+        # if self.themes is None:
+            # # if from Word
+            # if self.software_used == 'Word':
+            #     self.themes = import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path)
+            # # if from NVivo
+            # elif self.software_used == 'NVivo':
+            #     self.themes = import_codes_from_nvivo(self.sentence2vec_model, self.doc_path, self.nvivo_codes_folder_path, self.cat_path)
+            # # if from MAXQDA
+            # elif self.software_used == 'MAXQDA':
+            #     self.themes = import_codes_from_maxqda(self.sentence2vec_model, self.doc_path, self.maxqda_document_path, self.cat_path)
+            # # if from Dedoose
+            # elif self.software_used == 'Dedoose':
+            #     self.themes = import_codes_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path)   
 
         if modified_train_file_path is not None:
             self.train_file_path = modified_train_file_path
             self.predict_file_path = modified_train_file_path.replace('train', 'predict')
         else:
-            self.train_file_path = self.doc_path.replace('.docx', '_train.csv')
+            # self.train_file_path = self.doc_path.replace('.docx', '_train.csv')
             self.predict_file_path = self.doc_path.replace('.docx', '_predict.csv')
 
         if self.cat_path != '':
             self.cat_df = pd.read_csv(self.cat_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
             self.cat_df.columns = self.cat_df.columns.str.lower()
 
-        self.train_df = pd.read_csv(self.train_file_path, encoding='utf-8-sig', encoding_errors='replace')
+        # self.train_df = pd.read_csv(self.train_file_path, encoding='utf-8-sig', encoding_errors='replace')
 
         text = self.get_text(self.doc_path).replace("’", "'").replace("“", "'").replace("”", "'")
 
@@ -468,26 +490,13 @@ class ClassifyDocx:
 
         with open(self.predict_file_path, 'w', newline='', encoding='utf-8') as predict_file:
             writer = csv.writer(predict_file, delimiter=',')
-            writer.writerow(['original_sentence', 'cleaned_sentence',
-                'sentence_embedding'])
-
-            train_original_sentences = self.train_df['original_sentence'].tolist()
+            writer.writerow(['original_sentence', 'cleaned_sentence', 'sentence_embedding'])
 
             # save which have been moved to train as re-classification
             # (before oversampling!!)
-            self.moved_predict_df = self.train_df.loc[self.train_df['codes'].isna()]
-
-            train_moved_sentences = self.moved_predict_df['original_sentence'].tolist()
+            # self.moved_predict_df = self.train_df.loc[self.train_df['codes'].isna()]
 
             all_original_sentences = sent_tokenize(text)
-
-            uncoded_original_sentences = []
-
-            for sentence in all_original_sentences:
-                if (sentence not in train_moved_sentences and
-                    sentence not in train_original_sentences and
-                    sentence[:-1] not in train_original_sentences): # to-do: better way
-                    uncoded_original_sentences.append(sentence)     # to check for "."
 
             sentence_embedding_list = []
 
@@ -498,7 +507,7 @@ class ClassifyDocx:
             if os.path.exists(resource_path('data/embeddings/embeddings.pickle')):
                 with open(resource_path('data/embeddings/embeddings.pickle'), 'rb') as handle:
                     dict = pickle.load(handle)
-                    for sentence in uncoded_original_sentences:
+                    for sentence in all_original_sentences:
                         try:
                             cleaned_sentence = dict[sentence][0]
                             sentence_embedding = dict[sentence][1]
@@ -506,8 +515,7 @@ class ClassifyDocx:
                             cleaned_sentence = remove_stop_words(clean_sentence(sentence))
                             sentence_embedding = self.sentence2vec_model.get_vector(cleaned_sentence)
 
-                        writer.writerow([sentence, cleaned_sentence,
-                            sentence_embedding])
+                        writer.writerow([sentence, cleaned_sentence, sentence_embedding])
 
                         sentence_embedding_list.append(sentence_embedding)
 
@@ -515,7 +523,7 @@ class ClassifyDocx:
 
                         handle.close()
             else:
-                for sentence in uncoded_original_sentences:
+                for sentence in all_original_sentences:
                     cleaned_sentence = remove_stop_words(clean_sentence(sentence))
                     sentence_embedding = self.sentence2vec_model.get_vector(cleaned_sentence)
 
@@ -544,34 +552,12 @@ class ClassifyDocx:
 
         print(f'done writing in {datetime.now() - start_writing}')
 
-        # to-do: tune best params from gridsearchcv on reorder_exit training data
-        # currently using default params
-        clf = XGBClassifier(
-            verbosity=0
-            # n_estimators=100,
-            # learning_rate=0.3,
-            # gamma=0,
-            # max_depth=6,
-            # min_child_weight=1,
-            # max_delta_step=0,
-            # subsample=1,
-            # colsample_bytree=1,
-            # colsample_bylevel=1,
-            # reg_lambda=1,
-            # reg_alpha=0,
-            # scale_pos_weight=1
-        )
+        # load chains model from pickle
+        file = open('data/model/chains.pkl','rb')
+        chains = pickle.load(file)
+        file.close()
 
-        number_of_chains = 10
-
-        chains = [ClassifierChain(clf, order='random', random_state=i) for i in range(number_of_chains)]
-
-        weighted_f1_score, weighted_jaccard_score = self.classify(sentence_embedding_matrix, chains)
-
-        print(f'weighted f1 score = {weighted_f1_score}')
-        print(f'weighted jaccard score = {weighted_jaccard_score}')
-
-        self.log_scores(weighted_f1_score, weighted_jaccard_score)
+        self.classify(sentence_embedding_matrix, chains)
 
         print(f'script finished in {datetime.now() - start_script}')
 

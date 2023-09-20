@@ -401,6 +401,10 @@ input[type=radio] {
   cursor: pointer;
 }
 
+#predict-keywords-button {
+  cursor: pointer;
+}
+
 #codes-button {
   cursor: pointer;
 }

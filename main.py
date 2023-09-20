@@ -271,15 +271,15 @@ class TextThread(QThread):
         whole_text = '\n\n'.join(whole_text)
 
         if self.reclassified:
-            train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            # train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
             predict_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_predict_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
         else:
-            train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'), encoding='utf-8-sig', encoding_errors='replace')
+            # train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'), encoding='utf-8-sig', encoding_errors='replace')
             predict_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_predict.csv'), encoding='utf-8-sig', encoding_errors='replace')
 
-        train_data = []
-        for _, row in train_df.fillna('').iterrows():
-          train_data.append([row['original_sentence'], re.sub(';', ',', row['themes'])])
+        # train_data = []
+        # for _, row in train_df.fillna('').iterrows():
+        #   train_data.append([row['original_sentence'], re.sub(';', ',', row['themes'])])
 
         predict_data = []
         for index, row in predict_df.iterrows():
@@ -295,69 +295,69 @@ class TextThread(QThread):
           if len(row_themes) > 0:
             predict_data.append([row['original_sentence'], row_themes])
 
-        data = [whole_text, train_data, predict_data]
+        data = [whole_text, predict_data]
     
         self.thread_signal.emit(data)
 
 
-class CodesTableThread(QThread):
-    app_window = None
-    thread_signal = Signal('QVariant')
+# class CodesTableThread(QThread):
+#     app_window = None
+#     thread_signal = Signal('QVariant')
 
-    def __init__(self, parent=None):
-        QThread.__init__(self, parent)
-        self.app_window = parent.parent().parent()
+#     def __init__(self, parent=None):
+#         QThread.__init__(self, parent)
+#         self.app_window = parent.parent().parent()
 
-    def run(self):
-        print('=========================== CODES TABLE THREAD STARTED ===========================')
-        data = []
-        counts = [0 for _ in self.app_window.themes]
+#     def run(self):
+#         print('=========================== CODES TABLE THREAD STARTED ===========================')
+#         data = []
+#         counts = [0 for _ in self.app_window.themes]
 
-        train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'), encoding='utf-8-sig', encoding_errors='replace')
-        codes_df = pd.read_csv(self.app_window.theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
-        codes_df.columns = codes_df.columns.str.lower()
+#         train_df = pd.read_csv(self.app_window.doc_path.replace('.docx', '_train.csv'), encoding='utf-8-sig', encoding_errors='replace')
+#         codes_df = pd.read_csv(self.app_window.theme_code_table_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
+#         codes_df.columns = codes_df.columns.str.lower()
 
-        for _, row in train_df.iterrows():
-            if row['codes'] != '':
-                for i, theme in enumerate(self.app_window.themes):
-                    counts[i] += int(row[theme])
+#         for _, row in train_df.iterrows():
+#             if row['codes'] != '':
+#                 for i, theme in enumerate(self.app_window.themes):
+#                     counts[i] += int(row[theme])
 
-        titles = []
-        for i, theme in enumerate(self.app_window.themes):
-            titles.append(f'{theme} ({counts[i]})')
+#         titles = []
+#         for i, theme in enumerate(self.app_window.themes):
+#             titles.append(f'{theme} ({counts[i]})')
 
-        data.append(titles)
+#         data.append(titles)
         
-        for _, codes_row in codes_df.iterrows():
-            table_row = {}
-            for theme in self.app_window.themes:
-                code = codes_row[theme]
-                if isinstance(code, str):
-                    sentences = []
-                    for _, train_row in train_df.iterrows():
-                        if code in train_row['codes']:
-                            sentences.append(train_row['original_sentence'])
-                        table_row[theme] = [f'{code} ({len(sentences)})', sentences]
-            data.append(table_row)
+#         for _, codes_row in codes_df.iterrows():
+#             table_row = {}
+#             for theme in self.app_window.themes:
+#                 code = codes_row[theme]
+#                 if isinstance(code, str):
+#                     sentences = []
+#                     for _, train_row in train_df.iterrows():
+#                         if code in train_row['codes']:
+#                             sentences.append(train_row['original_sentence'])
+#                         table_row[theme] = [f'{code} ({len(sentences)})', sentences]
+#             data.append(table_row)
         
-        self.thread_signal.emit(data)    
+#         self.thread_signal.emit(data)    
 
 
-class AllTableThread(QThread):
-    app_window = None
-    thread_signal = Signal('QVariant')
-    reclassified = None
+# class AllTableThread(QThread):
+#     app_window = None
+#     thread_signal = Signal('QVariant')
+#     reclassified = None
 
-    def __init__(self, parent=None):
-        QThread.__init__(self, parent)
-        self.app_window = parent.parent().parent()
+#     def __init__(self, parent=None):
+#         QThread.__init__(self, parent)
+#         self.app_window = parent.parent().parent()
 
-    def run(self):
-        print('=========================== ALL TABLE THREAD STARTED ===========================')
-        data = load_table_data(self.app_window.doc_path, self.app_window.themes, 'all-table', self.reclassified)
-        # with open('all_table_data.json', 'w') as f:
-        #     json.dump(data, f)
-        self.thread_signal.emit(data)
+#     def run(self):
+#         print('=========================== ALL TABLE THREAD STARTED ===========================')
+#         data = load_table_data(self.app_window.doc_path, self.app_window.themes, 'all-table', self.reclassified)
+#         # with open('all_table_data.json', 'w') as f:
+#         #     json.dump(data, f)
+#         self.thread_signal.emit(data)
 
 
 class PredictTableThread(QThread):
@@ -375,19 +375,19 @@ class PredictTableThread(QThread):
         self.thread_signal.emit(data)
 
 
-class TrainTableThread(QThread):
-    app_window = None
-    thread_signal = Signal('QVariant')
-    reclassified = None
+# class TrainTableThread(QThread):
+#     app_window = None
+#     thread_signal = Signal('QVariant')
+#     reclassified = None
 
-    def __init__(self, parent=None):
-        QThread.__init__(self, parent)
-        self.app_window = parent.parent().parent()
+#     def __init__(self, parent=None):
+#         QThread.__init__(self, parent)
+#         self.app_window = parent.parent().parent()
 
-    def run(self):
-        print('=========================== TRAIN TABLE THREAD STARTED ===========================')
-        data = load_table_data(self.app_window.doc_path, self.app_window.themes, 'train-table', self.reclassified)
-        self.thread_signal.emit(data)
+#     def run(self):
+#         print('=========================== TRAIN TABLE THREAD STARTED ===========================')
+#         data = load_table_data(self.app_window.doc_path, self.app_window.themes, 'train-table', self.reclassified)
+#         self.thread_signal.emit(data)
 
 
 class ReclassifyThread(QThread):
@@ -633,23 +633,27 @@ class SetupBackend(QObject):
         else:
             print('transcript already in data folder.')
 
-        # copy code lookup table into data folder
-        theme_code_lookup_destination_path = resource_path(f'data/documents/{end_doc_path.replace(".docx", "_codes.csv")}')
-        if theme_code_lookup_path != '':
-            print(f'copying {theme_code_lookup_path} to {theme_code_lookup_destination_path}...')
-            if not os.path.exists(theme_code_lookup_destination_path) or not filecmp.cmp(theme_code_lookup_path, theme_code_lookup_destination_path):
-                # create directory first
-                os.makedirs(os.path.dirname(theme_code_lookup_destination_path), exist_ok=True)
-                # copy file
-                copyfile(theme_code_lookup_path, theme_code_lookup_destination_path)
-                print('theme code table copied.')
-            else:
-                print('theme code table already in data folder.')            
+        # -------------------------- hard coded themes -----------------------------------
+        self.app_window.themes = ['food and drinks', 'place', 'people', 'opinions']
+        # --------------------------------------------------------------------------------
 
-        if theme_code_lookup_path != '':
-            cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
-            cat_df.columns = cat_df.columns.str.lower()
-            self.app_window.themes = list(cat_df)     
+        # copy code lookup table into data folder
+        # theme_code_lookup_destination_path = resource_path(f'data/documents/{end_doc_path.replace(".docx", "_codes.csv")}')
+        # if theme_code_lookup_path != '':
+        #     print(f'copying {theme_code_lookup_path} to {theme_code_lookup_destination_path}...')
+        #     if not os.path.exists(theme_code_lookup_destination_path) or not filecmp.cmp(theme_code_lookup_path, theme_code_lookup_destination_path):
+        #         # create directory first
+        #         os.makedirs(os.path.dirname(theme_code_lookup_destination_path), exist_ok=True)
+        #         # copy file
+        #         copyfile(theme_code_lookup_path, theme_code_lookup_destination_path)
+        #         print('theme code table copied.')
+        #     else:
+        #         print('theme code table already in data folder.')            
+
+        # if theme_code_lookup_path != '':
+        #     cat_df = pd.read_csv(theme_code_lookup_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
+        #     cat_df.columns = cat_df.columns.str.lower()
+        #     self.app_window.themes = list(cat_df)     
 
         # set paths and regexp for classify_docx object
         self.classify_docx.set_up(self.app_window.doc_path, software, word_delimiter, nvivo_codes_path, maxqda_document_path, dedoose_excerpts_path, theme_code_lookup_path)
@@ -691,50 +695,50 @@ class TextBackend(QObject):
         self.signal.emit(data)
 
 
-class CodesTableBackend(QObject):
-    signal = Signal('QVariant')
-    start = None
+# class CodesTableBackend(QObject):
+#     signal = Signal('QVariant')
+#     start = None
 
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent)
-        self.thread = CodesTableThread(self)
-        self.thread.thread_signal.connect(self.send_table)
+#     def __init__(self, parent=None):
+#         QObject.__init__(self, parent)
+#         self.thread = CodesTableThread(self)
+#         self.thread.thread_signal.connect(self.send_table)
 
-    @Slot()
-    def get_table(self):
-        self.start = time.time()
-        self.thread.start()
+#     @Slot()
+#     def get_table(self):
+#         self.start = time.time()
+#         self.thread.start()
 
-    @Slot(str)
-    def send_table(self, data):
-        end = time.time()
-        print(f'Codes Table (Python) => {round(end-self.start, 2)} seconds')
-        self.signal.emit(data)
+#     @Slot(str)
+#     def send_table(self, data):
+#         end = time.time()
+#         print(f'Codes Table (Python) => {round(end-self.start, 2)} seconds')
+#         self.signal.emit(data)
 
 
-class AllTableBackend(QObject):
-    signal = Signal('QVariant')
-    reclassified = None
-    start = None
+# class AllTableBackend(QObject):
+#     signal = Signal('QVariant')
+#     reclassified = None
+#     start = None
 
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent)
-        self.thread = AllTableThread(self)
-        self.thread.thread_signal.connect(self.send_table)      
+#     def __init__(self, parent=None):
+#         QObject.__init__(self, parent)
+#         self.thread = AllTableThread(self)
+#         self.thread.thread_signal.connect(self.send_table)      
 
-    @Slot(bool)
-    def get_table(self, reclassified):
-        self.reclassified = reclassified
-        self.thread.reclassified = reclassified
-        self.start = time.time()
-        self.thread.start()
+#     @Slot(bool)
+#     def get_table(self, reclassified):
+#         self.reclassified = reclassified
+#         self.thread.reclassified = reclassified
+#         self.start = time.time()
+#         self.thread.start()
 
-    @Slot(str)
-    def send_table(self, data):
-        end = time.time()
-        print(f'All Table (Python) => {round(end-self.start, 2)} seconds')
-        data_and_reclassified = [data, self.reclassified]
-        self.signal.emit(data_and_reclassified)
+#     @Slot(str)
+#     def send_table(self, data):
+#         end = time.time()
+#         print(f'All Table (Python) => {round(end-self.start, 2)} seconds')
+#         data_and_reclassified = [data, self.reclassified]
+#         self.signal.emit(data_and_reclassified)
 
 
 class PredictTableBackend(QObject):
@@ -762,29 +766,29 @@ class PredictTableBackend(QObject):
         self.signal.emit(data_and_reclassified)
 
 
-class TrainTableBackend(QObject):
-    signal = Signal('QVariant')
-    reclassified = None
-    start = None
+# class TrainTableBackend(QObject):
+#     signal = Signal('QVariant')
+#     reclassified = None
+#     start = None
 
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent)
-        self.thread = TrainTableThread(self)
-        self.thread.thread_signal.connect(self.send_table)      
+#     def __init__(self, parent=None):
+#         QObject.__init__(self, parent)
+#         self.thread = TrainTableThread(self)
+#         self.thread.thread_signal.connect(self.send_table)      
 
-    @Slot(bool)
-    def get_table(self, reclassified):
-        self.reclassified = reclassified
-        self.thread.reclassified = reclassified
-        self.start = time.time()
-        self.thread.start()
+#     @Slot(bool)
+#     def get_table(self, reclassified):
+#         self.reclassified = reclassified
+#         self.thread.reclassified = reclassified
+#         self.start = time.time()
+#         self.thread.start()
 
-    @Slot(str)
-    def send_table(self, data):
-        end = time.time()
-        print(f'Train Table (Python) => {round(end-self.start, 2)} seconds')
-        data_and_reclassified = [data, self.reclassified]
-        self.signal.emit(data_and_reclassified)
+#     @Slot(str)
+#     def send_table(self, data):
+#         end = time.time()
+#         print(f'Train Table (Python) => {round(end-self.start, 2)} seconds')
+#         data_and_reclassified = [data, self.reclassified]
+#         self.signal.emit(data_and_reclassified)
 
 
 class ReclassifyBackend(QObject):
@@ -815,25 +819,25 @@ class ReclassifyBackend(QObject):
         self.signal.emit('done')
 
 
-class ConfusionTablesBackend(QObject):
-    signal = Signal('QVariant')
-    start = None
+# class ConfusionTablesBackend(QObject):
+#     signal = Signal('QVariant')
+#     start = None
 
-    def __init__(self, parent=None):
-        QObject.__init__(self, parent)
-        self.thread = ConfusionTablesThread(self)
-        self.thread.thread_signal.connect(self.send_data)
+#     def __init__(self, parent=None):
+#         QObject.__init__(self, parent)
+#         self.thread = ConfusionTablesThread(self)
+#         self.thread.thread_signal.connect(self.send_data)
 
-    @Slot()
-    def get_data(self):
-        self.start = time.time()
-        self.thread.start()
+#     @Slot()
+#     def get_data(self):
+#         self.start = time.time()
+#         self.thread.start()
 
-    @Slot(str)
-    def send_data(self, data):
-        end = time.time()
-        print(f'Confusion Tables (Python) => {round(end-self.start, 2)} seconds')
-        self.signal.emit(data)
+#     @Slot(str)
+#     def send_data(self, data):
+#         end = time.time()
+#         print(f'Confusion Tables (Python) => {round(end-self.start, 2)} seconds')
+#         self.signal.emit(data)
 
 
 class LogBackend(QObject):
@@ -977,24 +981,24 @@ class AppWindow(QMainWindow):
         classify_docx = ClassifyDocx()
         self.setup_backend = SetupBackend(classify_docx, self.view)
         self.text_backend = TextBackend(self.view)
-        self.codes_table_backend = CodesTableBackend(self.view)
-        self.all_table_backend = AllTableBackend(self.view)
+        # self.codes_table_backend = CodesTableBackend(self.view)
+        # self.all_table_backend = AllTableBackend(self.view)
         self.predict_table_backend = PredictTableBackend(self.view)
-        self.train_table_backend = TrainTableBackend(self.view)
+        # self.train_table_backend = TrainTableBackend(self.view)
         self.reclassify_backend = ReclassifyBackend(classify_docx, self.view)
-        self.confusion_tables_backend = ConfusionTablesBackend(self.view)
+        # self.confusion_tables_backend = ConfusionTablesBackend(self.view)
         self.log_backend = LogBackend(self.view)
         self.import_backend = ImportBackend(self.view)
         channel = QWebChannel(self)
         self.page.setWebChannel(channel)
         channel.registerObject('setupBackend', self.setup_backend)
         channel.registerObject('textBackend', self.text_backend)
-        channel.registerObject('codesTableBackend', self.codes_table_backend)
-        channel.registerObject('allTableBackend', self.all_table_backend)
+        # channel.registerObject('codesTableBackend', self.codes_table_backend)
+        # channel.registerObject('allTableBackend', self.all_table_backend)
         channel.registerObject('predictTableBackend', self.predict_table_backend)
-        channel.registerObject('trainTableBackend', self.train_table_backend)
+        # channel.registerObject('trainTableBackend', self.train_table_backend)
         channel.registerObject('reclassifyBackend', self.reclassify_backend)
-        channel.registerObject('confusionTablesBackend', self.confusion_tables_backend)
+        # channel.registerObject('confusionTablesBackend', self.confusion_tables_backend)
         channel.registerObject('logBackend', self.log_backend)
         channel.registerObject('importBackend', self.import_backend)
         self.view.load(QUrl.fromLocalFile(QDir.current().filePath(resource_path('templates/main.html'))))
