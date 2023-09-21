@@ -493,7 +493,7 @@ class ClassifyDocx:
         return '\n'.join(full_text)
 
 
-    def run_classifier(self, modified_train_file_path=None):
+    def run_classifier(self, modified_train_file_path=None, model_path=None):
         print('inside run_classifier.')
         start_script = datetime.now()
 
@@ -514,14 +514,15 @@ class ClassifyDocx:
             # elif self.software_used == 'Dedoose':
             #     self.themes = import_codes_from_dedoose(self.sentence2vec_model, self.doc_path, self.dedoose_excerpts_path, self.cat_path)   
 
-        if modified_train_file_path is not None:
+        # 1st classification
+        if modified_train_file_path is None:
+            self.predict_file_path = self.doc_path.replace('.docx', '_predict.csv')
+        # reclassification
+        else:
             self.train_file_path = modified_train_file_path
             self.predict_file_path = modified_train_file_path.replace('train', 'predict')
 
             self.train_df = pd.read_csv(self.train_file_path, encoding='utf-8-sig', encoding_errors='replace')
-        else:
-            # self.train_file_path = self.doc_path.replace('.docx', '_train.csv')
-            self.predict_file_path = self.doc_path.replace('.docx', '_predict.csv')
 
         if self.cat_path != '':
             self.cat_df = pd.read_csv(self.cat_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
@@ -536,6 +537,7 @@ class ClassifyDocx:
             writer = csv.writer(predict_file, delimiter=',')
             writer.writerow(['original_sentence', 'cleaned_sentence', 'sentence_embedding'])
 
+            # reclassification
             if modified_train_file_path is not None:
                 # save which have been moved to train as re-classification
                 # (before oversampling!!)
@@ -602,7 +604,7 @@ class ClassifyDocx:
         # first classification
         if modified_train_file_path is None:
             # load chains model from pickle
-            file = open('data/model/chains.pkl','rb')
+            file = open(model_path, 'rb')
             chains = pickle.load(file)
             file.close()
         # re-classification

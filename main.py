@@ -2,6 +2,7 @@
 import filecmp
 import os
 from pathlib import Path
+import shutil
 from sys import platform
 import sys
 import re
@@ -241,7 +242,7 @@ class SetupThread(QThread):
 
     def run(self):
         print('=========================== SETUP THREAD STARTED ===========================')
-        themes_found = self.classify_docx.run_classifier()
+        themes_found = self.classify_docx.run_classifier(model_path=self.app_window.model_path)
         self.app_window.themes = themes_found
 
         print('done with run_classifier in setup thread')
@@ -406,6 +407,9 @@ class ReclassifyThread(QThread):
         if self.first_reclassify:
             train_path = self.app_window.doc_path.replace('.docx', '_train.csv')
             predict_path = self.app_window.doc_path.replace('.docx', '_predict.csv')
+
+            # copy exported model_train.csv to data/documents
+            shutil.copy(self.app_window.model_train_path, train_path)
         else:
             train_path = self.app_window.doc_path.replace('.docx', '_train_1.csv')
             predict_path = self.app_window.doc_path.replace('.docx', '_predict_1.csv')
@@ -484,7 +488,7 @@ class ReclassifyThread(QThread):
         train_df.to_csv(new_train_path, index=False, encoding='utf-8-sig', errors='replace')
 
         print('running run_classifier...')
-        self.classify_docx.run_classifier(new_train_path)
+        self.classify_docx.run_classifier(modified_train_file_path=new_train_path)
         print('done!')
 
         print('running analyse...')
@@ -617,6 +621,9 @@ class SetupBackend(QObject):
             dedoose_excerpts_path = resource_path(dedoose_excerpts_path)
         if len(theme_code_lookup_path) > 0:
             theme_code_lookup_path = resource_path(theme_code_lookup_path)
+
+        self.app_window.model_path = resource_path('data/model/chains.pkl')
+        self.app_window.model_train_path = resource_path('data/model/model_train.csv')
 
         # copy transcript into data folder
         end_doc_path = re.search(r'([^\/]+).$', transcript_path).group(0)

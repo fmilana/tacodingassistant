@@ -12,7 +12,7 @@ from path_util import resource_path
 class Sentence2Vec:
     # https://github.com/RaRe-Technologies/gensim-data
     model_name = 'glove-twitter-50'
-    model_file_path = resource_path('data/embeddings/glove_model.pickle')
+    model_file_path = resource_path('data/embeddings/glove_model.pkl')
 
     vector_sentence_dict = {}
 
