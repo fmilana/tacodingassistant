@@ -456,7 +456,10 @@ class ClassifyDocx:
         print('inside run_classifier.')
         start_script = datetime.now()
 
-        # if self.themes is None:
+        if self.themes is None:
+            # ==================== hard-coded themes =========================
+            self.themes = ['food and drinks', 'place', 'people', 'opinions']
+            # ================================================================
             # # if from Word
             # if self.software_used == 'Word':
             #     self.themes = import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path)

@@ -139,7 +139,9 @@ const onImportData = function (data) {
 };
 
 
-const onSetup = function () {
+const onSetup = function (modelThemes) {
+  themes = modelThemes;
+
   d3.select('#setup-container')
     .remove();
 
