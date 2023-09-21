@@ -424,10 +424,51 @@ class ClassifyDocx:
     #     return weighted_f1_score, weighted_jaccard_score
 
 
-    def classify(self, sentence_embedding_matrix, chains):
+    def classify(self, chains, sentence_embedding_matrix, reclassify=False):
         start_function = datetime.now()
 
         print(f'np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
+
+        if reclassify:
+            self.original_train_df = self.train_df.copy()
+            # clean vector strings to later convert to np array
+            self.train_df['sentence_embedding'] = self.train_df['sentence_embedding'].apply(
+                lambda x: np.fromstring(
+                    x.replace('\n','')
+                    .replace('[','')
+                    .replace(']','')
+                    .replace('  ',' '), sep=' '))
+
+            X = np.array(self.train_df['sentence_embedding'].tolist())
+            Y = np.array(self.train_df.iloc[:, 7:])
+
+            # oversample minority classes
+            class_dist = [y/Y.shape[0] for y in Y.sum(axis=0)]
+            print('checking for minority classes in Y...')
+            X_sub, Y_sub = get_minority_samples(pd.DataFrame(X), pd.DataFrame(Y)) # only oversample training set
+            if np.shape(X_sub)[0] > 0: # if minority samples were found
+                print('minority classes found.')
+                print('oversampling...')
+                try:
+                    X_res, Y_res = MLSMOTE(X_sub, Y_sub, round(X.shape[0]/3), 5)       
+                    X = np.concatenate((X, X_res.to_numpy())) # append augmented samples
+                    Y = np.concatenate((Y, Y_res.to_numpy())) # to original dataframes
+                    print('oversampled.')
+                    class_dist_os = [x/Y.shape[0] for x in Y.sum(axis=0)]
+                    print(f'class distribution BEFORE MLSMOTE: {class_dist}')
+                    print(f'class distribution AFTER MLSMOTE: {class_dist_os}')
+                except ValueError:
+                    print('could not oversample because n_samples < n_neighbors in some classes')
+            else:
+                print('no minority classes.')
+
+            print(f'np.shape(X) = {np.shape(X)}')
+            print(f'np.shape(Y) = {np.shape(Y)}')
+
+            # fit new chains to reclassified data
+            for i, chain in enumerate(chains):
+                chain.fit(X, Y)
+                print(f'{i+1}/{len(chains)} chains fit')
 
         prediction_output = np.rint(np.array([chain.predict(sentence_embedding_matrix) for chain in chains]).mean(axis=0))
         
@@ -476,6 +517,8 @@ class ClassifyDocx:
         if modified_train_file_path is not None:
             self.train_file_path = modified_train_file_path
             self.predict_file_path = modified_train_file_path.replace('train', 'predict')
+
+            self.train_df = pd.read_csv(self.train_file_path, encoding='utf-8-sig', encoding_errors='replace')
         else:
             # self.train_file_path = self.doc_path.replace('.docx', '_train.csv')
             self.predict_file_path = self.doc_path.replace('.docx', '_predict.csv')
@@ -483,8 +526,6 @@ class ClassifyDocx:
         if self.cat_path != '':
             self.cat_df = pd.read_csv(self.cat_path, encoding='utf-8-sig', encoding_errors='replace').applymap(lambda x: x.lower() if type(x) == str else x)
             self.cat_df.columns = self.cat_df.columns.str.lower()
-
-        # self.train_df = pd.read_csv(self.train_file_path, encoding='utf-8-sig', encoding_errors='replace')
 
         text = self.get_text(self.doc_path).replace("’", "'").replace("“", "'").replace("”", "'")
 
@@ -495,9 +536,10 @@ class ClassifyDocx:
             writer = csv.writer(predict_file, delimiter=',')
             writer.writerow(['original_sentence', 'cleaned_sentence', 'sentence_embedding'])
 
-            # save which have been moved to train as re-classification
-            # (before oversampling!!)
-            # self.moved_predict_df = self.train_df.loc[self.train_df['codes'].isna()]
+            if modified_train_file_path is not None:
+                # save which have been moved to train as re-classification
+                # (before oversampling!!)
+                self.moved_predict_df = self.train_df.loc[self.train_df['codes'].isna()]
 
             all_original_sentences = sent_tokenize(text)
 
@@ -555,12 +597,39 @@ class ClassifyDocx:
 
         print(f'done writing in {datetime.now() - start_writing}')
 
-        # load chains model from pickle
-        file = open('data/model/chains.pkl','rb')
-        chains = pickle.load(file)
-        file.close()
+        reclassify = False
 
-        self.classify(sentence_embedding_matrix, chains)
+        # first classification
+        if modified_train_file_path is None:
+            # load chains model from pickle
+            file = open('data/model/chains.pkl','rb')
+            chains = pickle.load(file)
+            file.close()
+        # re-classification
+        else:
+            clf = XGBClassifier(
+                verbosity=0
+                # n_estimators=100,
+                # learning_rate=0.3,
+                # gamma=0,
+                # max_depth=6,
+                # min_child_weight=1,
+                # max_delta_step=0,
+                # subsample=1,
+                # colsample_bytree=1,
+                # colsample_bylevel=1,
+                # reg_lambda=1,
+                # reg_alpha=0,
+                # scale_pos_weight=1
+            )
+
+            number_of_chains = 10
+
+            chains = [ClassifierChain(clf, order='random', random_state=i) for i in range(number_of_chains)]
+
+            reclassify = True
+
+        self.classify(chains, sentence_embedding_matrix, reclassify)
 
         print(f'script finished in {datetime.now() - start_script}')
 
