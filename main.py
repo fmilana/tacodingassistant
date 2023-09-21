@@ -407,7 +407,6 @@ class ReclassifyThread(QThread):
         if self.first_reclassify:
             train_path = self.app_window.doc_path.replace('.docx', '_train.csv')
             predict_path = self.app_window.doc_path.replace('.docx', '_predict.csv')
-
             # copy exported model_train.csv to data/documents
             shutil.copy(self.app_window.model_train_path, train_path)
         else:
