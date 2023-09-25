@@ -330,7 +330,7 @@ class ClassifyDocx:
     #     axes.set_title(theme)
 
 
-    def train_and_export_model(self, X, Y):
+    def train_and_export_model(self, X, Y, themes_list):
         clf = XGBClassifier(
             verbosity=0
             # n_estimators=100,
@@ -352,10 +352,17 @@ class ClassifyDocx:
         for chain in chains:
             chain.fit(X, Y)
         
-        model_file_path = 'data/model/chains.pkl'
+        model_file_path = resource_path('data/model/chains.pkl')
+        themes_file_path = resource_path('data/model/themes.txt')
 
+        # save model for transfer learning in transfer branch
         with open(model_file_path, 'wb') as file:  
             pickle.dump(chains, file)
+
+        # save themes for transfer learning in transfer branch
+        with open(themes_file_path, 'w') as file:
+            for theme in themes_list:
+                file.write(f'{theme}\n')
 
 
     def classify(self, sentence_embedding_matrix, chains, oversample=True):
@@ -377,7 +384,7 @@ class ClassifyDocx:
         print(f'np.shape(Y) = {np.shape(Y)}')
 
         # train and export model for transfer learning in transfer branch
-        self.train_and_export_model(X, Y)
+        self.train_and_export_model(X, Y, themes_list)
         # ------------------------------------------------------------------
 
         for i, chain in enumerate(chains):
