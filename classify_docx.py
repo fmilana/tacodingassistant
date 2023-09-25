@@ -352,8 +352,8 @@ class ClassifyDocx:
         for chain in chains:
             chain.fit(X, Y)
         
-        model_file_path = resource_path('data/model/chains.pkl')
-        themes_file_path = resource_path('data/model/themes.txt')
+        model_file_path = resource_path('data/models/chains.pkl')
+        themes_file_path = resource_path('data/models/themes.txt')
 
         # save model for transfer learning in transfer branch
         with open(model_file_path, 'wb') as file:  
@@ -361,8 +361,10 @@ class ClassifyDocx:
 
         # save themes for transfer learning in transfer branch
         with open(themes_file_path, 'w') as file:
-            for theme in themes_list:
-                file.write(f'{theme}\n')
+            for i, theme in enumerate(themes_list):
+                file.write(f'{theme}')
+                if i < len(themes_list) - 1:
+                    file.write('\n')
 
 
     def classify(self, sentence_embedding_matrix, chains, oversample=True):
