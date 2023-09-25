@@ -51,8 +51,10 @@ class ClassifyDocx:
         download('stopwords', download_dir=resource_path('data/nltk/'))
         data.path.append(resource_path('data/nltk/'))
         self.sentence2vec_model = Sentence2Vec()
-        # hard-coded themes
-        self.themes = ['food and drinks', 'place', 'people', 'opinions']
+        # load themes from exported file
+        themes_file = open(resource_path('data/models/themes.txt'), 'r')
+        self.themes = themes_file.read().split('\n')
+        themes_file.close()
 
 
     def set_up(self, transcript_path, software, word_delimiter, nvivo_codes_folder_path, maxqda_doc_path, dedoose_excerpts_path, theme_code_table_path):
@@ -498,9 +500,11 @@ class ClassifyDocx:
         start_script = datetime.now()
 
         if self.themes is None:
-            # ==================== hard-coded themes =========================
-            self.themes = ['food and drinks', 'place', 'people', 'opinions']
-            # ================================================================
+            # load themes from exported file
+            themes_file = open(resource_path('data/models/themes.txt'), 'r')
+            self.themes = themes_file.read().split('\n')
+            themes_file.close()
+            
             # # if from Word
             # if self.software_used == 'Word':
             #     self.themes = import_codes_from_word(self.sentence2vec_model, self.doc_path, self.delimiter, self.cat_path)

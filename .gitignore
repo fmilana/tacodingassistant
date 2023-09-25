@@ -7,7 +7,7 @@ __pycache__
 *.model
 nvivo
 *.csv
-!model_train.csv
+!chains_train.csv
 *.docx
 reorder_exit.docx
 classification.txt
