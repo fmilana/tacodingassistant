@@ -1,7 +1,4 @@
-city
-restaurants
-food
-beverages
-design
-thoughts
-other
+food and drinks
+place
+people
+opinions
