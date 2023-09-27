@@ -1,6 +1,7 @@
 import itertools
 import os
 import re
+import shutil
 import zipfile
 import csv
 import docx
@@ -10,6 +11,7 @@ from pathlib import Path
 from datetime import datetime
 from nltk import sent_tokenize
 from bs4 import BeautifulSoup
+from path_util import resource_path
 from preprocess import clean_sentence, remove_stop_words
 
 
@@ -266,6 +268,10 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
         print(f'{len(set(missing_codes))} missing codes ({len(missing_codes)} sentences) in themes table (some counters in the codes table will be 0)')
         # print(set(missing_codes))
         # os.remove('tmp.xml')
+
+        # copy train file to models folder for transfer learning
+        shutil.copy(doc_path.replace('.docx', '_train.csv'), resource_path('data/models/chains_train.csv'))
+
         return themes_list
 
 
@@ -372,6 +378,9 @@ def import_codes_from_nvivo(sentence2vec_model, doc_path, codes_folder_path, the
     # print(set(missing_codes))
 
     train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False, encoding='utf-8-sig', errors='replace')
+
+    # copy train file to models folder for transfer learning
+    shutil.copy(doc_path.replace('.docx', '_train.csv'), resource_path('data/models/chains_train.csv'))
 
     return themes_found
 
@@ -480,6 +489,9 @@ def import_codes_from_maxqda(sentence2vec_model, doc_path, retrieved_codes_doc, 
     print(f'{len(set(missing_codes))} missing codes ({len(missing_codes)} sentences) in themes table')
 
     train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False, encoding='utf-8-sig', errors='replace')
+
+    # copy train file to models folder for transfer learning
+    shutil.copy(doc_path.replace('.docx', '_train.csv'), resource_path('data/models/chains_train.csv'))
     
     print(f'themes found = {themes_found}')
 
@@ -582,6 +594,9 @@ def import_codes_from_dedoose(sentence2vec_model, doc_path, excerpts_txt_path, t
         print(f'{len(set(missing_codes))} missing codes ({len(missing_codes)} sentences) in themes table')
 
         train_df.to_csv(doc_path.replace('.docx', '_train.csv'), index=False, encoding='utf-8-sig', errors='replace')
+
+        # copy train file to models folder for transfer learning
+        shutil.copy(doc_path.replace('.docx', '_train.csv'), resource_path('data/models/chains_train.csv'))
 
         # print(f'themes found = {themes_found}')
 
