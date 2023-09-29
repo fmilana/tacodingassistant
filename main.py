@@ -70,7 +70,8 @@ def show_error_popup(traceback):
 def load_table_data(doc_path, themes, table_name, reclassified):
     table = []
 
-    minimum_proba = 0.95
+    # default = 0.95
+    minimum_proba = 0.60
 
     if table_name == 'all-table':
         if reclassified:
@@ -262,7 +263,8 @@ class TextThread(QThread):
 
     def run(self):
         print('=========================== TEXT THREAD STARTED ===========================')
-        minimum_proba = 0.95
+        # default = 0.95
+        minimum_proba = 0.60
 
         document = docx.Document(self.app_window.doc_path)
         whole_text = []

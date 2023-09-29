@@ -50,7 +50,8 @@ def analyse(doc_path, themes, filter_regexp, train_file_path=None):
         'theres', 'ofyes', 'reasonsbecause', 'hadnt', 'youre', 'okay', 'if',
         'andyes', 'a']
 
-    minimum_proba = 0.95
+    # default = 0.95
+    minimum_proba = 0.60
     train_theme_counts = []
     predict_theme_counts = []
     both_theme_counts = []
