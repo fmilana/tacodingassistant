@@ -50,7 +50,7 @@ def nearest_neighbour(X: pd.DataFrame, neigh) -> list:
 
 
 # default neigh=5
-def MLSMOTE(X, y, n_sample, neigh=15):
+def MLSMOTE(X, y, n_sample, neigh=5):
     """
     Give the augmented data using MLSMOTE algorithm
     
