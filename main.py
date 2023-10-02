@@ -72,7 +72,7 @@ def load_table_data(doc_path, themes, table_name, reclassified):
     table = []
 
     # default = 0.95
-    minimum_proba = 0.60
+    minimum_proba = 0.75
 
     if table_name == 'all-table':
         if reclassified:
@@ -265,7 +265,7 @@ class TextThread(QThread):
     def run(self):
         print('=========================== TEXT THREAD STARTED ===========================')
         # default = 0.95
-        minimum_proba = 0.60
+        minimum_proba = 0.75
 
         document = docx.Document(self.app_window.doc_path)
         whole_text = []

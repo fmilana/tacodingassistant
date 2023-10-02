@@ -51,7 +51,7 @@ def analyse(doc_path, themes, train_file_path=None):
         'andyes', 'a']
 
     # default = 0.95
-    minimum_proba = 0.60
+    minimum_proba = 0.75
     # train_theme_counts = []
     predict_theme_counts = []
     both_theme_counts = []
