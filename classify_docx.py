@@ -122,6 +122,8 @@ class ClassifyDocx:
                 print('minority classes found.')
                 print('oversampling...')
                 try:
+                    # default 3rd param=round(X_train.shape[0]/3)
+                    # for transfer learning, use 3rd param=X_train.shape[0]
                     X_res, Y_res = MLSMOTE(X_sub, Y_sub, round(X_train.shape[0]/3), 5)       
                     X_train = np.concatenate((X_train, X_res.to_numpy())) # append augmented samples
                     Y_train = np.concatenate((Y_train, Y_res.to_numpy())) # to original dataframes
