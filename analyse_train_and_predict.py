@@ -52,7 +52,7 @@ def analyse(doc_path, themes, filter_regexp, train_file_path=None):
 
     # default = 0.95
     # for transfer learning = 0.75
-    minimum_proba = 0.95
+    minimum_proba = 0.75
     train_theme_counts = []
     predict_theme_counts = []
     both_theme_counts = []
