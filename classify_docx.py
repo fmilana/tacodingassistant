@@ -124,7 +124,7 @@ class ClassifyDocx:
                 print('minority classes found.')
                 print('oversampling...')
                 try:
-                    X_res, Y_res = MLSMOTE(X_sub, Y_sub, round(X_train.shape[0]), 5)       
+                    X_res, Y_res = MLSMOTE(X_sub, Y_sub, round(X_train.shape[0]))       
                     X_train = np.concatenate((X_train, X_res.to_numpy())) # append augmented samples
                     Y_train = np.concatenate((Y_train, Y_res.to_numpy())) # to original dataframes
                     print('oversampled.')
