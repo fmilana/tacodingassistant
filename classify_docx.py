@@ -374,23 +374,18 @@ class ClassifyDocx:
     #     print(f'generating confusion matrices...')
     #     start_cm = datetime.now()
 
-    #     Y_test_pred = np.rint(np.array([chain.predict(X_test) for chain in chains]).mean(axis=0))
+    #     Y_test_pred = np.array([chain.predict_proba(X_test) for chain in chains]).mean(axis=0)
+    #     Y_test_pred = (Y_test_pred >= minimum_proba).astype(int)
 
     #     # these scores are then logged in app.log
-    #     weighted_f1_score = f1_score(Y_test, Y_test_pred >=0.5, average='weighted')
-    #     weighted_jaccard_score = jaccard_score(Y_test, Y_test_pred >=0.5, average='weighted')
+    #     weighted_f1_score = f1_score(Y_test, Y_test_pred, average='weighted')
+    #     weighted_jaccard_score = jaccard_score(Y_test, Y_test_pred, average='weighted')
 
     #     print(f'np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
 
-    #     prediction_output = np.rint(np.array([chain.predict(sentence_embedding_matrix) for chain in chains]).mean(axis=0))
-        
-    #     print(f'np.shape(prediction_output) 1 = {np.shape(prediction_output)}')
-
-    #     prediction_output = prediction_output.astype(int)
-
-    #     print(f'np.shape(prediction_output) 2 = {np.shape(prediction_output)}')
-
     #     prediction_proba = np.array([chain.predict_proba(sentence_embedding_matrix) for chain in chains]).mean(axis=0)
+
+    #     prediction_output = (prediction_proba >= minimum_proba).astype(int)
 
     #     self.add_classification_to_csv(prediction_output, prediction_proba)
 
@@ -426,7 +421,7 @@ class ClassifyDocx:
     #     return weighted_f1_score, weighted_jaccard_score
 
 
-    def classify(self, chains, sentence_embedding_matrix, reclassify=False):
+    def classify(self, sentence_embedding_matrix, chains, minimum_proba, reclassify=False):
         start_function = datetime.now()
 
         print(f'np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
@@ -635,7 +630,9 @@ class ClassifyDocx:
 
             reclassify = True
 
-        self.classify(chains, sentence_embedding_matrix, reclassify)
+        minimum_proba = 0.75
+
+        self.classify(sentence_embedding_matrix, chains, minimum_proba, reclassify)
 
         print(f'script finished in {datetime.now() - start_script}')
 
