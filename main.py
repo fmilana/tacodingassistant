@@ -527,8 +527,6 @@ class ConfusionTablesThread(QThread):
                         word = re.sub(r' \(\d+\)$', '', text)
                         sentences = []
 
-                        print(f'theme = {theme}, word = {word}')
-
                         try:
                             matching_indices = cm_keywords_df.loc[cm_keywords_df['word'] == word, 'sentences'].item()
 
