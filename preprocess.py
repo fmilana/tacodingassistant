@@ -32,6 +32,7 @@ def clean_sentence(sentence, filter_regexp, keep_alphanum=False):
         sentence = re.sub(regexp, '', sentence)
     
     if not keep_alphanum:
-        sentence = re.sub(r'[^A-Za-z\s]+', '', sentence)
+        # sentence = re.sub(r'[^A-Za-z\s]+', '', sentence)
+        sentence = re.sub(r'\W+', ' ', sentence)
     # sentence = re.sub(r'[ ]{2,}', ' ', sentence).strip()
     return sentence
