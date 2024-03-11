@@ -535,6 +535,8 @@ class ConfusionTablesThread(QThread):
                         word = re.sub(r' \(\d+\)$', '', text)
                         sentences = []
 
+                        print(f'word = {word}')
+
                         matching_indices = cm_keywords_df.loc[cm_keywords_df['word'] == word, 'sentences'].item()
 
                         if isinstance(matching_indices, str):
