@@ -70,10 +70,6 @@ def show_error_popup(traceback):
 def load_table_data(doc_path, themes, table_name, reclassified):
     table = []
 
-    # default = 0.95
-    # for transfer learning = 0.75
-    minimum_proba = 0.75
-
     if table_name == 'all-table':
         if reclassified:
             analyse_df = pd.read_csv(doc_path.replace('.docx', '_analyse_1.csv'), encoding='utf-8-sig', encoding_errors='replace')
@@ -114,7 +110,7 @@ def load_table_data(doc_path, themes, table_name, reclassified):
                         
                             for index in predict_indeces:
                                 predict_row = predict_df.iloc[int(index)]
-                                if predict_row[theme] == 1 and predict_row[f'{theme} probability'] > minimum_proba:
+                                if predict_row[theme] == 1:
                                     predict_sentences.append(predict_row['original_sentence'])
                         
                         train_keywords_row = train_keywords_df.loc[train_keywords_df['word'] == word]
@@ -168,7 +164,7 @@ def load_table_data(doc_path, themes, table_name, reclassified):
                         
                             for index in predict_indeces:
                                 predict_row = predict_df.iloc[int(index)]
-                                if predict_row[theme] == 1 and predict_row[f'{theme} probability'] > minimum_proba:
+                                if predict_row[theme] == 1:
                                     predict_sentences.append(predict_row['original_sentence'])
                         
                         table_row[theme] = [text, predict_sentences]
@@ -264,9 +260,6 @@ class TextThread(QThread):
 
     def run(self):
         print('=========================== TEXT THREAD STARTED ===========================')
-        # default = 0.95
-        # for transfer learning = 0.75
-        minimum_proba = 0.75
 
         document = docx.Document(self.app_window.doc_path)
         whole_text = []
@@ -289,8 +282,7 @@ class TextThread(QThread):
         for index, row in predict_df.iterrows():
           row_themes = ''
           for i in range(3, len(predict_df.columns) - len(self.app_window.themes), 1):
-            if (predict_df.iloc[index, i] == 1 and 
-            row[f'{predict_df.columns[i]} probability'] > minimum_proba):
+            if (predict_df.iloc[index, i] == 1):
               if len(row_themes) == 0:
                 row_themes = predict_df.columns[i]
               else:
@@ -535,18 +527,18 @@ class ConfusionTablesThread(QThread):
                         word = re.sub(r' \(\d+\)$', '', text)
                         sentences = []
 
-                        print(f'word = {word}')
+                        try:
+                            matching_indices = cm_keywords_df.loc[cm_keywords_df['word'] == word, 'sentences'].item()
 
-                        matching_indices = cm_keywords_df.loc[cm_keywords_df['word'] == word, 'sentences'].item()
+                            if isinstance(matching_indices, str):
+                                indices_lists = json.loads(matching_indices)
 
-                        if isinstance(matching_indices, str):
-                            indices_lists = json.loads(matching_indices)
-
-                            for index in indices_lists[column_index]:
-                                sentence = cm_df.iloc[index, column_index]
-                                sentences.append(sentence)
-                    
-                        data_row[column] = [text, sentences]
+                                for index in indices_lists[column_index]:
+                                    sentence = cm_df.iloc[index, column_index]
+                                    sentences.append(sentence)                    
+                            data_row[column] = [text, sentences]
+                        except ValueError:
+                            continue
                 table_data.append(data_row)
             
             data.append(table_data)
