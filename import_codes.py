@@ -177,7 +177,7 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
 
     with zipfile.ZipFile(doc_path, 'r') as archive:
         # write header
-        header = ['review_id', 'file_name', 'comment_id', 'original_sentence', 'cleaned_sentence', 'sentence_embedding', 'codes', 'themes']
+        header = ['review_id', 'comment_id', 'original_sentence', 'cleaned_sentence', 'sentence_embedding', 'codes', 'themes']
         themes_list = list(cat_df)
         header.extend(themes_list)
 
@@ -281,8 +281,7 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
                     # print(f'paraid: {range_start.parent.get("w14:paraid")}, review_id: {paragraph_to_review_id[range_start.parent.get("w14:paraid")]}')
 
                     review_id = paragraph_to_review_id[range_start.parent.get('w14:paraid')]
-                    file_name = re.search(r'([^\/]+).$', doc_path).group(0)
-                    row = [review_id, file_name, comment_id, sentence, tuple[0], tuple[1], codes, themes]
+                    row = [review_id, comment_id, sentence, tuple[0], tuple[1], codes, themes]
                     row.extend(themes_binary)
                     writer.writerow(row)
 
@@ -317,8 +316,7 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
                 themes_binary.append(0)
 
             review_id = paragraph_to_review_id[paragraph_id]
-            file_name = re.search(r'([^\/]+).$', doc_path).group(0)
-            row = [review_id, file_name, '0', sentence, sentence_to_cleaned_dict[sentence][0], sentence_to_cleaned_dict[sentence][1], '', '']
+            row = [review_id, '0', sentence, sentence_to_cleaned_dict[sentence][0], sentence_to_cleaned_dict[sentence][1], '', '']
             row.extend(themes_binary)
             writer.writerow(row)
 
