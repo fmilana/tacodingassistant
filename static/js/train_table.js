@@ -293,7 +293,7 @@ const trainTableLib = (function () {
 
                 if (moved || reclassified) { // color background if moved or reclassified
                   d3.select(this.parentNode.parentNode)
-                    .style('border', '4px solid #6bcf83');
+                    .style('border', '4px solid #8f8d8d');
                 }
               }
             }
