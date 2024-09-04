@@ -987,6 +987,7 @@ class AppWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.resize(1400, 800)
+        # self.resize(1800, 1080)
         center = QScreen.availableGeometry(QApplication.primaryScreen()).center()
         geo = self.frameGeometry()
         geo.moveCenter(center)

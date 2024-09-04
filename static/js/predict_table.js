@@ -278,8 +278,7 @@ const predictTableLib = (function () {
 
                   if (tdTheme === changedDataRow.targetColumn                 //
                     && (tdText.text() === changedDataRow.movedText            // check if keyword was moved
-                      || tdSentences.predictSentences.includes(movedSentence)    //
-                      || tdSentences.trainSentences.includes(movedSentence))) {  // check if sentence was moved
+                      || tdSentences.predictSentences.includes(movedSentence))) {  // check if sentence was moved
                     moved = true;
                     break;
                   }
