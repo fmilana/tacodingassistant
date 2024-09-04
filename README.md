@@ -4,7 +4,7 @@
 
 Using XGBoost to classify GloVe embeddings and generate interactive coding suggestions.
 
-## How to run the Python script
+## Instructions
 
 1) Install libraries in a new conda environment. On MacOS:
 
