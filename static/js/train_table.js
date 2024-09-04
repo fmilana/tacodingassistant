@@ -248,48 +248,58 @@ const trainTableLib = (function () {
 
       // highlight cells that have been modified after reloading data
       d3.select('#train-table-container')
-      .selectAll('.td-text')
-        .each(function () {
-          const tdText = d3.select(this);
-          if (tdText.text().length > 0) {
-            const tdTheme = tdText.attr('column');
-            const tdWord = tdText.text().match(/(\w+?)(?: \(\d+\))?$/)[1];
-            const tdSentences = JSON.parse(tdText.attr('data-sentences')); /////// <===
+        .selectAll('.td-text')
+          .each(function () {
+            const tdText = d3.select(this);
+            if (tdText.text().length > 0) {
+              const tdTheme = tdText.attr('column');
+              
+              // Safely perform the match and check for null
+              const matchResult = tdText.text().match(/(\w+?)(?: \(\d+\))?$/);
+              const tdWord = matchResult ? matchResult[1] : null;
 
-            let moved = false;
-            let reclassified = false;
+              if (tdWord) {
+                const tdSentences = JSON.parse(tdText.attr('data-sentences'));
 
-            for (let j = 0; j < changedData.length; j++) {
-              const changedDataRow = changedData[j];
-              let movedSentence;
+                let moved = false;
+                let reclassified = false;
 
-              if (changedDataRow.movedText === null) { // check moved single sentences
-                if (changedDataRow.movingSentences.trainSentences.length > 0) {
-                  movedSentence = changedDataRow.movingSentences.trainSentences[0];
+                for (let j = 0; j < changedData.length; j++) {
+                  const changedDataRow = changedData[j];
+                  let movedSentence;
+
+                  if (changedDataRow.movedText === null) { // check moved single sentences
+                    if (changedDataRow.movingSentences.predictSentences.length > 0) {
+                      movedSentence = changedDataRow.movingSentences.predictSentences[0];
+                    } else {
+                      movedSentence = changedDataRow.movingSentences.trainSentences[0];
+                    }
+                  }
+
+                  if (tdTheme === changedDataRow.targetColumn                 //
+                    && (tdText.text() === changedDataRow.movedText            // check if keyword was moved
+                      || tdSentences.predictSentences.includes(movedSentence)    //
+                      || tdSentences.trainSentences.includes(movedSentence))) {  // check if sentence was moved
+                    moved = true;
+                    break;
+                  }
+                }
+
+                if (reclassifyChangesDict.length > 0) {
+                  // check if word was reclassified
+                  if (reclassifyChangesDict[themes.indexOf(tdTheme)][tdTheme].indexOf(tdWord) > -1) {
+                    reclassified = true;
+                  }
+                }
+
+                if (moved || reclassified) { // color background if moved or reclassified
+                  d3.select(this.parentNode.parentNode)
+                    .style('border', '4px solid #6bcf83');
                 }
               }
-
-              if (tdTheme === changedDataRow.targetColumn                 //
-                && (tdText.text() === changedDataRow.movedText            // check if keyword was moved
-                  || tdSentences.trainSentences.includes(movedSentence))) {  // check if sentence was moved
-                moved = true;
-                break;
-              }
             }
+          });
 
-            if (reclassifyChangesDict.length > 0) {
-              // check if word was reclassified
-              if (reclassifyChangesDict[themes.indexOf(tdTheme)][tdTheme].indexOf(tdWord) > -1) {
-                reclassified = true;
-              }
-            }
-
-            if (moved || reclassified) { // color background if moved or reclassified
-              d3.select(this.parentNode.parentNode)
-                .style('border', '4px solid #8f8d8d');
-            }
-          }
-        });
       // }
 
     const titleRect = d3.select('#train-table-container')

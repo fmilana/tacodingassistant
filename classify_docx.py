@@ -7,9 +7,11 @@ import numpy as np
 import scipy
 import docx
 import pandas as pd
+import warnings
 from datetime import datetime
 from nltk import sent_tokenize, word_tokenize, download, data
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import jaccard_score, f1_score
 from path_util import resource_path
 from sentence2vec import Sentence2Vec
@@ -22,6 +24,7 @@ from import_codes import import_codes_from_word, import_codes_from_nvivo, import
 
 
 class ClassifyDocx:
+    warnings.filterwarnings(action='ignore', category=UserWarning)
 
     sentence2vec_model = None
 
@@ -96,39 +99,28 @@ class ClassifyDocx:
 
     
     def generate_training_and_testing_data(self, oversample):
-        # themes_list = list(self.cat_df)
         self.original_train_df = self.train_df.copy()
-        # clean vector strings to later convert to np array
-        self.train_df['sentence_embedding'] = self.train_df['sentence_embedding'].apply(
-            lambda x: np.fromstring(
-                x.replace('\n','')
-                .replace('[','')
-                .replace(']','')
-                .replace('  ',' '), sep=' '))
+        
+        X = np.array([np.fromstring(x.replace('\n','').replace('[','').replace(']','').replace('  ',' '), sep=' ') 
+                      for x in self.train_df['sentence_embedding']])
+        Y = self.train_df.iloc[:, 7:].to_numpy()
 
-        X = np.array(self.train_df['sentence_embedding'].tolist())
-        Y = np.array(self.train_df.iloc[:, 7:])
+        X_train, X_test, Y_train, Y_test, train_indices, test_indices = train_test_split(
+            X, Y, np.arange(X.shape[0]), test_size=0.2, random_state=42)
 
-        indices = np.arange(X.shape[0])
-
-        X_train, X_test, Y_train, Y_test, i_train, i_test = train_test_split(X, Y, indices, test_size=0.2)
-
-        # oversample minority classes
         if oversample:
-            class_dist = [x/Y_train.shape[0] for x in Y_train.sum(axis=0)]
+            class_dist = Y_train.sum(axis=0) / Y_train.shape[0]
             print('checking for minority classes in train split...')
-            X_sub, Y_sub = get_minority_samples(pd.DataFrame(X_train), pd.DataFrame(Y_train)) # only oversample training set
-            if np.shape(X_sub)[0] > 0: # if minority samples were found
+            X_sub, Y_sub = get_minority_samples(pd.DataFrame(X_train), pd.DataFrame(Y_train))
+            if X_sub.shape[0] > 0:
                 print('minority classes found.')
                 print('oversampling...')
                 try:
-                    # default 3rd param=round(X_train.shape[0]/3)
-                    # for transfer learning, use 3rd param=X_train.shape[0]
-                    X_res, Y_res = MLSMOTE(X_sub, Y_sub, round(X_train.shape[0]))       
-                    X_train = np.concatenate((X_train, X_res.to_numpy())) # append augmented samples
-                    Y_train = np.concatenate((Y_train, Y_res.to_numpy())) # to original dataframes
+                    X_res, Y_res = MLSMOTE(X_sub, Y_sub, round(X_train.shape[0]))
+                    X_train = np.concatenate((X_train, X_res.to_numpy()))
+                    Y_train = np.concatenate((Y_train, Y_res.to_numpy()))
                     print('oversampled.')
-                    class_dist_os = [x/Y_train.shape[0] for x in Y_train.sum(axis=0)]
+                    class_dist_os = Y_train.sum(axis=0) / Y_train.shape[0]
                     print(f'class distribution BEFORE MLSMOTE: {class_dist}')
                     print(f'class distribution AFTER MLSMOTE: {class_dist_os}')
                 except ValueError:
@@ -136,7 +128,7 @@ class ClassifyDocx:
             else:
                 print('no minority classes.')
 
-        test_cleaned_sentences = self.train_df.iloc[i_test]['cleaned_sentence'].tolist()
+        test_cleaned_sentences = self.train_df.iloc[test_indices]['cleaned_sentence'].tolist()
 
         return X_train, X_test, Y_train, Y_test, test_cleaned_sentences, self.themes
 
@@ -334,19 +326,9 @@ class ClassifyDocx:
 
     def train_and_export_model(self, X, Y, themes_list):
         clf = XGBClassifier(
-            verbosity=0
-            # n_estimators=100,
-            # learning_rate=0.3,
-            # gamma=0,
-            # max_depth=6,
-            # min_child_weight=1,
-            # max_delta_step=0,
-            # subsample=1,
-            # colsample_bytree=1,
-            # colsample_bylevel=1,
-            # reg_lambda=1,
-            # reg_alpha=0,
-            # scale_pos_weight=1
+            verbosity=0,
+            use_label_encoder=False,
+            eval_metric='mlogloss'
         )
 
         chains = [ClassifierChain(clf, order='random', random_state=i) for i in range(10)]
@@ -357,16 +339,11 @@ class ClassifyDocx:
         model_file_path = resource_path('data/models/chains.pkl')
         themes_file_path = resource_path('data/models/themes.txt')
 
-        # save model for transfer learning in transfer branch
         with open(model_file_path, 'wb') as file:  
             pickle.dump(chains, file)
 
-        # save themes for transfer learning in transfer branch
         with open(themes_file_path, 'w') as file:
-            for i, theme in enumerate(themes_list):
-                file.write(f'{theme}')
-                if i < len(themes_list) - 1:
-                    file.write('\n')
+            file.write('\n'.join(themes_list))
 
 
     def classify(self, sentence_embedding_matrix, chains, minimum_proba, oversample=True):
@@ -383,6 +360,10 @@ class ClassifyDocx:
 
         X = np.concatenate((X_train, X_test))
         Y = np.concatenate((Y_train, Y_test))
+
+        label_encoder = LabelEncoder()
+        for col in range(Y.shape[1]):
+            Y[:, col] = label_encoder.fit_transform(Y[:, col])
 
         print(f'np.shape(X) = {np.shape(X)}')
         print(f'np.shape(Y) = {np.shape(Y)}')
@@ -415,48 +396,27 @@ class ClassifyDocx:
         print(f'generating confusion matrices...')
         start_cm = datetime.now()
 
-        Y_test_pred = np.array([chain.predict_proba(X_test) for chain in chains]).mean(axis=0)
+        Y_test_pred = np.mean([chain.predict_proba(X_test) for chain in chains], axis=0)
         Y_test_pred = (Y_test_pred >= minimum_proba).astype(int)
 
-        # these scores are then logged in app.log
         weighted_f1_score = f1_score(Y_test, Y_test_pred, average='weighted')
         weighted_jaccard_score = jaccard_score(Y_test, Y_test_pred, average='weighted')
 
-        print(f'np.shape(sentence_embedding_matrix) = {np.shape(sentence_embedding_matrix)}')
-
-        prediction_proba = np.array([chain.predict_proba(sentence_embedding_matrix) for chain in chains]).mean(axis=0)
-
+        prediction_proba = np.mean([chain.predict_proba(sentence_embedding_matrix) for chain in chains], axis=0)
         prediction_output = (prediction_proba >= minimum_proba).astype(int)
 
         self.add_classification_to_csv(prediction_output, prediction_proba)
 
-        sentences_dict = {}
+        sentences_dict = {f'{class_name} {category}': [] for class_name in themes_list for category in ['true_positives', 'true_negatives', 'false_positives', 'false_negatives']}
 
         for col, class_name in enumerate(themes_list):
-            true_positives = []
-            true_negatives = []
-            false_positives = []
-            false_negatives = []
-
             for row in range(Y_test_pred.shape[0]):
-                if Y_test_pred[row, col] == 1 and Y_test[row, col] == 1:
-                    true_positives.append(test_cleaned_sentences[row])
-                elif Y_test_pred[row, col] == 0 and Y_test[row, col] == 0:
-                    true_negatives.append(test_cleaned_sentences[row])
-                elif Y_test_pred[row, col] == 1 and Y_test[row, col] == 0:
-                    false_positives.append(test_cleaned_sentences[row])
-                elif Y_test_pred[row, col] == 0 and Y_test[row, col] == 1:
-                    false_negatives.append(test_cleaned_sentences[row])
-
-            sentences_dict[class_name + ' true_positives'] = true_positives
-            sentences_dict[class_name + ' true_negatives'] = true_negatives
-            sentences_dict[class_name + ' false_positives'] = false_positives
-            sentences_dict[class_name + ' false_negatives'] = false_negatives
+                category = f'{["true", "false"][Y_test_pred[row, col] != Y_test[row, col]]}_{["negative", "positive"][Y_test_pred[row, col]]}'
+                sentences_dict[f'{class_name} {category}s'].append(test_cleaned_sentences[row])
 
         self.write_cms_to_csv(sentences_dict, themes_list)
 
         print(f'confusion matrices created in {datetime.now() - start_cm}')
-
         print(f'classify function run in {datetime.now() - start_function}')
 
         return weighted_f1_score, weighted_jaccard_score
@@ -589,7 +549,9 @@ class ClassifyDocx:
         # to-do: tune best params from gridsearchcv on reorder_exit training data
         # currently using default params
         clf = XGBClassifier(
-            verbosity=0
+            verbosity=0,
+            use_label_encoder=False,
+            eval_metric='mlogloss'
             # n_estimators=100,
             # learning_rate=0.3,
             # gamma=0,
