@@ -271,8 +271,6 @@ const predictTableLib = (function () {
                   if (changedDataRow.movedText === null) { // check moved single sentences
                     if (changedDataRow.movingSentences.predictSentences.length > 0) {
                       movedSentence = changedDataRow.movingSentences.predictSentences[0];
-                    } else {
-                      movedSentence = changedDataRow.movingSentences.trainSentences[0];
                     }
                   }
 

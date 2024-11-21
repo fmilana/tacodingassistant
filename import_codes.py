@@ -205,6 +205,16 @@ def import_codes_from_word(sentence2vec_model, doc_path, delimiter, theme_code_t
             range_start = doc_soup.find('w:commentrangestart', attrs={'w:id': comment_id})
             range_end = doc_soup.find('w:commentrangeend', attrs={'w:id': comment_id})
 
+            ####################################################
+            ################ IGNORE INTERVIEWER ################
+            paragraph = range_start.find_parent('w:p')
+            paragraph_text = paragraph.find('w:t').text
+
+            # break if paragraph_text starts with "IV:"
+            if re.match(r'^IV', paragraph_text):
+                continue
+            ####################################################
+
             # If this is true, commentRangeStart is placed
             # just OUTSIDE <w:p>, while commentRangeEnd is INSIDE <w:p>.
             # We change range_start to <w:p>'s first child

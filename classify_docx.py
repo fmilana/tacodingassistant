@@ -479,15 +479,24 @@ class ClassifyDocx:
 
             train_moved_sentences = self.moved_predict_df['original_sentence'].tolist()
 
-            all_original_sentences = sent_tokenize(text)
+            # all_original_sentences = sent_tokenize(text)
+
+            paragraphs = text.split('\n\n')
+
+            filtered_paragraphs = [paragraph for paragraph in paragraphs if not paragraph.strip().startswith("IV")]
+
+            filtered_sentences = []
+            for paragraph in filtered_paragraphs:
+                filtered_sentences.extend(sent_tokenize(paragraph))
 
             uncoded_original_sentences = []
 
-            for sentence in all_original_sentences:
-                if (sentence not in train_moved_sentences and
+            # for sentence in all_original_sentences:
+            for sentence in filtered_sentences:
+                if (len(sentence.split()) > 6 and
+                    sentence not in train_moved_sentences and
                     sentence not in train_original_sentences and
-                    re.sub(self.regexp, '', sentence, flags=re.IGNORECASE)
-                    .strip() not in train_original_sentences and
+                    re.sub(self.regexp, '', sentence, flags=re.IGNORECASE).strip() not in train_original_sentences and
                     sentence[:-1] not in train_original_sentences): # to-do: better way
                     uncoded_original_sentences.append(sentence)     # to check for "."
 

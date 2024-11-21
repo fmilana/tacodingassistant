@@ -269,9 +269,7 @@ const trainTableLib = (function () {
                   let movedSentence;
 
                   if (changedDataRow.movedText === null) { // check moved single sentences
-                    if (changedDataRow.movingSentences.predictSentences.length > 0) {
-                      movedSentence = changedDataRow.movingSentences.predictSentences[0];
-                    } else {
+                    if (changedDataRow.movingSentences.trainSentences.length > 0) {
                       movedSentence = changedDataRow.movingSentences.trainSentences[0];
                     }
                   }
